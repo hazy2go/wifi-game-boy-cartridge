@@ -57,18 +57,64 @@ PASS  A4 fresh: source 3.10 J >= radio 1.05 J
 PASS  A4 tired: source 3.10 J >= radio 1.05 J
 PASS  A4 weak: source 2.26 J >= radio 0.51 J
 
-## A5 realistic firmware (frame gating, 1 ms ADC, RF cal not throttleable) x tolerance corners
-corners: ilim 120/150/180 mA (TPS2553 tolerance, to be confirmed vs datasheet), DPM 4.35/4.5/4.63 V,
-         logic load 40/60/100 mA, eta 0.80/0.88. Pass = console never < 4.5V AND (radio never resets after first power-good
-         unless the console is weak).
-fresh: GBmin 4.734 V (ilim 0.18, dpm 4.35, logic 0.1, eta 0.8, traffic_2ms_20pct); max ms<4.5V 0.0; max radio resets 40 (worst_11b_12ms, ilim 0.12, dpm 4.35); busy-traffic TX 61-99%
-PASS  A5 fresh console safe: max 0.0 ms below 4.5 V
-FAIL  A5 fresh radio no resets: max 40 power-good drops
-tired: GBmin 4.544 V (ilim 0.18, dpm 4.35, logic 0.1, eta 0.8, traffic_2ms_20pct); max ms<4.5V 0.0; max radio resets 40 (worst_11b_12ms, ilim 0.12, dpm 4.35); busy-traffic TX 1-99%
-PASS  A5 tired console safe: max 0.0 ms below 4.5 V
-FAIL  A5 tired radio no resets: max 40 power-good drops
-weak: GBmin 4.448 V (ilim 0.18, dpm 4.35, logic 0.1, eta 0.8, traffic_2ms_20pct); max ms<4.5V 1421.0; max radio resets 39 (worst_11b_12ms, ilim 0.18, dpm 4.5); busy-traffic TX 0-86%
-FAIL  A5 weak console safe: max 1421.0 ms below 4.5 V
-INFO  A5 weak radio resets: max 39 (radio may cycle on a weak console; console safety is the requirement)
+## A5 firmware state machine (pyref.simulate_fw) x tolerance corners
+corners: ilim 129/150/174 mA (TPS2553 Eq.1 min/nom/max at 180k), DPM 4.35/4.50/4.63 V (BQ24075), logic 40/60/100 mA,
+         buck-boost eta 0.80/0.92, switch path 0.2/0.6 ohm, ESP32-C3-MINI-1U TX 350 mA.
+traffic: busy 2ms/10ms, OFDM 2.5ms/6ms, stress 2ms/4ms, small-MTU 1Mbps fallback 4.5ms/20ms.
+RF calibration at WiFi start: ASSUMED 5 ms at 50 % TX (partial calibration, NVS data). Not measured; see A7.
+fresh: console min 4.738 V at (0.174, 4.35, 0.1, 0.8, 0.2) busy; worst time <4.5 V 0 ms at (0.129, 4.35, 0.04, 0.8, 0.2); worst radio resets 0 at (0.129, 4.35, 0.04, 0.8, 0.2) busy; busy-traffic TX 100-100 %
+PASS  A5 fresh console never below 4.5 V: worst 0 ms at (0.129, 4.35, 0.04, 0.8, 0.2)
+PASS  A5 fresh no uncontrolled radio resets: worst 0 at (0.129, 4.35, 0.04, 0.8, 0.2) busy
+tired: console min 4.551 V at (0.174, 4.35, 0.1, 0.8, 0.2) busy; worst time <4.5 V 0 ms at (0.129, 4.35, 0.04, 0.8, 0.2); worst radio resets 0 at (0.129, 4.35, 0.04, 0.8, 0.2) busy; busy-traffic TX 0-100 %
+PASS  A5 tired console never below 4.5 V: worst 0 ms at (0.129, 4.35, 0.04, 0.8, 0.2)
+PASS  A5 tired no uncontrolled radio resets: worst 0 at (0.129, 4.35, 0.04, 0.8, 0.2) busy
+weak: console min 4.449 V at (0.174, 4.35, 0.1, 0.8, 0.2) busy; worst time <4.5 V 1145 ms at (0.15, 4.35, 0.06, 0.92, 0.2); worst radio resets 0 at (0.129, 4.35, 0.04, 0.8, 0.2) busy; busy-traffic TX 0-100 %
+FAIL  A5 weak console never below 4.5 V: worst 1145 ms at (0.15, 4.35, 0.06, 0.92, 0.2)
+PASS  A5 weak no uncontrolled radio resets: worst 0 at (0.129, 4.35, 0.04, 0.8, 0.2) busy
+INFO  weak console excluding the DPM 4.35 V corner: worst 0 ms below 4.5 V
 
-RESULT: 3 FAIL: A5 fresh radio no resets, A5 tired radio no resets, A5 weak console safe
+## A6 firmware cross-check: shipped C power manager (cosim.py, ctypes) vs pyref.simulate_fw
+PASS  A6 fresh/busy/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.770 tx 100.0 res 4.359 rst 0 uns 0 | py: gb 4.770 tx 100.0 res 4.359 rst 0 uns 0
+PASS  A6 fresh/busy/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.783 tx 100.0 res 4.577 rst 0 uns 0 | py: gb 4.783 tx 100.0 res 4.577 rst 0 uns 0
+PASS  A6 fresh/busy/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.780 tx 100.0 res 4.498 rst 0 uns 0 | py: gb 4.780 tx 100.0 res 4.498 rst 0 uns 0
+PASS  A6 fresh/ofdm/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.770 tx 34.1 res 3.380 rst 0 uns 0 | py: gb 4.770 tx 34.1 res 3.382 rst 0 uns 0
+PASS  A6 fresh/ofdm/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.783 tx 73.8 res 3.432 rst 0 uns 0 | py: gb 4.783 tx 74.2 res 3.438 rst 0 uns 0
+PASS  A6 fresh/ofdm/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.780 tx 80.6 res 3.513 rst 0 uns 0 | py: gb 4.780 tx 80.6 res 3.513 rst 0 uns 0
+PASS  A6 fresh/stress/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.770 tx 29.2 res 3.294 rst 0 uns 0 | py: gb 4.770 tx 29.2 res 3.294 rst 0 uns 0
+PASS  A6 fresh/stress/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.783 tx 57.7 res 3.337 rst 0 uns 0 | py: gb 4.783 tx 57.9 res 3.337 rst 0 uns 0
+PASS  A6 fresh/stress/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.780 tx 60.0 res 3.397 rst 0 uns 0 | py: gb 4.780 tx 60.0 res 3.400 rst 0 uns 0
+PASS  A6 fresh/mtu1M/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.770 tx 50.6 res 3.814 rst 0 uns 0 | py: gb 4.770 tx 50.6 res 3.814 rst 0 uns 0
+PASS  A6 fresh/mtu1M/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.783 tx 100.0 res 4.237 rst 0 uns 0 | py: gb 4.783 tx 100.0 res 4.237 rst 0 uns 0
+PASS  A6 fresh/mtu1M/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.780 tx 100.0 res 4.089 rst 0 uns 0 | py: gb 4.780 tx 100.0 res 4.089 rst 0 uns 0
+PASS  A6 tired/busy/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.605 tx 73.1 res 3.304 rst 0 uns 0 | py: gb 4.605 tx 73.1 res 3.304 rst 0 uns 0
+PASS  A6 tired/busy/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.628 tx 100.0 res 4.441 rst 0 uns 0 | py: gb 4.628 tx 100.0 res 4.441 rst 0 uns 0
+PASS  A6 tired/busy/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.659 tx 100.0 res 4.313 rst 0 uns 0 | py: gb 4.659 tx 100.0 res 4.313 rst 0 uns 0
+PASS  A6 tired/ofdm/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.605 tx 33.7 res 3.378 rst 0 uns 0 | py: gb 4.605 tx 33.7 res 3.381 rst 0 uns 0
+PASS  A6 tired/ofdm/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.628 tx 73.5 res 3.432 rst 0 uns 0 | py: gb 4.628 tx 73.1 res 3.433 rst 0 uns 0
+PASS  A6 tired/ofdm/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.659 tx 50.2 res 3.425 rst 0 uns 0 | py: gb 4.659 tx 50.2 res 3.422 rst 0 uns 0
+PASS  A6 tired/stress/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.605 tx 29.2 res 3.294 rst 0 uns 0 | py: gb 4.605 tx 28.9 res 3.294 rst 0 uns 0
+PASS  A6 tired/stress/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.628 tx 57.4 res 3.337 rst 0 uns 0 | py: gb 4.628 tx 57.4 res 3.342 rst 0 uns 0
+PASS  A6 tired/stress/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.659 tx 38.5 res 3.330 rst 0 uns 0 | py: gb 4.659 tx 38.8 res 3.329 rst 0 uns 0
+PASS  A6 tired/mtu1M/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.605 tx 0.0 res 4.625 rst 0 uns 0 | py: gb 4.605 tx 0.0 res 4.625 rst 0 uns 0
+PASS  A6 tired/mtu1M/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.628 tx 100.0 res 4.077 rst 0 uns 0 | py: gb 4.628 tx 100.0 res 4.077 rst 0 uns 0
+PASS  A6 tired/mtu1M/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.659 tx 0.0 res 4.699 rst 0 uns 0 | py: gb 4.659 tx 0.0 res 4.699 rst 0 uns 0
+PASS  A6 weak/busy/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89 | py: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89
+PASS  A6 weak/busy/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.516 tx 0.0 res 4.536 rst 0 uns 0 | py: gb 4.516 tx 0.0 res 4.536 rst 0 uns 0
+PASS  A6 weak/busy/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0 | py: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0
+PASS  A6 weak/ofdm/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89 | py: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89
+PASS  A6 weak/ofdm/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.516 tx 33.3 res 4.011 rst 0 uns 0 | py: gb 4.516 tx 33.3 res 4.011 rst 0 uns 0
+PASS  A6 weak/ofdm/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0 | py: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0
+PASS  A6 weak/stress/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89 | py: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89
+PASS  A6 weak/stress/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.516 tx 33.3 res 4.142 rst 0 uns 0 | py: gb 4.516 tx 33.3 res 4.142 rst 0 uns 0
+PASS  A6 weak/stress/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0 | py: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0
+PASS  A6 weak/mtu1M/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89 | py: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89
+PASS  A6 weak/mtu1M/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.516 tx 0.0 res 4.536 rst 0 uns 0 | py: gb 4.516 tx 0.0 res 4.536 rst 0 uns 0
+PASS  A6 weak/mtu1M/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0 | py: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0
+
+## A7 RF-calibration energy budget (requirement for the bench measurement)
+Largest calibration (ms at 50 % TX duty) the radio survives without a reset, worst corner per console:
+INFO  fresh: survives up to 10 ms of calibration at 50 % duty (worst corner)
+INFO  tired: survives up to 10 ms of calibration at 50 % duty (worst corner)
+INFO  weak: survives up to 10 ms of calibration at 50 % duty (worst corner)
+
+RESULT: 1 FAIL: A5 weak console never below 4.5 V

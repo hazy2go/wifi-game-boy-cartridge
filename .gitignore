@@ -1,3 +1,5 @@
 .venv/
 __pycache__/
 *.pyc
+sim/power/out/audit_*.cir
+sim/power/out/*.so

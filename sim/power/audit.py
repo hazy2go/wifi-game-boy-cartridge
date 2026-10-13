@@ -92,31 +92,64 @@ for cons in R.CONSOLES:
           f"source {p['e_src']:.2f} J >= radio {p['e_load']:.2f} J")
 
 log()
-log('## A5 realistic firmware (frame gating, 1 ms ADC, RF cal not throttleable) x tolerance corners')
-log('corners: ilim 120/150/180 mA (TPS2553 tolerance, to be confirmed vs datasheet), DPM 4.35/4.5/4.63 V,')
-log('         logic load 40/60/100 mA, eta 0.80/0.88. Pass = console never < 4.5V AND (radio never resets after first power-good')
-log('         unless the console is weak).')
-worst = {}
+log('## A5 firmware state machine (pyref.simulate_fw) x tolerance corners')
+log('corners: ilim 129/150/174 mA (TPS2553 Eq.1 min/nom/max at 180k), DPM 4.35/4.50/4.63 V (BQ24075), logic 40/60/100 mA,')
+log('         buck-boost eta 0.80/0.92, switch path 0.2/0.6 ohm, ESP32-C3-MINI-1U TX 350 mA.')
+log('traffic: busy 2ms/10ms, OFDM 2.5ms/6ms, stress 2ms/4ms, small-MTU 1Mbps fallback 4.5ms/20ms.')
+log('RF calibration at WiFi start: ASSUMED 5 ms at 50 % TX (partial calibration, NVS data). Not measured; see A7.')
+FW = dict(CHOSEN, tx=0.350)
+for k in ('psave',):
+    FW.pop(k, None)
+TRAFFIC = {'busy': (2, 10), 'ofdm': (2.5, 6), 'stress': (2, 4), 'mtu1M': (4.5, 20)}
+CORNERS = list(itertools.product((0.129, 0.150, 0.174), (4.35, 4.5, 4.63), (0.04, 0.06, 0.10), (0.80, 0.92), (0.2, 0.6)))
 rows = []
-for cons, prof in itertools.product(R.CONSOLES, R.PROFILES):
-    for ilim, vdpm, logic, eta in itertools.product((0.12, 0.15, 0.18), (4.35, 4.5, 4.63), (0.04, 0.06, 0.10), (0.80, 0.88)):
-        kw = dict(CHOSEN, ilim=ilim, vdpm=vdpm)
-        p = pyref.run(R.CONSOLES[cons]['rsrc'], prof, frame=True, cal_throttle=False, logic_load=logic, eta=eta, **kw)
-        rows.append((cons, prof, ilim, vdpm, logic, eta, p))
+for cons, (tn, tp) in itertools.product(R.CONSOLES, TRAFFIC.items()):
+    for ilim, vdpm, logic, eta, rsw in CORNERS:
+        p = pyref.run_fw(R.CONSOLES[cons]['rsrc'], tp, cal_ms=5, cal_duty=0.5,
+                         **dict(FW, ilim=ilim, vdpm=vdpm, logic_load=logic, eta=eta, rsw=rsw))
+        rows.append((cons, tn, (ilim, vdpm, logic, eta, rsw), p))
 for cons in R.CONSOLES:
     sub = [r for r in rows if r[0] == cons]
-    gmin = min(sub, key=lambda r: r[6]['gb_min'])
-    worst_unsafe = max(sub, key=lambda r: r[6]['unsafe_ms'])
-    drops = max(sub, key=lambda r: r[6]['pg_drops'])
-    txs = [r[6]['tx'] for r in sub if r[1] == 'traffic_2ms_20pct']
-    log(f"{cons}: GBmin {gmin[6]['gb_min']:.3f} V (ilim {gmin[2]}, dpm {gmin[3]}, logic {gmin[4]}, eta {gmin[5]}, {gmin[1]}); "
-        f"max ms<4.5V {worst_unsafe[6]['unsafe_ms']:.1f}; max radio resets {drops[6]['pg_drops']} ({drops[1]}, ilim {drops[2]}, dpm {drops[3]}); "
-        f"busy-traffic TX {100*min(txs):.0f}-{100*max(txs):.0f}%")
-    check(f'A5 {cons} console safe', worst_unsafe[6]['unsafe_ms'] == 0, f"max {worst_unsafe[6]['unsafe_ms']:.1f} ms below 4.5 V")
-    if cons != 'weak':
-        check(f'A5 {cons} radio no resets', drops[6]['pg_drops'] == 0, f"max {drops[6]['pg_drops']} power-good drops")
-    else:
-        log(f"INFO  A5 weak radio resets: max {drops[6]['pg_drops']} (radio may cycle on a weak console; console safety is the requirement)")
+    wu = max(sub, key=lambda r: r[3]['unsafe_ms'])
+    wr = max(sub, key=lambda r: r[3]['resets'])
+    gm = min(sub, key=lambda r: r[3]['gb_min'])
+    busy = [r[3]['tx'] for r in sub if r[1] == 'busy']
+    log(f"{cons}: console min {gm[3]['gb_min']:.3f} V at {gm[2]} {gm[1]}; worst time <4.5 V {wu[3]['unsafe_ms']:.0f} ms at {wu[2]}; "
+        f"worst radio resets {wr[3]['resets']} at {wr[2]} {wr[1]}; busy-traffic TX {100*min(busy):.0f}-{100*max(busy):.0f} %")
+    check(f'A5 {cons} console never below 4.5 V', wu[3]['unsafe_ms'] == 0, f"worst {wu[3]['unsafe_ms']:.0f} ms at {wu[2]}")
+    check(f'A5 {cons} no uncontrolled radio resets', wr[3]['resets'] == 0, f"worst {wr[3]['resets']} at {wr[2]} {wr[1]}")
+    if cons == 'weak':
+        ok_dpm = [r for r in sub if r[2][1] >= 4.5]
+        wu2 = max(ok_dpm, key=lambda r: r[3]['unsafe_ms'])
+        log(f"INFO  weak console excluding the DPM 4.35 V corner: worst {wu2[3]['unsafe_ms']:.0f} ms below 4.5 V")
+
+log()
+log('## A6 firmware cross-check: shipped C power manager (cosim.py, ctypes) vs pyref.simulate_fw')
+import cosim
+lib = cosim.build()
+for cons, (tn, tp), corner in itertools.product(R.CONSOLES, TRAFFIC.items(), [(0.129, 4.35, 0.10, 0.80, 0.6), (0.150, 4.5, 0.06, 0.92, 0.2), (0.174, 4.63, 0.04, 0.80, 0.6)]):
+    ilim, vdpm, logic, eta, rsw = corner
+    kw = dict(FW, ilim=ilim, vdpm=vdpm, logic_load=logic, eta=eta, rsw=rsw)
+    p = pyref.run_fw(R.CONSOLES[cons]['rsrc'], tp, cal_ms=5, cal_duty=0.5, **kw)
+    kw.pop('gbwatch', None)
+    c = cosim.run(R.CONSOLES[cons]['rsrc'], *tp, cal_ms=5, cal_duty=0.5, lib=lib, **kw)
+    ok = (abs(c['gb_min'] - p['gb_min']) < 0.005 and abs(c['tx'] - p['tx']) < 0.03 and abs(c['res_min'] - p['res_min']) < 0.03
+          and (c['resets'] > 0) == (p['resets'] > 0) and abs(c['unsafe_ms'] - p['unsafe_ms']) < 5)
+    check(f'A6 {cons}/{tn}/{corner}', ok, f"C: gb {c['gb_min']:.3f} tx {100*c['tx']:.1f} res {c['res_min']:.3f} rst {c['resets']} uns {c['unsafe_ms']:.0f} | "
+          f"py: gb {p['gb_min']:.3f} tx {100*p['tx']:.1f} res {p['res_min']:.3f} rst {p['resets']} uns {p['unsafe_ms']:.0f}")
+
+log()
+log('## A7 RF-calibration energy budget (requirement for the bench measurement)')
+log('Largest calibration (ms at 50 % TX duty) the radio survives without a reset, worst corner per console:')
+for cons in R.CONSOLES:
+    best = 0
+    for cal in (2, 5, 10, 15, 20, 30, 50, 100):
+        worst_rst = max(pyref.run_fw(R.CONSOLES[cons]['rsrc'], (2, 10), cal_ms=cal, cal_duty=0.5,
+                                     **dict(FW, ilim=i, vdpm=v, logic_load=0.10, eta=0.80, rsw=0.6))['resets']
+                        for i in (0.129,) for v in (4.35, 4.63))
+        if worst_rst == 0:
+            best = cal
+    log(f"INFO  {cons}: survives up to {best} ms of calibration at 50 % duty (worst corner)")
 
 log()
 log(f"RESULT: {'ALL PASS' if not fails else str(len(fails)) + ' FAIL: ' + ', '.join(fails)}")

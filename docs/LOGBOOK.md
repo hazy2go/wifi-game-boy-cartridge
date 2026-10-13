@@ -242,3 +242,31 @@ Findings:
 - **Weak console at the DPM 4.35 V corner: console sits at 4.46 V** for as long as the reservoir is charging. That is below the 4.5 V line. Root cause is the BQ24075 tolerance, not the topology.
 - **The RF calibration at WiFi start decides whether the radio survives.** Usable reservoir energy 4.2 -> 2.0 V is 6.75 mJ. A TX-heavy calibration phase at 50 % duty drains it in ~13 ms at the worst corner and ~37 ms at nominal. Calibration of 5 ms is fine, 20 ms at 50 % causes a controlled park on fresh consoles and reset loops on weak ones. The real calibration current profile of the ESP32-C3 is the number that matters most now; research running.
 - The 12 ms 802.11b frames are not survivable with this reservoir under realistic gating (radio reset loops at the low-current corner). **Firmware must disable 11b rates and A-MPDU TX** (frames <= ~2.5 ms). This becomes a hard firmware requirement, not an optimisation.
+
+## 2026-10-14 05:29 Firmware co-simulation (the "emulate" part) and research results
+
+### The real firmware is now in the loop
+- `firmware/esp32c3/components/power_mgr/power_mgr.{c,h}`: the radio power manager as plain C (no ESP-IDF dependency). This is the code that will ship on the ESP32-C3.
+- `sim/power/cosim.py` compiles it for the host (`cc -Wall -Wextra -Werror -std=c11`), calls it through ctypes on every 1 ms ADC tick, and integrates the analog power path between ticks.
+- **A6**: the shipped C code and the independent Python model of the same spec (`pyref.simulate_fw`) must agree on console minimum (5 mV), TX airtime (3 points), reservoir minimum (30 mV), time below 4.5 V (5 ms) and on whether the radio resets. **36/36 PASS** over 3 consoles x 4 traffic types x 3 tolerance corners.
+
+### Bugs the cross-check found (both models had them, in different places)
+1. **RUN/SLEEP chattered every millisecond on a weak console.** The cart-rail watch had no hysteresis, so the firmware flipped state on every ADC tick and the results depended on sample phase (C and Python disagreed by up to 93 points of TX airtime). Fix in the firmware: sleep below 4.55 V, resume above 4.60 V.
+2. **Python model admitted frames late.** If a burst started while in SLEEP and the state changed to RUN 1 ms later, it started a frame mid-burst. The C code only decides at the start. Python fixed to match the spec.
+3. **Python counted calibration pulses as delivered traffic.** Metric fixed.
+4. The reservoir-minimum metric was dominated by the power-up moment, not by traffic. Both models now measure it over the traffic window.
+
+### Research results (primary sources, sub-agent)
+- ESP-IDF: **full RF calibration takes 100 ms longer than partial**; partial (default) reuses full-calibration data stored in NVS. No published current profile or duration for partial calibration on the C3.
+- ESP32-C3 auto light-sleep with DTIM1 averages **1.4 mA** (modem-sleep 21.5 mA). Light-sleep is the better SLEEP mode for weak consoles.
+- **802.11b cannot be fully switched off.** `esp_wifi_config_11b_rate` disables 11b data rates, but an open ESP-IDF issue (#19164) shows a station still sending at 1/2/5.5 Mbps, and management frames go out at 1 Mbps. So the 1 Mbps fallback has to be handled by **limiting frame size** (MTU/MSS), not just by configuration.
+- Open issue #17881: a brown-out during TX on a C3 can leave the RF stuck on after reset. Our power-good gate removes the radio's supply completely below 2.0 V, which is the right response to that bug. It is another reason the design must never let the radio brown out.
+- Input-voltage-regulation parts: no off-the-shelf part guarantees +-1.5 %. Best found: MP2617A (switching charger, +-2 % reference), BQ24251 (I2C, +-2 %, 0 stock), BQ25601 (I2C, +-3 %).
+
+### A5/A7 results with the C firmware and the datasheet corners
+- Fresh and tired consoles: console never below 4.5 V and **zero uncontrolled radio resets** in every corner (ilim 129-174 mA, DPM 4.35-4.63 V, logic 40-100 mA, efficiency 0.80-0.92, switch path 0.2-0.6 ohm, 4 traffic types).
+- Weak console: zero radio resets; console safe in every corner **except DPM at the 4.35 V minimum** (4.45 V for up to 1.1 s while the reservoir charges). That is the one remaining FAIL and it belongs to the BQ24075's tolerance.
+- **Calibration budget (A7): the radio survives up to 10 ms of calibration at 50 % TX duty at the worst corner.** Requirements that follow:
+  - do the first full calibration on USB power (when flashing) and store it in NVS; the cart slot must never see a full calibration;
+  - measure the partial-calibration current profile on a dev board before ordering. Pass if it is below the 10 ms @ 50 % energy (about 7 mJ above the input supply).
+- With forced 1 Mbps frames of 4.5 ms (536-byte MSS) the admission rule refuses everything at the worst corner (it assumes no input during the frame). **MSS has to come down to about 300 bytes** for the 1 Mbps fallback case, or the admission rule must count the guaranteed input current. To do in the firmware.

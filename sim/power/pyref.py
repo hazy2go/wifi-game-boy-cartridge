@@ -166,13 +166,14 @@ OFF, BOOT, RUN, SLEEP, PARK = 0, 1, 2, 3, 4
 def simulate_fw(rsrc, ilim, vdpm, gain, rsw, vsup, cres, resr, burst, period, rx, tx, gbwatch,
                 dt, t_end, adc_dt, gb_load, logic_load, gb_cap, eta, modem_a, park_a,
                 cal_ms, cal_duty, v_frame_floor, v_psave, v_park, v_unpark, gb_watch_v, v_pg_on, v_pg_off,
-                vin_sleep):
+                vin_sleep, gb_resume_v):
     """Radio firmware as a state machine (all decisions from a 1 ms ADC sample, frames never aborted):
       OFF   radio unpowered (reservoir below power-good)
       BOOT  WiFi start incl. RF calibration: cal_ms of TX pulses at cal_duty, uninterruptible
       RUN   RX baseline, TX frame admitted only if the reservoir is predicted to stay above v_frame_floor
             at the end of the frame (no input current assumed) and the cart rail is above gb_watch_v
       SLEEP modem-sleep (DTIM listen, modem_a) while reservoir < v_psave or cart rail low
+            (cart rail low below gb_watch_v, ok again above gb_resume_v)
       PARK  controlled shutdown (light sleep, park_a) below v_park until reservoir >= v_unpark
     An uncontrolled reset = reservoir crossing v_pg_off while powered (radio supply lost).
     vin_sleep: input stage disconnects when cart rail < reservoir + vin_sleep (BQ24075 sleep comparator)."""
@@ -196,22 +197,34 @@ def simulate_fw(rsrc, ilim, vdpm, gain, rsw, vsup, cres, resr, burst, period, rx
     parks = 0
     res_min = 10.0
     i_tx_in = tx * 3.3 / eta  # frame power at the reservoir, W
+    boot_ticks = 0
+    gb_low = False
+    tick_every = int(round(adc_dt / dt))
     for i in range(n):
         t = i * dt
-        if t - adc_t >= adc_dt:
+        if i % tick_every == 0:
             adc_t = t
             adc_gb = vgb
             adc_res = vt
+            # cart-rail watch with hysteresis: low below gb_watch_v, ok again above gb_resume_v
+            if gbwatch:
+                if adc_gb < gb_watch_v:
+                    gb_low = True
+                elif adc_gb > gb_resume_v:
+                    gb_low = False
             # state transitions on ADC tick
             if state == OFF and adc_res >= v_pg_on:
                 state = BOOT
                 boot_t = t
+                boot_ticks = 0
                 if up < 0:
                     up = t
-            elif state == BOOT and t - boot_t >= cal_ms / 1000:
-                state = RUN
+            elif state == BOOT:
+                boot_ticks += 1
+                if boot_ticks >= cal_ms:
+                    state = RUN
             elif state == RUN or state == SLEEP:
-                gb_ok = (not gbwatch) or adc_gb > gb_watch_v
+                gb_ok = not gb_low
                 if adc_res < v_park:
                     state = PARK
                     parks += 1
@@ -223,25 +236,26 @@ def simulate_fw(rsrc, ilim, vdpm, gain, rsw, vsup, cres, resr, burst, period, rx
                 state = RUN
         # radio current at 3.3V
         req, bstart = _traffic(t, burst, period, t_end)
+        # TX admission happens once, at the first sample of a burst, whatever the state
+        if req == 1 and bstart != latched_start:
+            latched_start = bstart
+            # predicted end-of-frame voltage with zero input: E = P*t -> V^2 drop
+            v_end2 = adc_res * adc_res - 2.0 * i_tx_in * burst / cres
+            latched_go = 1 if (state == RUN and not gb_low and v_end2 > v_frame_floor * v_frame_floor) else 0
+        in_frame = req == 1 and latched_go == 1 and bstart == latched_start
         if state == OFF:
             iload = 0.0
         elif state == BOOT:
             ph = ((t - boot_t) * 1000) % 2.0
             iload = tx if ph < 2.0 * cal_duty else rx
         elif state == RUN:
-            if req == 1 and bstart != latched_start:
-                latched_start = bstart
-                gb_ok = (not gbwatch) or adc_gb > gb_watch_v
-                # predicted end-of-frame voltage with zero input: E = P*t -> V^2 drop
-                v_end2 = adc_res * adc_res - 2.0 * i_tx_in * burst / cres
-                latched_go = 1 if (gb_ok and v_end2 > v_frame_floor * v_frame_floor) else 0
-            iload = tx if (req == 1 and latched_go == 1) else rx
+            iload = rx
         elif state == SLEEP:
             iload = modem_a
         else:
             iload = park_a
-        # a frame already started finishes even if the state machine moved on
-        if state != RUN and state != OFF and req == 1 and latched_go == 1 and bstart == latched_start:
+        # an admitted frame always finishes, even if the state machine moved on
+        if state != OFF and in_frame:
             iload = tx
         if state == OFF:
             iload = 0.0
@@ -269,8 +283,8 @@ def simulate_fw(rsrc, ilim, vdpm, gain, rsw, vsup, cres, resr, burst, period, rx
             unsafe += dt
         if t > CAL_S:
             want += (tx - rx) * dt if req == 1 else 0.0
-            got += max(iload - rx, 0.0) * dt if req == 1 else 0.0
-        if up >= 0 and t > up + 1e-3 and vt < res_min:
+            got += (tx - rx) * dt if (in_frame and state != OFF) else 0.0
+        if t >= T_BOOT + CAL_S + 5e-3 and vt < res_min:
             res_min = vt
         vgb += ((5.0 - vgb) / rsrc - gb_load - logic_load - isw) / gb_cap * dt
         vc += icap / cres * dt
@@ -278,7 +292,7 @@ def simulate_fw(rsrc, ilim, vdpm, gain, rsw, vsup, cres, resr, burst, period, rx
 
 
 FW_DEFAULTS = dict(cal_ms=100.0, cal_duty=0.5, v_frame_floor=3.0, v_psave=3.5, v_park=3.0, v_unpark=4.2,
-                   v_pg_on=4.2, v_pg_off=2.0, park_a=0.001, vin_sleep=0.0, adc_dt=1e-3)
+                   v_pg_on=4.2, v_pg_off=2.0, park_a=0.001, vin_sleep=0.0, adc_dt=1e-3, gb_resume_v=4.60)
 
 
 def run_fw(cons_r, prof, dt=2e-6, **kw):
@@ -294,7 +308,7 @@ def run_fw(cons_r, prof, dt=2e-6, **kw):
                       p['resr'], b / 1000, per / 1000, p['rx'], p['tx'], p['gbwatch'], dt, T_END, p['adc_dt'],
                       p['gb_load'], p['logic_load'], p['gb_cap'], p['eta'], p['modem_a'], p['park_a'],
                       p['cal_ms'], p['cal_duty'], p['v_frame_floor'], p['v_psave'], p['v_park'], p['v_unpark'],
-                      p['gb_watch_v'], p['v_pg_on'], p['v_pg_off'], p['vin_sleep'])
+                      p['gb_watch_v'], p['v_pg_on'], p['v_pg_off'], p['vin_sleep'], p['gb_resume_v'])
     d = dict(zip(('gb_min', 'unsafe_ms', 'tx', 'up_ms', 'res_min', 'resets', 'parks'), out))
     d['unsafe_ms'] *= 1000
     d['up_ms'] = d['up_ms'] * 1000 if d['up_ms'] >= 0 else None
