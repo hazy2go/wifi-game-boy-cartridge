@@ -6,7 +6,7 @@ fresh traffic_2ms_20pct    4.783/4.783  98.9/98.9   27.5/27.5    3.99/3.99      
 PASS  A1 fresh/traffic_2ms_20pct GBmin: |d|=0.0 mV (limit 20)
 PASS  A1 fresh/traffic_2ms_20pct TX: |d|=0.0 pts (limit 3)
 PASS  A1 fresh/traffic_2ms_20pct up: sp=27.4677649 py=27.483999999999998 (limit 2 ms)
-fresh worst_11b_12ms       4.783/4.783  64.7/64.6   27.5/27.5    3.98/3.98      0/0
+fresh worst_11b_12ms       4.783/4.783  64.6/64.6   27.5/27.5    3.98/3.98      0/0
 PASS  A1 fresh/worst_11b_12ms GBmin: |d|=0.0 mV (limit 20)
 PASS  A1 fresh/worst_11b_12ms TX: |d|=0.1 pts (limit 3)
 PASS  A1 fresh/worst_11b_12ms up: sp=27.4677649 py=27.483999999999998 (limit 2 ms)
@@ -18,7 +18,7 @@ tired traffic_2ms_20pct    4.628/4.628  98.9/98.9   27.5/27.5    3.99/3.99      
 PASS  A1 tired/traffic_2ms_20pct GBmin: |d|=0.0 mV (limit 20)
 PASS  A1 tired/traffic_2ms_20pct TX: |d|=0.0 pts (limit 3)
 PASS  A1 tired/traffic_2ms_20pct up: sp=27.4677649 py=27.483999999999998 (limit 2 ms)
-tired worst_11b_12ms       4.628/4.628  58.9/58.9   27.5/27.5    3.98/3.98      0/0
+tired worst_11b_12ms       4.628/4.628  58.9/58.8   27.5/27.5    3.98/3.98      0/0
 PASS  A1 tired/worst_11b_12ms GBmin: |d|=0.0 mV (limit 20)
 PASS  A1 tired/worst_11b_12ms TX: |d|=0.1 pts (limit 3)
 PASS  A1 tired/worst_11b_12ms up: sp=27.4677649 py=27.483999999999998 (limit 2 ms)
@@ -26,95 +26,94 @@ tired stress_50pct         4.628/4.628  62.2/61.9   27.5/27.5    3.98/3.98      
 PASS  A1 tired/stress_50pct GBmin: |d|=0.0 mV (limit 20)
 PASS  A1 tired/stress_50pct TX: |d|=0.3 pts (limit 3)
 PASS  A1 tired/stress_50pct up: sp=27.4677649 py=27.483999999999998 (limit 2 ms)
-weak  traffic_2ms_20pct    4.516/4.516   4.6/4.2   50.1/50.1    4.22/4.22      0/0
-PASS  A1 weak/traffic_2ms_20pct GBmin: |d|=0.2 mV (limit 20)
-PASS  A1 weak/traffic_2ms_20pct TX: |d|=0.3 pts (limit 3)
-PASS  A1 weak/traffic_2ms_20pct up: sp=50.0944161 py=50.102000000000004 (limit 2 ms)
-weak  worst_11b_12ms       4.516/4.516   0.9/0.9   50.1/50.1    4.22/4.22      0/0
-PASS  A1 weak/worst_11b_12ms GBmin: |d|=0.2 mV (limit 20)
-PASS  A1 weak/worst_11b_12ms TX: |d|=0.1 pts (limit 3)
-PASS  A1 weak/worst_11b_12ms up: sp=50.0944161 py=50.102000000000004 (limit 2 ms)
-weak  stress_50pct         4.516/4.516   4.4/4.1   50.1/50.1    4.22/4.22      0/0
-PASS  A1 weak/stress_50pct GBmin: |d|=0.2 mV (limit 20)
-PASS  A1 weak/stress_50pct TX: |d|=0.3 pts (limit 3)
-PASS  A1 weak/stress_50pct up: sp=50.0944161 py=50.102000000000004 (limit 2 ms)
+weak  traffic_2ms_20pct    4.590/4.591   0.0/0.0   92.0/92.0    3.48/3.48      0/0
+PASS  A1 weak/traffic_2ms_20pct GBmin: |d|=0.6 mV (limit 20)
+PASS  A1 weak/traffic_2ms_20pct TX: |d|=0.0 pts (limit 3)
+PASS  A1 weak/traffic_2ms_20pct up: sp=91.9677547 py=91.996 (limit 2 ms)
+weak  worst_11b_12ms       4.590/4.591   0.0/0.0   92.0/92.0    3.48/3.48      0/0
+PASS  A1 weak/worst_11b_12ms GBmin: |d|=0.6 mV (limit 20)
+PASS  A1 weak/worst_11b_12ms TX: |d|=0.0 pts (limit 3)
+PASS  A1 weak/worst_11b_12ms up: sp=91.9677547 py=91.996 (limit 2 ms)
+weak  stress_50pct         4.590/4.591   0.0/0.0   92.0/92.0    3.48/3.48      0/0
+PASS  A1 weak/stress_50pct GBmin: |d|=0.6 mV (limit 20)
+PASS  A1 weak/stress_50pct TX: |d|=0.0 pts (limit 3)
+PASS  A1 weak/stress_50pct up: sp=91.9677547 py=91.996 (limit 2 ms)
 
 ## A2 timestep convergence (ngspice 20us vs 5us), worst_11b_12ms
 PASS  A2 fresh GBmin: 4.7830 vs 4.7830 (limit 5 mV)
-PASS  A2 fresh TX: 64.68% vs 64.63% (limit 1 pt)
+PASS  A2 fresh TX: 64.62% vs 64.56% (limit 1 pt)
 PASS  A2 tired GBmin: 4.6280 vs 4.6280 (limit 5 mV)
-PASS  A2 tired TX: 58.94% vs 58.89% (limit 1 pt)
-PASS  A2 weak GBmin: 4.5161 vs 4.5164 (limit 5 mV)
-PASS  A2 weak TX: 0.91% vs 0.86% (limit 1 pt)
+PASS  A2 tired TX: 58.87% vs 58.82% (limit 1 pt)
+PASS  A2 weak GBmin: 4.5903 vs 4.5909 (limit 5 mV)
+PASS  A2 weak TX: 0.00% vs 0.00% (limit 1 pt)
 
 ## A3 analytic console-rail floor
 PASS  A3 fresh: analytic 4.783 V, sim min 4.783 V (limit +-30 mV)
 PASS  A3 tired: analytic 4.628 V, sim min 4.628 V (limit +-30 mV)
-PASS  A3 weak: analytic 4.516 V, sim min 4.516 V (limit +-30 mV)
+PASS  A3 weak: analytic 4.591 V, sim min 4.591 V (limit +-30 mV)
 
 ## A4 energy sanity (pyref, 2 s)
 PASS  A4 fresh: source 3.10 J >= radio 1.05 J
 PASS  A4 tired: source 3.10 J >= radio 1.05 J
-PASS  A4 weak: source 2.26 J >= radio 0.51 J
+PASS  A4 weak: source 2.05 J >= radio 0.26 J
 
 ## A5 firmware state machine (pyref.simulate_fw) x tolerance corners
-corners: ilim 129/150/174 mA (TPS2553 Eq.1 min/nom/max at 180k), DPM 4.35/4.50/4.63 V (BQ24075), logic 40/60/100 mA,
+corners: ilim 129/150/174 mA (TPS2553 Eq.1 min/nom/max at 180k), DPM 4.542/4.588/4.634 V (TLV431B regulator), logic 40/60/100 mA,
          buck-boost eta 0.80/0.92, switch path 0.2/0.6 ohm, ESP32-C3-MINI-1U TX 350 mA.
 traffic: busy 2ms/10ms, OFDM 2.5ms/6ms, stress 2ms/4ms, small-MTU 1Mbps fallback 4.5ms/20ms.
 RF calibration at WiFi start: ASSUMED 5 ms at 50 % TX (partial calibration, NVS data). Not measured; see A7.
-fresh: console min 4.738 V at (0.174, 4.35, 0.1, 0.8, 0.2) busy; worst time <4.5 V 0 ms at (0.129, 4.35, 0.04, 0.8, 0.2); worst radio resets 0 at (0.129, 4.35, 0.04, 0.8, 0.2) busy; busy-traffic TX 100-100 %
-PASS  A5 fresh console never below 4.5 V: worst 0 ms at (0.129, 4.35, 0.04, 0.8, 0.2)
-PASS  A5 fresh no uncontrolled radio resets: worst 0 at (0.129, 4.35, 0.04, 0.8, 0.2) busy
-tired: console min 4.551 V at (0.174, 4.35, 0.1, 0.8, 0.2) busy; worst time <4.5 V 0 ms at (0.129, 4.35, 0.04, 0.8, 0.2); worst radio resets 0 at (0.129, 4.35, 0.04, 0.8, 0.2) busy; busy-traffic TX 0-100 %
-PASS  A5 tired console never below 4.5 V: worst 0 ms at (0.129, 4.35, 0.04, 0.8, 0.2)
-PASS  A5 tired no uncontrolled radio resets: worst 0 at (0.129, 4.35, 0.04, 0.8, 0.2) busy
-weak: console min 4.449 V at (0.174, 4.35, 0.1, 0.8, 0.2) busy; worst time <4.5 V 1145 ms at (0.15, 4.35, 0.06, 0.92, 0.2); worst radio resets 0 at (0.129, 4.35, 0.04, 0.8, 0.2) busy; busy-traffic TX 0-100 %
-FAIL  A5 weak console never below 4.5 V: worst 1145 ms at (0.15, 4.35, 0.06, 0.92, 0.2)
-PASS  A5 weak no uncontrolled radio resets: worst 0 at (0.129, 4.35, 0.04, 0.8, 0.2) busy
-INFO  weak console excluding the DPM 4.35 V corner: worst 0 ms below 4.5 V
+fresh: console min 4.738 V at (0.174, 4.542, 0.1, 0.8, 0.2) busy; worst time <4.5 V 0 ms at (0.129, 4.542, 0.04, 0.8, 0.2); worst radio resets 0 at (0.129, 4.542, 0.04, 0.8, 0.2) busy; busy-traffic TX 100-100 %
+PASS  A5 fresh console never below 4.5 V: worst 0 ms at (0.129, 4.542, 0.04, 0.8, 0.2)
+PASS  A5 fresh no uncontrolled radio resets: worst 0 at (0.129, 4.542, 0.04, 0.8, 0.2) busy
+tired: console min 4.553 V at (0.174, 4.542, 0.1, 0.8, 0.2) busy; worst time <4.5 V 0 ms at (0.129, 4.542, 0.04, 0.8, 0.2); worst radio resets 0 at (0.129, 4.542, 0.04, 0.8, 0.2) busy; busy-traffic TX 13-100 %
+PASS  A5 tired console never below 4.5 V: worst 0 ms at (0.129, 4.542, 0.04, 0.8, 0.2)
+PASS  A5 tired no uncontrolled radio resets: worst 0 at (0.129, 4.542, 0.04, 0.8, 0.2) busy
+weak: console min 4.544 V at (0.129, 4.542, 0.1, 0.8, 0.2) busy; worst time <4.5 V 0 ms at (0.129, 4.542, 0.04, 0.8, 0.2); worst radio resets 0 at (0.129, 4.542, 0.04, 0.8, 0.2) busy; busy-traffic TX 0-100 %
+PASS  A5 weak console never below 4.5 V: worst 0 ms at (0.129, 4.542, 0.04, 0.8, 0.2)
+PASS  A5 weak no uncontrolled radio resets: worst 0 at (0.129, 4.542, 0.04, 0.8, 0.2) busy
 
 ## A6 firmware cross-check: shipped C power manager (cosim.py, ctypes) vs pyref.simulate_fw
-PASS  A6 fresh/busy/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.770 tx 100.0 res 4.359 rst 0 uns 0 | py: gb 4.770 tx 100.0 res 4.359 rst 0 uns 0
-PASS  A6 fresh/busy/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.783 tx 100.0 res 4.577 rst 0 uns 0 | py: gb 4.783 tx 100.0 res 4.577 rst 0 uns 0
-PASS  A6 fresh/busy/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.780 tx 100.0 res 4.498 rst 0 uns 0 | py: gb 4.780 tx 100.0 res 4.498 rst 0 uns 0
-PASS  A6 fresh/ofdm/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.770 tx 34.1 res 3.380 rst 0 uns 0 | py: gb 4.770 tx 34.1 res 3.382 rst 0 uns 0
-PASS  A6 fresh/ofdm/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.783 tx 73.8 res 3.432 rst 0 uns 0 | py: gb 4.783 tx 74.2 res 3.438 rst 0 uns 0
-PASS  A6 fresh/ofdm/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.780 tx 80.6 res 3.513 rst 0 uns 0 | py: gb 4.780 tx 80.6 res 3.513 rst 0 uns 0
-PASS  A6 fresh/stress/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.770 tx 29.2 res 3.294 rst 0 uns 0 | py: gb 4.770 tx 29.2 res 3.294 rst 0 uns 0
-PASS  A6 fresh/stress/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.783 tx 57.7 res 3.337 rst 0 uns 0 | py: gb 4.783 tx 57.9 res 3.337 rst 0 uns 0
-PASS  A6 fresh/stress/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.780 tx 60.0 res 3.397 rst 0 uns 0 | py: gb 4.780 tx 60.0 res 3.400 rst 0 uns 0
-PASS  A6 fresh/mtu1M/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.770 tx 50.6 res 3.814 rst 0 uns 0 | py: gb 4.770 tx 50.6 res 3.814 rst 0 uns 0
-PASS  A6 fresh/mtu1M/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.783 tx 100.0 res 4.237 rst 0 uns 0 | py: gb 4.783 tx 100.0 res 4.237 rst 0 uns 0
-PASS  A6 fresh/mtu1M/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.780 tx 100.0 res 4.089 rst 0 uns 0 | py: gb 4.780 tx 100.0 res 4.089 rst 0 uns 0
-PASS  A6 tired/busy/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.605 tx 73.1 res 3.304 rst 0 uns 0 | py: gb 4.605 tx 73.1 res 3.304 rst 0 uns 0
-PASS  A6 tired/busy/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.628 tx 100.0 res 4.441 rst 0 uns 0 | py: gb 4.628 tx 100.0 res 4.441 rst 0 uns 0
-PASS  A6 tired/busy/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.659 tx 100.0 res 4.313 rst 0 uns 0 | py: gb 4.659 tx 100.0 res 4.313 rst 0 uns 0
-PASS  A6 tired/ofdm/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.605 tx 33.7 res 3.378 rst 0 uns 0 | py: gb 4.605 tx 33.7 res 3.381 rst 0 uns 0
-PASS  A6 tired/ofdm/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.628 tx 73.5 res 3.432 rst 0 uns 0 | py: gb 4.628 tx 73.1 res 3.433 rst 0 uns 0
-PASS  A6 tired/ofdm/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.659 tx 50.2 res 3.425 rst 0 uns 0 | py: gb 4.659 tx 50.2 res 3.422 rst 0 uns 0
-PASS  A6 tired/stress/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.605 tx 29.2 res 3.294 rst 0 uns 0 | py: gb 4.605 tx 28.9 res 3.294 rst 0 uns 0
-PASS  A6 tired/stress/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.628 tx 57.4 res 3.337 rst 0 uns 0 | py: gb 4.628 tx 57.4 res 3.342 rst 0 uns 0
-PASS  A6 tired/stress/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.659 tx 38.5 res 3.330 rst 0 uns 0 | py: gb 4.659 tx 38.8 res 3.329 rst 0 uns 0
-PASS  A6 tired/mtu1M/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.605 tx 0.0 res 4.625 rst 0 uns 0 | py: gb 4.605 tx 0.0 res 4.625 rst 0 uns 0
-PASS  A6 tired/mtu1M/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.628 tx 100.0 res 4.077 rst 0 uns 0 | py: gb 4.628 tx 100.0 res 4.077 rst 0 uns 0
-PASS  A6 tired/mtu1M/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.659 tx 0.0 res 4.699 rst 0 uns 0 | py: gb 4.659 tx 0.0 res 4.699 rst 0 uns 0
-PASS  A6 weak/busy/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89 | py: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89
-PASS  A6 weak/busy/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.516 tx 0.0 res 4.536 rst 0 uns 0 | py: gb 4.516 tx 0.0 res 4.536 rst 0 uns 0
-PASS  A6 weak/busy/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0 | py: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0
-PASS  A6 weak/ofdm/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89 | py: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89
-PASS  A6 weak/ofdm/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.516 tx 33.3 res 4.011 rst 0 uns 0 | py: gb 4.516 tx 33.3 res 4.011 rst 0 uns 0
-PASS  A6 weak/ofdm/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0 | py: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0
-PASS  A6 weak/stress/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89 | py: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89
-PASS  A6 weak/stress/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.516 tx 33.3 res 4.142 rst 0 uns 0 | py: gb 4.516 tx 33.3 res 4.142 rst 0 uns 0
-PASS  A6 weak/stress/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0 | py: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0
-PASS  A6 weak/mtu1M/(0.129, 4.35, 0.1, 0.8, 0.6): C: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89 | py: gb 4.452 tx 0.0 res 4.541 rst 0 uns 89
-PASS  A6 weak/mtu1M/(0.15, 4.5, 0.06, 0.92, 0.2): C: gb 4.516 tx 0.0 res 4.536 rst 0 uns 0 | py: gb 4.516 tx 0.0 res 4.536 rst 0 uns 0
-PASS  A6 weak/mtu1M/(0.174, 4.63, 0.04, 0.8, 0.6): C: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0 | py: gb 4.638 tx 0.0 res 3.440 rst 0 uns 0
+PASS  A6 fresh/busy/(0.129, 4.542, 0.1, 0.8, 0.6): C: gb 4.770 tx 100.0 res 4.359 rst 0 uns 0 | py: gb 4.770 tx 100.0 res 4.359 rst 0 uns 0
+PASS  A6 fresh/busy/(0.15, 4.588, 0.06, 0.92, 0.2): C: gb 4.783 tx 100.0 res 4.577 rst 0 uns 0 | py: gb 4.783 tx 100.0 res 4.577 rst 0 uns 0
+PASS  A6 fresh/busy/(0.174, 4.634, 0.04, 0.8, 0.6): C: gb 4.780 tx 100.0 res 4.498 rst 0 uns 0 | py: gb 4.780 tx 100.0 res 4.498 rst 0 uns 0
+PASS  A6 fresh/ofdm/(0.129, 4.542, 0.1, 0.8, 0.6): C: gb 4.770 tx 34.1 res 3.380 rst 0 uns 0 | py: gb 4.770 tx 34.1 res 3.382 rst 0 uns 0
+PASS  A6 fresh/ofdm/(0.15, 4.588, 0.06, 0.92, 0.2): C: gb 4.783 tx 73.8 res 3.432 rst 0 uns 0 | py: gb 4.783 tx 74.2 res 3.438 rst 0 uns 0
+PASS  A6 fresh/ofdm/(0.174, 4.634, 0.04, 0.8, 0.6): C: gb 4.780 tx 80.6 res 3.513 rst 0 uns 0 | py: gb 4.780 tx 80.6 res 3.513 rst 0 uns 0
+PASS  A6 fresh/stress/(0.129, 4.542, 0.1, 0.8, 0.6): C: gb 4.770 tx 29.2 res 3.294 rst 0 uns 0 | py: gb 4.770 tx 29.2 res 3.294 rst 0 uns 0
+PASS  A6 fresh/stress/(0.15, 4.588, 0.06, 0.92, 0.2): C: gb 4.783 tx 57.7 res 3.337 rst 0 uns 0 | py: gb 4.783 tx 57.9 res 3.337 rst 0 uns 0
+PASS  A6 fresh/stress/(0.174, 4.634, 0.04, 0.8, 0.6): C: gb 4.780 tx 60.0 res 3.397 rst 0 uns 0 | py: gb 4.780 tx 60.0 res 3.400 rst 0 uns 0
+PASS  A6 fresh/mtu1M/(0.129, 4.542, 0.1, 0.8, 0.6): C: gb 4.770 tx 50.6 res 3.814 rst 0 uns 0 | py: gb 4.770 tx 50.6 res 3.814 rst 0 uns 0
+PASS  A6 fresh/mtu1M/(0.15, 4.588, 0.06, 0.92, 0.2): C: gb 4.783 tx 100.0 res 4.237 rst 0 uns 0 | py: gb 4.783 tx 100.0 res 4.237 rst 0 uns 0
+PASS  A6 fresh/mtu1M/(0.174, 4.634, 0.04, 0.8, 0.6): C: gb 4.780 tx 100.0 res 4.089 rst 0 uns 0 | py: gb 4.780 tx 100.0 res 4.089 rst 0 uns 0
+PASS  A6 tired/busy/(0.129, 4.542, 0.1, 0.8, 0.6): C: gb 4.605 tx 73.7 res 3.304 rst 0 uns 0 | py: gb 4.605 tx 73.7 res 3.296 rst 0 uns 0
+PASS  A6 tired/busy/(0.15, 4.588, 0.06, 0.92, 0.2): C: gb 4.628 tx 100.0 res 4.441 rst 0 uns 0 | py: gb 4.628 tx 100.0 res 4.441 rst 0 uns 0
+PASS  A6 tired/busy/(0.174, 4.634, 0.04, 0.8, 0.6): C: gb 4.644 tx 100.0 res 4.336 rst 0 uns 0 | py: gb 4.644 tx 100.0 res 4.336 rst 0 uns 0
+PASS  A6 tired/ofdm/(0.129, 4.542, 0.1, 0.8, 0.6): C: gb 4.605 tx 33.7 res 3.378 rst 0 uns 0 | py: gb 4.605 tx 33.7 res 3.381 rst 0 uns 0
+PASS  A6 tired/ofdm/(0.15, 4.588, 0.06, 0.92, 0.2): C: gb 4.628 tx 73.1 res 3.433 rst 0 uns 0 | py: gb 4.628 tx 73.5 res 3.432 rst 0 uns 0
+PASS  A6 tired/ofdm/(0.174, 4.634, 0.04, 0.8, 0.6): C: gb 4.644 tx 60.2 res 3.464 rst 0 uns 0 | py: gb 4.644 tx 61.3 res 3.468 rst 0 uns 0
+PASS  A6 tired/stress/(0.129, 4.542, 0.1, 0.8, 0.6): C: gb 4.605 tx 28.9 res 3.294 rst 0 uns 0 | py: gb 4.605 tx 28.9 res 3.294 rst 0 uns 0
+PASS  A6 tired/stress/(0.15, 4.588, 0.06, 0.92, 0.2): C: gb 4.628 tx 57.4 res 3.337 rst 0 uns 0 | py: gb 4.628 tx 57.4 res 3.338 rst 0 uns 0
+PASS  A6 tired/stress/(0.174, 4.634, 0.04, 0.8, 0.6): C: gb 4.644 tx 47.1 res 3.357 rst 0 uns 0 | py: gb 4.644 tx 47.4 res 3.361 rst 0 uns 0
+PASS  A6 tired/mtu1M/(0.129, 4.542, 0.1, 0.8, 0.6): C: gb 4.605 tx 0.0 res 4.625 rst 0 uns 0 | py: gb 4.605 tx 0.0 res 4.625 rst 0 uns 0
+PASS  A6 tired/mtu1M/(0.15, 4.588, 0.06, 0.92, 0.2): C: gb 4.628 tx 100.0 res 4.077 rst 0 uns 0 | py: gb 4.628 tx 100.0 res 4.077 rst 0 uns 0
+PASS  A6 tired/mtu1M/(0.174, 4.634, 0.04, 0.8, 0.6): C: gb 4.644 tx 0.0 res 4.699 rst 0 uns 0 | py: gb 4.644 tx 0.0 res 4.699 rst 0 uns 0
+PASS  A6 weak/busy/(0.129, 4.542, 0.1, 0.8, 0.6): C: gb 4.544 tx 0.0 res 4.541 rst 0 uns 0 | py: gb 4.544 tx 0.0 res 4.541 rst 0 uns 0
+PASS  A6 weak/busy/(0.15, 4.588, 0.06, 0.92, 0.2): C: gb 4.591 tx 0.0 res 3.457 rst 0 uns 0 | py: gb 4.591 tx 0.0 res 3.457 rst 0 uns 0
+PASS  A6 weak/busy/(0.174, 4.634, 0.04, 0.8, 0.6): C: gb 4.637 tx 0.0 res 3.441 rst 0 uns 0 | py: gb 4.637 tx 0.0 res 3.441 rst 0 uns 0
+PASS  A6 weak/ofdm/(0.129, 4.542, 0.1, 0.8, 0.6): C: gb 4.544 tx 0.0 res 4.541 rst 0 uns 0 | py: gb 4.544 tx 0.0 res 4.541 rst 0 uns 0
+PASS  A6 weak/ofdm/(0.15, 4.588, 0.06, 0.92, 0.2): C: gb 4.591 tx 0.0 res 3.457 rst 0 uns 0 | py: gb 4.591 tx 0.0 res 3.457 rst 0 uns 0
+PASS  A6 weak/ofdm/(0.174, 4.634, 0.04, 0.8, 0.6): C: gb 4.637 tx 0.0 res 3.441 rst 0 uns 0 | py: gb 4.637 tx 0.0 res 3.441 rst 0 uns 0
+PASS  A6 weak/stress/(0.129, 4.542, 0.1, 0.8, 0.6): C: gb 4.544 tx 0.0 res 4.541 rst 0 uns 0 | py: gb 4.544 tx 0.0 res 4.541 rst 0 uns 0
+PASS  A6 weak/stress/(0.15, 4.588, 0.06, 0.92, 0.2): C: gb 4.591 tx 0.0 res 3.457 rst 0 uns 0 | py: gb 4.591 tx 0.0 res 3.457 rst 0 uns 0
+PASS  A6 weak/stress/(0.174, 4.634, 0.04, 0.8, 0.6): C: gb 4.637 tx 0.0 res 3.441 rst 0 uns 0 | py: gb 4.637 tx 0.0 res 3.441 rst 0 uns 0
+PASS  A6 weak/mtu1M/(0.129, 4.542, 0.1, 0.8, 0.6): C: gb 4.544 tx 0.0 res 4.541 rst 0 uns 0 | py: gb 4.544 tx 0.0 res 4.541 rst 0 uns 0
+PASS  A6 weak/mtu1M/(0.15, 4.588, 0.06, 0.92, 0.2): C: gb 4.591 tx 0.0 res 3.457 rst 0 uns 0 | py: gb 4.591 tx 0.0 res 3.457 rst 0 uns 0
+PASS  A6 weak/mtu1M/(0.174, 4.634, 0.04, 0.8, 0.6): C: gb 4.637 tx 0.0 res 3.441 rst 0 uns 0 | py: gb 4.637 tx 0.0 res 3.441 rst 0 uns 0
 
 ## A7 RF-calibration energy budget (requirement for the bench measurement)
 Largest calibration (ms at 50 % TX duty) the radio survives without a reset, worst corner per console:
 INFO  fresh: survives up to 10 ms of calibration at 50 % duty (worst corner)
 INFO  tired: survives up to 10 ms of calibration at 50 % duty (worst corner)
-INFO  weak: survives up to 10 ms of calibration at 50 % duty (worst corner)
+INFO  weak: survives up to 5 ms of calibration at 50 % duty (worst corner)
 
-RESULT: 1 FAIL: A5 weak console never below 4.5 V
+RESULT: ALL PASS

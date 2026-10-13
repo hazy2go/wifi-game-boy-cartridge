@@ -14,8 +14,12 @@ import run_sim as R
 import pyref
 
 OUT = R.OUT
-# chosen design (logbook 2026-10-14 04:59): TPS2553 150mA -> BQ24075 DPM 4.5V typ -> 3x 6TPE330MAP -> TPS63802
-CHOSEN = dict(ilim=0.150, vdpm=4.5, psave=True, rsw=0.285, gain=5, gbwatch=True, vsup=4.45, cres=0.99e-3, resr=0.0083)
+# chosen design (LOGBOOK 08:42): TPS2553 150mA -> TLV431B input-voltage regulator 4.588 V +-1 % -> 3x 6TPE330MAP -> TPS63802.
+# Behavioural here (limit = min(ilim, gain*(Vgb - vdpm))); the transistor-level loop is audited in audit_inreg.py (A8).
+# gain 15 A/V: A8 load regulation is ~9 mV over 0-150 mA. rsw 0.3 ohm: TPS2553 85 mOhm + SiA975DJ pair 2x 110 mOhm max at
+# Vgs -1.8 V. vsup 0: the hardware has no cart-rail supervisor (the 4.45 V one in earlier runs was never in the netlist).
+CHOSEN = dict(ilim=0.150, vdpm=4.588, psave=True, rsw=0.3, gain=15, gbwatch=True, vsup=0.0, cres=0.99e-3, resr=0.0083)
+DPM = (4.542, 4.588, 4.634)   # TLV431B 0.5 % + 0.1 % divider, A8.1
 lines, fails = [], []
 
 
@@ -93,7 +97,7 @@ for cons in R.CONSOLES:
 
 log()
 log('## A5 firmware state machine (pyref.simulate_fw) x tolerance corners')
-log('corners: ilim 129/150/174 mA (TPS2553 Eq.1 min/nom/max at 180k), DPM 4.35/4.50/4.63 V (BQ24075), logic 40/60/100 mA,')
+log('corners: ilim 129/150/174 mA (TPS2553 Eq.1 min/nom/max at 180k), DPM 4.542/4.588/4.634 V (TLV431B regulator), logic 40/60/100 mA,')
 log('         buck-boost eta 0.80/0.92, switch path 0.2/0.6 ohm, ESP32-C3-MINI-1U TX 350 mA.')
 log('traffic: busy 2ms/10ms, OFDM 2.5ms/6ms, stress 2ms/4ms, small-MTU 1Mbps fallback 4.5ms/20ms.')
 log('RF calibration at WiFi start: ASSUMED 5 ms at 50 % TX (partial calibration, NVS data). Not measured; see A7.')
@@ -101,7 +105,7 @@ FW = dict(CHOSEN, tx=0.350)
 for k in ('psave',):
     FW.pop(k, None)
 TRAFFIC = {'busy': (2, 10), 'ofdm': (2.5, 6), 'stress': (2, 4), 'mtu1M': (4.5, 20)}
-CORNERS = list(itertools.product((0.129, 0.150, 0.174), (4.35, 4.5, 4.63), (0.04, 0.06, 0.10), (0.80, 0.92), (0.2, 0.6)))
+CORNERS = list(itertools.product((0.129, 0.150, 0.174), DPM, (0.04, 0.06, 0.10), (0.80, 0.92), (0.2, 0.6)))
 rows = []
 for cons, (tn, tp) in itertools.product(R.CONSOLES, TRAFFIC.items()):
     for ilim, vdpm, logic, eta, rsw in CORNERS:
@@ -118,16 +122,12 @@ for cons in R.CONSOLES:
         f"worst radio resets {wr[3]['resets']} at {wr[2]} {wr[1]}; busy-traffic TX {100*min(busy):.0f}-{100*max(busy):.0f} %")
     check(f'A5 {cons} console never below 4.5 V', wu[3]['unsafe_ms'] == 0, f"worst {wu[3]['unsafe_ms']:.0f} ms at {wu[2]}")
     check(f'A5 {cons} no uncontrolled radio resets', wr[3]['resets'] == 0, f"worst {wr[3]['resets']} at {wr[2]} {wr[1]}")
-    if cons == 'weak':
-        ok_dpm = [r for r in sub if r[2][1] >= 4.5]
-        wu2 = max(ok_dpm, key=lambda r: r[3]['unsafe_ms'])
-        log(f"INFO  weak console excluding the DPM 4.35 V corner: worst {wu2[3]['unsafe_ms']:.0f} ms below 4.5 V")
 
 log()
 log('## A6 firmware cross-check: shipped C power manager (cosim.py, ctypes) vs pyref.simulate_fw')
 import cosim
 lib = cosim.build()
-for cons, (tn, tp), corner in itertools.product(R.CONSOLES, TRAFFIC.items(), [(0.129, 4.35, 0.10, 0.80, 0.6), (0.150, 4.5, 0.06, 0.92, 0.2), (0.174, 4.63, 0.04, 0.80, 0.6)]):
+for cons, (tn, tp), corner in itertools.product(R.CONSOLES, TRAFFIC.items(), [(0.129, DPM[0], 0.10, 0.80, 0.6), (0.150, DPM[1], 0.06, 0.92, 0.2), (0.174, DPM[2], 0.04, 0.80, 0.6)]):
     ilim, vdpm, logic, eta, rsw = corner
     kw = dict(FW, ilim=ilim, vdpm=vdpm, logic_load=logic, eta=eta, rsw=rsw)
     p = pyref.run_fw(R.CONSOLES[cons]['rsrc'], tp, cal_ms=5, cal_duty=0.5, **kw)
@@ -146,7 +146,7 @@ for cons in R.CONSOLES:
     for cal in (2, 5, 10, 15, 20, 30, 50, 100):
         worst_rst = max(pyref.run_fw(R.CONSOLES[cons]['rsrc'], (2, 10), cal_ms=cal, cal_duty=0.5,
                                      **dict(FW, ilim=i, vdpm=v, logic_load=0.10, eta=0.80, rsw=0.6))['resets']
-                        for i in (0.129,) for v in (4.35, 4.63))
+                        for i in (0.129,) for v in (DPM[0], DPM[2]))
         if worst_rst == 0:
             best = cal
     log(f"INFO  {cons}: survives up to {best} ms of calibration at 50 % duty (worst corner)")
