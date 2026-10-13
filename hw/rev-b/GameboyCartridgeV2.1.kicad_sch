@@ -1,0 +1,98 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "ec16e1da-c950-4911-941a-a1ab0200cc01")
+	(paper "A3")
+	(lib_symbols)
+	(sheet
+		(at 54.61 57.15)
+		(size 36.83 41.91)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "b615a724-4227-4bd0-80d9-62bf83e996a3")
+		(property "Sheetname" "CPU"
+			(at 54.61 56.4384 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "cpu.kicad_sch"
+			(at 54.61 99.6446 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "GameboyCartridgeV2.1"
+				(path "/ec16e1da-c950-4911-941a-a1ab0200cc01"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 167.64 58.42)
+		(size 44.45 46.99)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "eaa45bde-2806-4cbd-94b7-5dcef58f4236")
+		(property "Sheetname" "Power_GBBus"
+			(at 167.64 57.7084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "power.kicad_sch"
+			(at 167.64 105.9946 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "GameboyCartridgeV2.1"
+				(path "/ec16e1da-c950-4911-941a-a1ab0200cc01"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)
