@@ -109,11 +109,15 @@ def croco_netlist(xml_path=None):
         subprocess.run(['kicad-cli', 'sch', 'export', 'netlist', '--format', 'kicadxml', '-o', xml_path, CROCO_SCH],
                        check=True, capture_output=True)
     t = ET.parse(xml_path)
-    refs = {c.get('ref') for c in t.iter('comp')}
+    # once the generated Radio sheet is in the project, its parts are ours, not Croco's: leave them out
+    radio = {c.get('ref') for c in t.iter('comp') if (c.find('sheetpath') is not None
+                                                      and c.find('sheetpath').get('names', '').startswith('/Radio/'))}
+    refs = {c.get('ref') for c in t.iter('comp')} - radio
     nets = {}
     for n in t.iter('net'):
-        name = n.get('name')
-        nets[name] = [(x.get('ref'), x.get('pin'), x.get('pintype') or '') for x in n.iter('node')]
+        nodes = [(x.get('ref'), x.get('pin'), x.get('pintype') or '') for x in n.iter('node') if x.get('ref') not in radio]
+        if nodes:
+            nets[n.get('name')] = nodes
     return refs, nets
 
 
@@ -134,6 +138,8 @@ def check(data, radio_syms, croco_refs, croco_nets):
     for ed in data.get('croco_edits', []):
         src = cnets.get(ed['from'], [])
         hit = [x for x in src if x[0] == ed['ref'] and x[1] == str(ed['pin'])]
+        if not hit and any(x[0] == ed['ref'] and x[1] == str(ed['pin']) for x in cnets.get(ed['to'], [])):
+            continue    # already applied to the schematic by hw/rev-b/tools/apply_croco_edits.py
         if not hit:
             E('CROCO_EDIT', f"{ed['ref']}.{ed['pin']} is not on Croco net {ed['from']}")
             continue

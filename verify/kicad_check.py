@@ -8,8 +8,9 @@ not grow either.
 
   verify/kicad_check.py --record   write verify/baseline/{erc,drc}.json from the current design
   verify/kicad_check.py            compare (exit 1 on any new violation)
+Reviewed intentional violations live in verify/baseline/accepted.json, each with its reason.
 """
-import collections, json, os, subprocess, sys, tempfile
+import collections, json, os, re, subprocess, sys, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HW = os.environ.get('HW_DIR', os.path.join(ROOT, 'hw', 'rev-b'))
@@ -18,9 +19,15 @@ PCB = os.path.join(HW, 'GameboyCartridgeV2.1.kicad_pcb')
 BASE = os.path.join(ROOT, 'verify', 'baseline')
 
 
+def norm(f):
+    # KiCad reports a different tiny segment of the same bus/track from run to run ("length 0.0254 mm" vs
+    # "0.0508 mm"); the length is not part of the identity of a violation
+    return re.sub(r', length [\d.]+ mm', '', f)
+
+
 def fp(v):
     items = sorted(i.get('description', '') for i in v.get('items', []))
-    return v['type'] + ' | ' + ' || '.join(items)
+    return norm(v['type'] + ' | ' + ' || '.join(items))
 
 
 def run():
@@ -46,7 +53,15 @@ def main():
         json.dump(cur, open(os.path.join(BASE, 'kicad.json'), 'w'), indent=1)
         print({k: len(v) for k, v in cur.items()}, 'recorded')
         return 0
-    base = json.load(open(os.path.join(BASE, 'kicad.json')))
+    base = {k: [norm(f) for f in v] for k, v in json.load(open(os.path.join(BASE, 'kicad.json'))).items()}
+    # reviewed, intentional new violations: {category: [{"fp": fingerprint, "why": reason}]}
+    acc_path = os.path.join(BASE, 'accepted.json')
+    accepted = json.load(open(acc_path)) if os.path.exists(acc_path) else {}
+    for k, lst in accepted.items():
+        for a in lst:
+            if a['fp'] in cur[k]:
+                print(f"ACCEPTED {k}: {a['fp'][:120]}  ({a['why']})")
+                base[k] = base[k] + [a['fp']]
     bad = 0
     for k in cur:
         new = collections.Counter(cur[k]) - collections.Counter(base[k])

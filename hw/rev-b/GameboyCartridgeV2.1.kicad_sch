@@ -89,6 +89,48 @@
 			)
 		)
 	)
+	(sheet
+		(at 101.6 57.15)
+		(size 36.83 41.91)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "5f3a9c2e-7b1d-4e6a-9c0f-1a2b3c4d5e60")
+		(property "Sheetname" "Radio"
+			(at 101.6 56.4384 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "radio.kicad_sch"
+			(at 101.6 99.6446 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "GameboyCartridgeV2.1"
+				(path "/ec16e1da-c950-4911-941a-a1ab0200cc01"
+					(page "4")
+				)
+			)
+		)
+	)
 	(sheet_instances
 		(path "/"
 			(page "1")

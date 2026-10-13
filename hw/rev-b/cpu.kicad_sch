@@ -12315,7 +12315,7 @@
 			)
 		)
 	)
-	(global_label "USB_D_prot-"
+	(global_label "USB_RP_D-"
 		(shape input)
 		(at 254 77.47 0)
 		(fields_autoplaced yes)
@@ -12337,7 +12337,7 @@
 			)
 		)
 	)
-	(global_label "USB_D_prot+"
+	(global_label "USB_RP_D+"
 		(shape input)
 		(at 254 68.58 0)
 		(fields_autoplaced yes)

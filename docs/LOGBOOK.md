@@ -444,3 +444,27 @@ Result (`sim/power/out/audit_tlv431_fw455.txt`, BQ24075 run kept as `audit_bq240
 The calibration budget on a weak console halves because the regulator no longer lets the radio take power the console cannot spare. That tightens the bench requirement: **partial calibration must fit 5 ms at 50 % TX duty** (the assumed value, now with zero margin on weak consoles). If the dev-board measurement comes in higher, the firmware must defer WiFi start until the reservoir is full and the console is not weak.
 
 Firmware rail watch (sleep 4.55 / resume 4.60 V) was set for the BQ24075. With the regulator's low corner at 4.542 V I expected it to throttle the radio. `sim/power/fw_watch_sweep.py`: 4.55/4.60, 4.52/4.535 and 4.51/4.53 give identical results (0 ms below 4.5 V, 0 resets, worst busy TX 13 % tired / 0 % weak). The 13 % is the power budget of a tired console at the low corners, not the watch. **Firmware thresholds unchanged** (no evidence for a change).
+
+## 2026-10-14 08:51 Schematic: the radio sheet is in the KiCad project
+
+### What was missing
+The earlier run died while drawing the schematic. Picking it up: `gen_radio_sheet.py` existed but the project symbol library `radio.kicad_sym` it needs did not, and the `croco_edits` (re-netting Croco's R9/R10 onto the USB hub) were only declared in the JSON, never applied to Croco's sheets.
+
+### Tools added (all in `hw/rev-b/tools/`, all regenerate from `docs/design/netlist_radio.json` / `radio_symbols.json`)
+- `gen_radio_symbols.py`: builds `radio.kicad_sym` (7 box symbols) from `radio_symbols.json`, so pin names/numbers/types come only from the datasheet-sourced JSON the netlist checker already uses. Registered in the project `sym-lib-table`.
+- `apply_croco_edits.py`: for each edit, finds the pin position from the symbol transform, follows the wire to the global label naming that net, checks it is exactly one label with the expected old name and no junction, renames it. Idempotent. Verified by exporting Croco's netlist before/after: **exactly two pins change** (R9.2 USB_D_prot+ -> USB_RP_D+, R10.2 USB_D_prot- -> USB_RP_D-), the USBLC6 pins keep their nets.
+- `gen_radio_sheet.py`: PWR_FLAG support (`power_flags` in the JSON, currently VRES, which is powered only through the PMOS pair, so ERC had no driver for the TPS63802 VIN); row layout sized to the tallest symbol, A1 sheet (the A3 grid ran off the page).
+- `add_radio_sheet.py` run on the real project: Radio sheet added to the root, `radio.kicad_sch` generated (70 parts). PDF: `hw/rev-b/GameboyCartridgeV2.1-RevB-schematic.pdf`.
+
+### Verification
+- **KiCad library environment:** kicad-cli had no global symbol/footprint tables (KiCad 10 first-run never happened), so every standard symbol/footprint was reported as "library not in configuration" (262 baseline ERC items were mostly this). Copied KiCad's template tables into `~/Library/Preferences/kicad/10.0/` (missing before, nothing overwritten) and **re-recorded the baseline on unmodified Croco**: ERC 66, DRC 417, unconnected 3, parity 1.
+- `kicad_check.py` fixes: violation fingerprints drop KiCad's "length X mm" (it reports a different 0.0254/0.0508 mm segment of the same Croco bus from run to run, which showed up as 1 new + 1 resolved); reviewed intentional violations go in `verify/baseline/accepted.json` with a reason (one so far: SPI_MISO tri-state buffer U105 vs Croco U5 SO, a chip-select-arbitrated shared bus by design).
+- `netlist_check.py` fixes: Croco netlist export now leaves out parts on the generated /Radio/ sheet (otherwise all 70 of ours "clash with Croco references"), and an edit already applied in the schematic counts as done. PASS, selftest PASS.
+- `sim_vs_netlist.py`: PASS.
+- **ERC: 2 new, both expected open work:** U103 (TPS63802 VSON-HR-10) and U104 (ESP32-C3-MINI-1U) reference project footprints that do not exist yet. Everything else on the new sheet is ERC-clean, including the USB_RP_D+/- labels (isolated before the Croco edits were applied, which is how that gap was found).
+- **Parity: 72 new**, expected: the PCB has not been updated from the schematic yet (70 missing footprints + R9/R10 net change). That is the layout phase.
+
+### Next
+1. Footprints for TPS63802 (TI DLA0010A land pattern) and ESP32-C3-MINI-1U (Espressif datasheet land pattern), checked pad-by-pad against the datasheet drawings.
+2. Update the PCB from the schematic, place the radio/power block on the top side, route, DRC gate, parity gate.
+3. JLC BOM/CPL export and the assembly-side checks.

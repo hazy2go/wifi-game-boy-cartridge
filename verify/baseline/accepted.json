@@ -1,0 +1,8 @@
+{
+ "erc": [
+  {
+   "fp": "pin_to_pin | Symbol U105 Pin 4 [Tri-state, Line] || Symbol U5 Pin 7 [SO, Output, Line]",
+   "why": "SPI_MISO is a shared bus by design: U105 (74LVC1G125) only drives it while the ESP chip select is low, Croco's U5 only while its own CS is low (netlist U105 note)"
+  }
+ ]
+}

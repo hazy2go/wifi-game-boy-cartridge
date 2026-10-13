@@ -36,8 +36,8 @@
   "VRES": "output of Hazy's VLIM->VRES input-voltage regulator (TLV431 + back-to-back PMOS), not in this netlist"
  },
  "interface_nets": {
-  "VLIM": "TPS2553 output -> input of Hazy's regulator (to be added)",
-  "VRES": "output of Hazy's regulator -> reservoir, comparator, TPS63802"
+  "VLIM": "TPS2553 output -> input of the precision input-voltage regulator (Q101 drain 1)",
+  "VRES": "regulator output (Q101 drain 2) -> reservoir, comparator, TPS63802"
  },
  "notes": [
   "DEBUG_UART_TX (RP2350 GPIO46) becomes the ESP chip select; Croco's R11 + J3 debug header should be removed (they would leave a stub on CS).",
@@ -1000,5 +1000,8 @@
    },
    "why": "Power-on hold pull-down on REF"
   }
+ ],
+ "power_flags": [
+  "VRES"
  ]
 }
