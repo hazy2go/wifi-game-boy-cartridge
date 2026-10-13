@@ -167,8 +167,9 @@ def check(data, radio_syms, croco_refs, croco_nets):
             E('BOM', f'{r}: missing/invalid footprint {fp!r}')
         else:
             lib, name = fp.split(':', 1)
-            if lib == 'radio':
-                pass        # project footprint to be created; listed in radio_symbols.json / DESIGN_CALCS
+            if lib == 'radio':      # project library, built by hw/rev-b/tools/gen_radio_footprints.py
+                if not os.path.exists(os.path.join(ROOT, 'hw', 'rev-b', 'radio.pretty', name + '.kicad_mod')):
+                    E('BOM', f'{r}: footprint {fp} not in hw/rev-b/radio.pretty')
             elif lib == 'CrocoV2':
                 if not os.path.exists(os.path.join(CROCO_FP_LIB, name + '.kicad_mod')):
                     E('BOM', f'{r}: footprint {fp} not found')

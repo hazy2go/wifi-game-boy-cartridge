@@ -468,3 +468,14 @@ The earlier run died while drawing the schematic. Picking it up: `gen_radio_shee
 1. Footprints for TPS63802 (TI DLA0010A land pattern) and ESP32-C3-MINI-1U (Espressif datasheet land pattern), checked pad-by-pad against the datasheet drawings.
 2. Update the PCB from the schematic, place the radio/power block on the top side, route, DRC gate, parity gate.
 3. JLC BOM/CPL export and the assembly-side checks.
+
+## 2026-10-14 09:03 Footprints for the two remaining parts; ERC clean
+
+`hw/rev-b/radio.pretty` built by `hw/rev-b/tools/gen_radio_footprints.py`, registered in the project `fp-lib-table`.
+
+**TPS63802 (TI DLA0010A VSON-HR-10, 2 x 3 mm):** generated from TI's land pattern (SLVSEU9D p36): pins 1-5 0.60 x 0.25 at x -0.90; pins 6/7/9/10 0.90 x 0.25 at x +0.75; pin 8 (GND) 1.30 x 0.25 at x +0.55; 0.5 pitch, R0.05, NSMD. Checked against the package outline (p35): every land covers its lead (left leads 0.3-0.5, right 0.6-0.8, pin 8 1.0-1.2 long) and extends 0.2 mm past the body. Pin functions re-checked against Table 7-1 (1 EN, 2 MODE, 3 AGND, 4 FB, 5 PG, 6 VOUT, 7 L2, 8 GND, 9 L1, 10 VIN): the netlist's U103 matches.
+Independent check: pulled JLC/LCSC's own footprint (C2845237, via easyeda2kicad) and compared pad by pad: same numbering, same relative positions, 0.30 instead of 0.25 tall pads. My first reading said its pads were 0.08 mm off; that was its origin being at the pad-bounding-box centre instead of the package centre. Corrected before it went anywhere. Open item: the JLC placement preview must show U103 centred and pin 1 correct before ordering.
+
+**ESP32-C3-MINI-1U:** Espressif's official KiCad footprint (github.com/espressif/kicad-libraries, CC-BY-SA 4.0 with their design exception), unmodified. It matches the datasheet land pattern (v2.2, Fig. 11-2: 48 x 0.4 x 0.8 mm perimeter pads at 0.8 pitch, 4 x 0.7 corner pads, 9 x 1.45 mm centre GND pads at 1.975 pitch = 5.4 mm, chamfered pin-1 centre pad). LCSC's version (C2911374) enlarges the perimeter pads to 0.5 x 1.0 mm; not used. Pin numbering checked against Table 3-1 (53 pins: perimeter 1-48, centre pad = 49, corners 50-53); every U104 net in the JSON matches its datasheet function (IO2 = FSPIQ/MISO on 5, IO10 = FSPICS0 on 16, IO6/IO7 = FSPICLK/FSPID on 20/21, IO18/19 = USB D-/D+ on 26/27, IO0/IO1 = ADC1 on 12/13, EN on 8, 3V3 on 3).
+
+Checks: every symbol pin of U103/U104 has a pad and every pad a pin. `netlist_check.py` now requires `radio:` footprints to exist in `radio.pretty` (it used to skip them as "to be created"): PASS, selftest PASS. **`kicad_check.py`: ERC PASS (0 new)**, DRC PASS, unconnected PASS. Parity still FAIL (72): the PCB has not been updated from the schematic. That is the next phase (layout).
