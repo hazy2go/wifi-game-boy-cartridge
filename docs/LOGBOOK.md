@@ -366,7 +366,7 @@ Quick ring test, 4 consoles (1.4-2.2 ohm), behavioural model:
 - Damping the switch output node (series resistance on its 1 uF) does nothing.
 Round 4 (`sim/power/inreg_fix.py`) runs X and Y variants through every gate (cathode range, GM over all crossings, ring test at 5 consoles x 2 capacitances, PM, hot-plug, burst-after-idle).
 
-## 2026-10-14 08:52 Rounds 4-5: topology X (integrator on the cathode) is the keeper; now fighting its wind-up
+## 2026-10-14 08:32 Rounds 4-5: topology X (integrator on the cathode) is the keeper; now fighting its wind-up
 
 Round 4 (`out/inreg_fix.log`), all gates:
 | candidate | Vka min | GM min | ring | PM min | hot-plug | burst-after-idle |
