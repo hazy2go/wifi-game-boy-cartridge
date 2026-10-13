@@ -331,7 +331,7 @@ Cause: cathode = gate - Ik*Rk with Ik = Vsg/Rg, so the cathode sits at Vs - Vsg*
 - Harness changes for this: AC sweep 50 -> 200 points/decade (50 can step over a sharp peak and miss a 0 dB crossing), per-process AC/DC file names (two sims running at once could read each other's output).
 - Search `sim/power/inreg_vka.py` over Rg 680/1k/1.5k, Rk 470/680/1k, Cc 2.2/4.7 nF with the Vka constraint, gain margin, phase margin, hot-plug and burst-after-idle. Running.
 
-## 2026-10-14 08:45 Stability: two bugs in my own checker, and AC vs time domain disagree
+## 2026-10-14 08:19 Stability: two bugs in my own checker, and AC vs time domain disagree
 
 ### A8 result on the work-in-progress design (`sim/power/out/audit_inreg_wip_0813.log`)
 22 FAIL, all A8.3 (gain margin 1.1-4.4 dB at 1.4 ohm). A8.4 hot-plug and A8.5 burst-after-idle: all PASS.
