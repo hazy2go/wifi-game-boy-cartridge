@@ -197,6 +197,7 @@ def transient(m, p, rsrc, t_end=0.6, burst_ms=2.0, period_ms=10.0, cres=0.99e-3,
     """Hot-plug at t=0 (reservoir empty), radio enabled at 4.2 V (ideal power-good, off at 2.0 V), RX
     baseline plus TX bursts from 100 ms. Radio = constant-power load through the TPS63802 (eta).
     Returns dict of arrays t, vcc, vres, i_in."""
+    tag = f'{tag}_{os.getpid()}'   # several searches may run at once
     n = max(1, int(t_end * 1000 / period_ms))
     pts = ['0 0', f'{t_first} 0']
     for k in range(n):

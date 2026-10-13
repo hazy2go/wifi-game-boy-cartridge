@@ -9,6 +9,7 @@ m = I.Vendor
 
 
 def ring(p, rsrc, tag):
+    tag = f'{tag}_{os.getpid()}'
     p = dict(p, step_a=0.010, step_t=2e-3)
     net = f"""* inreg ring test
 {m.include}

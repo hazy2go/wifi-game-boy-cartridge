@@ -1,0 +1,5 @@
+X comp k 10n Rk680       Vka 2.45 V | minGM  50.0 dB | ring    0.0 mV | minPM  77.5 | hot-plug    5.4 mV | burst -226.6 mV
+X comp k 4.7n Rk680      Vka 2.45 V | minGM  50.0 dB | ring    0.0 mV | minPM  63.7 | hot-plug    5.7 mV | burst -163.7 mV
+Y Cc2.2n Cg47n Rk680     Vka 2.45 V | minGM  -7.4 dB | ring  330.6 mV | minPM   8.7 | hot-plug    5.7 mV | burst   -7.9 mV
+Y Cc2.2n Cg100n Rk680    Vka 2.45 V | minGM -12.4 dB | ring  347.2 mV | minPM  28.8 | hot-plug    5.7 mV | burst   -7.9 mV
+Y Cc3.3n Cg100n Rk680    Vka 2.45 V | minGM  -5.3 dB | ring  293.5 mV | minPM  12.2 | hot-plug    5.7 mV | burst  -25.4 mV

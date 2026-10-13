@@ -365,3 +365,30 @@ Quick ring test, 4 consoles (1.4-2.2 ohm), behavioural model:
 - **Y: keep it on the gate, add a gate-source capacitor (47-100 nF):** no ringing anywhere.
 - Damping the switch output node (series resistance on its 1 uF) does nothing.
 Round 4 (`sim/power/inreg_fix.py`) runs X and Y variants through every gate (cathode range, GM over all crossings, ring test at 5 consoles x 2 capacitances, PM, hot-plug, burst-after-idle).
+
+## 2026-10-14 08:52 Rounds 4-5: topology X (integrator on the cathode) is the keeper; now fighting its wind-up
+
+Round 4 (`out/inreg_fix.log`), all gates:
+| candidate | Vka min | GM min | ring | PM min | hot-plug | burst-after-idle |
+|---|---|---|---|---|---|---|
+| X Cc 10n on cathode, Rk = Rg = 680 | 2.45 V | 50.0 dB | 0 | 77.5 | +5.4 mV | **-226.6 mV** |
+| X Cc 4.7n | 2.45 V | 50.0 dB | 0 | 63.7 | +5.7 mV | **-163.7 mV** |
+| Y Cc 2.2n on gate + Cg 47n, Rk 680 | 2.45 V | -7.4 dB | 331 mV | 8.7 | +5.7 mV | -7.9 mV |
+| Y + Cg 100n | 2.45 V | -12.4 dB | 347 mV | 28.8 | +5.7 mV | -7.9 mV |
+| Y Cc 3.3n + Cg 100n | 2.45 V | -5.3 dB | 294 mV | 12.2 | +5.7 mV | -25.4 mV |
+
+Y only stopped ringing in the quick scan because Rk was 2.2k, which puts the TLV431 out of range. With Rk in range it rings at every Cg. **Y is dropped.** X is clean on every stability gate; its only failure is wind-up, as expected (06:03): with the reservoir full the TLV431 cathode runs to 0 V, and on the next burst it has to climb back to ~2.5 V through Cc before the current comes down.
+
+Wind-up clamp on the cathode (diode gate -> cathode, so the cathode cannot fall more than one Vf below the clamped gate), DC check with the reservoir held near full:
+- plain X: cathode 0 V, TLV431 4.1 mA (limited by Rk);
+- + diode: cathode held at 1.79 V, **but the TLV431 then sinks 14.6 mA** (its recommended maximum is 15 mA) because nothing limits the current through the clamp chain;
+- + diode + 100 ohm: 0.6 V, 14.6 mA. Rejected: a clamp that bounds the cathode needs low impedance, and the TLV431 will sink whatever a low-impedance clamp offers.
+
+Round 5 (`out/inreg_fixx_round5.log`): unwind time ~ dVk * Rth * Cc / dVref, so smaller Cc and more proportional action (Rc):
+| X | GM min | PM min | ring | hot-plug | burst |
+|---|---|---|---|---|---|
+| Cc 1n, Rc 10k | 49.9 | 36.5 | 0 | +5.7 | -41.8 |
+| Cc 1n, Rc 33k | 37.3 | 42.7 | 0 | +5.5 | -38.5 |
+| Cc 1n, Rc 100k | 26.5 | 59.6 | 0 | +5.5 | **-29.5** |
+| Cc 2.2n, Rc 10k | 49.9 | 48.8 | 0 | +5.5 | -95.8 |
+Trend is right and the stability margins have room to spare. Round 6: Cc 470p/1n x Rc 220k/470k/1M.
