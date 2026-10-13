@@ -1,15 +1,15 @@
-* proposed design ESP32-C3 worst_11b_12ms weak ilim=0.15 vdpm=4.5
+* proposed design ESP32-C3 worst_11b_12ms weak ilim=0.15 vdpm=4.35
 Vgb src 0 5.0
 Rsrc src gb 2.0
 Cgb gb 0 0.0001
 Igb gb 0 0.1
 * Croco logic side (RP2350 + HyperRAM + flash + level shifter), steady (assumption 60 mA)
 Ilogic gb 0 0.060
-* Supervisor (APX803-44, 4.38V) gating the switch, smooth step for convergence
-Bsup en 0 V = 0.5*(1+tanh((V(gb)-4.38)/0.01))
+* Supervisor gating the switch (APX803-44 4.38V, or precision TLV431 comparator for the final design), smooth step for convergence
+Bsup en 0 V = 0.5*(1+tanh((V(gb)-4.45)/0.01))
 Ren en 0 1meg
 * current-limited switch: 85 mOhm, constant-current limit, no reverse current, optional DPM foldback
-Bsw gb res I = V(en) * max(0, min(min(0.15, 2.0*(V(gb)-4.5)), (V(gb)-V(res))/0.085))
+Bsw gb res I = V(en) * max(0, min(max(0, min(0.15, 5*(V(gb)-4.35))), (V(gb)-V(res))/0.285))
 Cres res cresn 0.00141
 Resr cresn 0 0.006
 Rbleed res 0 100k
@@ -18,8 +18,8 @@ Bpgx pgx 0 V = 0.5*(1+tanh((V(res)-(4.2-2.2*V(pg)))/0.02))
 Rpg pgx pg 1k
 Cpg pg 0 100n
 * firmware throttle: TX bursts skipped while reservoir < V_THROTTLE; modem-sleep below V_PSAVE
-Bthr thr 0 V = 0.5*(1+tanh((V(res)-4.0)/0.05))
-Bps ps 0 V = 0.5*(1+tanh((V(res)-3.5)/0.05))
+Bthr thr 0 V = 0.5*(1+tanh((V(res)-4.0)/0.05)) * 0.5*(1+tanh((V(gb)-4.55)/0.01))
+Bps ps 0 V = 0.5*(1+tanh((V(res)-3.5)/0.05)) * 0.5*(1+tanh((V(gb)-4.55)/0.01))
 Rps ps 0 1meg
 Rthr thr 0 1meg
 * radio current (1 V = 1 A): RX baseline + throttled TX bursts, only when power-good
@@ -33,7 +33,7 @@ Bbb res 0 I = 3.3*V(iload)/(0.88*max(V(res),1.0)) * 0.5*(1+tanh((V(res)-1.6)/0.0
 .tran 20u 2.0 0 20u uic
 .control
 run
-wrdata /Users/hazymacmini/Projects/wifi-game-boy-cartridge/sim/power/out/new_ESP32-C3_worst_11b_12ms_weak_dpm45ps.dat v(gb) v(res) v(pg) v(thr) v(iprof) v(iload)
+wrdata /Users/hazymacmini/Projects/wifi-game-boy-cartridge/sim/power/out/new_ESP32-C3_worst_11b_12ms_weak_final_lo.dat v(gb) v(res) v(pg) v(thr) v(iprof) v(iload)
 quit
 .endc
 .end

@@ -5,7 +5,7 @@ Cgb gb 0 0.0001
 Igb gb 0 0.1
 * Croco logic side (RP2350 + HyperRAM + flash + level shifter), steady (assumption 60 mA)
 Ilogic gb 0 0.060
-* Supervisor (APX803-44, 4.38V) gating the switch, smooth step for convergence
+* Supervisor gating the switch (APX803-44 4.38V, or precision TLV431 comparator for the final design), smooth step for convergence
 Bsup en 0 V = 0.5*(1+tanh((V(gb)-4.38)/0.01))
 Ren en 0 1meg
 * current-limited switch: 85 mOhm, constant-current limit, no reverse current, optional DPM foldback

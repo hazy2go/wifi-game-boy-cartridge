@@ -27,6 +27,7 @@ GB_CAP = 100e-6        # bulk capacitance on the console rail (assumption)
 MODEM_SLEEP_A = 0.025  # ESP32-C3 modem-sleep average with DTIM listen (assumption, see README)
 V_THROTTLE = 4.0  # firmware stops starting TX bursts below this reservoir voltage
 V_PSAVE = 3.5     # firmware drops to modem-sleep below this
+GB_WATCH_V = 4.55  # firmware backs the radio off when the cart rail is below this
 DPM_GAIN = 2.0     # A/V foldback slope of the input-voltage loop
 GB_MIN_OK = 4.5        # 74xx/LR35902 5V logic: treat < 4.5V as unsafe
 
@@ -90,7 +91,7 @@ quit
 """
 
 
-def netlist_new(chip, prof, cons, ilim=0.150, cres=1.41e-3, vdpm=None, psave=False):
+def netlist_new(chip, prof, cons, ilim=0.150, cres=1.41e-3, vdpm=None, psave=False, rsw=0.085, gain=None, gbwatch=False, vsup=4.38):
     """Proposed: GB 5V -> current-limited switch (TPS2553 class, optional input-voltage regulation
     'DPM' loop) -> polymer reservoir -> TPS63802 buck-boost -> 3.3V radio.
     Croco logic (RP2350+HyperRAM via AP2112) sits on the raw cartridge rail.
@@ -98,9 +99,11 @@ def netlist_new(chip, prof, cons, ilim=0.150, cres=1.41e-3, vdpm=None, psave=Fal
     firmware skips TX bursts while the reservoir is below 3.0V (throttle)."""
     b, p = PROFILES[prof]
     v0 = 5.0 - CONSOLES[cons]['rsrc'] * GB_LOAD_A
+    # firmware rail watch: the radio MCU reads the cart rail (ADC) and backs off below GB_WATCH_V
+    gbw = f' * 0.5*(1+tanh((V(gb)-{GB_WATCH_V})/0.01))' if gbwatch else ''
     # power-save: below 3.0V the firmware drops from continuous RX to modem-sleep (DTIM) average
     base = f"(min(V(iprof), {chip['rx']})*V(ps) + {MODEM_SLEEP_A}*(1-V(ps)))" if psave else f"min(V(iprof), {chip['rx']})"
-    lim = f'min({ilim}, {DPM_GAIN}*(V(gb)-{vdpm}))' if vdpm else f'{ilim}'
+    lim = f'max(0, min({ilim}, {gain or DPM_GAIN}*(V(gb)-{vdpm})))' if vdpm else f'{ilim}'
     return f"""* proposed design {chip['name']} {prof} {cons} ilim={ilim} vdpm={vdpm}
 Vgb src 0 5.0
 Rsrc src gb {CONSOLES[cons]['rsrc']}
@@ -108,11 +111,11 @@ Cgb gb 0 {GB_CAP}
 Igb gb 0 {GB_LOAD_A}
 * Croco logic side (RP2350 + HyperRAM + flash + level shifter), steady (assumption 60 mA)
 Ilogic gb 0 0.060
-* Supervisor (APX803-44, 4.38V) gating the switch, smooth step for convergence
-Bsup en 0 V = 0.5*(1+tanh((V(gb)-4.38)/0.01))
+* Supervisor gating the switch (APX803-44 4.38V, or precision TLV431 comparator for the final design), smooth step for convergence
+Bsup en 0 V = 0.5*(1+tanh((V(gb)-{vsup})/0.01))
 Ren en 0 1meg
 * current-limited switch: 85 mOhm, constant-current limit, no reverse current, optional DPM foldback
-Bsw gb res I = V(en) * max(0, min({lim}, (V(gb)-V(res))/0.085))
+Bsw gb res I = V(en) * max(0, min({lim}, (V(gb)-V(res))/{rsw}))
 Cres res cresn {cres}
 Resr cresn 0 0.006
 Rbleed res 0 100k
@@ -121,8 +124,8 @@ Bpgx pgx 0 V = 0.5*(1+tanh((V(res)-(4.2-2.2*V(pg)))/0.02))
 Rpg pgx pg 1k
 Cpg pg 0 100n
 * firmware throttle: TX bursts skipped while reservoir < V_THROTTLE; modem-sleep below V_PSAVE
-Bthr thr 0 V = 0.5*(1+tanh((V(res)-{V_THROTTLE})/0.05))
-Bps ps 0 V = 0.5*(1+tanh((V(res)-{V_PSAVE})/0.05))
+Bthr thr 0 V = 0.5*(1+tanh((V(res)-{V_THROTTLE})/0.05)){gbw}
+Bps ps 0 V = 0.5*(1+tanh((V(res)-{V_PSAVE})/0.05)){gbw}
 Rps ps 0 1meg
 Rthr thr 0 1meg
 * radio current (1 V = 1 A): RX baseline + throttled TX bursts, only when power-good
@@ -158,8 +161,11 @@ def load(path, n):
 
 
 VARIANTS = [  # (tag suffix, label, kwargs)
-    ('lim150', 'proposed: 150mA limit', dict(ilim=0.150)),
-    ('dpm45ps', 'proposed: 150mA limit + DPM 4.5V + firmware power-save', dict(ilim=0.150, vdpm=4.5, psave=True)),
+    ('lim150', 'proposed: 150mA limit only', dict(ilim=0.150)),
+    # chosen: TPS2553 150mA in front of BQ24075 USB500 (VIN-DPM 4.35/4.5/4.63V) + firmware rail watch
+    ('final', 'TPS2553 150mA + BQ24075 DPM 4.5V typ + fw', dict(ilim=0.150, vdpm=4.5, psave=True, rsw=0.285, gain=5, gbwatch=True, vsup=4.45)),
+    ('final_lo', 'same, DPM at 4.35V (min)', dict(ilim=0.150, vdpm=4.35, psave=True, rsw=0.285, gain=5, gbwatch=True, vsup=4.45)),
+    ('final_hi', 'same, DPM at 4.63V (max)', dict(ilim=0.150, vdpm=4.63, psave=True, rsw=0.285, gain=5, gbwatch=True, vsup=4.45)),
 ]
 rows = []
 for cons in CONSOLES:
