@@ -1,0 +1,74 @@
+# Power-path simulation audit
+
+## A1 ngspice vs independent pyref (chosen design, ideal gating)
+cons  profile               GBmin sp/py   TX% sp/py  up ms sp/py  resmin sp/py drops sp/py
+fresh traffic_2ms_20pct    4.783/4.783  98.9/98.9   27.5/27.5    3.99/3.99      0/0
+PASS  A1 fresh/traffic_2ms_20pct GBmin: |d|=0.0 mV (limit 20)
+PASS  A1 fresh/traffic_2ms_20pct TX: |d|=0.0 pts (limit 3)
+PASS  A1 fresh/traffic_2ms_20pct up: sp=27.4677649 py=27.483999999999998 (limit 2 ms)
+fresh worst_11b_12ms       4.783/4.783  64.7/64.6   27.5/27.5    3.98/3.98      0/0
+PASS  A1 fresh/worst_11b_12ms GBmin: |d|=0.0 mV (limit 20)
+PASS  A1 fresh/worst_11b_12ms TX: |d|=0.1 pts (limit 3)
+PASS  A1 fresh/worst_11b_12ms up: sp=27.4677649 py=27.483999999999998 (limit 2 ms)
+fresh stress_50pct         4.783/4.783  62.2/61.9   27.5/27.5    3.98/3.98      0/0
+PASS  A1 fresh/stress_50pct GBmin: |d|=0.0 mV (limit 20)
+PASS  A1 fresh/stress_50pct TX: |d|=0.3 pts (limit 3)
+PASS  A1 fresh/stress_50pct up: sp=27.4677649 py=27.483999999999998 (limit 2 ms)
+tired traffic_2ms_20pct    4.628/4.628  98.9/98.9   27.5/27.5    3.99/3.99      0/0
+PASS  A1 tired/traffic_2ms_20pct GBmin: |d|=0.0 mV (limit 20)
+PASS  A1 tired/traffic_2ms_20pct TX: |d|=0.0 pts (limit 3)
+PASS  A1 tired/traffic_2ms_20pct up: sp=27.4677649 py=27.483999999999998 (limit 2 ms)
+tired worst_11b_12ms       4.628/4.628  58.9/58.9   27.5/27.5    3.98/3.98      0/0
+PASS  A1 tired/worst_11b_12ms GBmin: |d|=0.0 mV (limit 20)
+PASS  A1 tired/worst_11b_12ms TX: |d|=0.1 pts (limit 3)
+PASS  A1 tired/worst_11b_12ms up: sp=27.4677649 py=27.483999999999998 (limit 2 ms)
+tired stress_50pct         4.628/4.628  62.2/61.9   27.5/27.5    3.98/3.98      0/0
+PASS  A1 tired/stress_50pct GBmin: |d|=0.0 mV (limit 20)
+PASS  A1 tired/stress_50pct TX: |d|=0.3 pts (limit 3)
+PASS  A1 tired/stress_50pct up: sp=27.4677649 py=27.483999999999998 (limit 2 ms)
+weak  traffic_2ms_20pct    4.516/4.516   4.6/4.2   50.1/50.1    4.22/4.22      0/0
+PASS  A1 weak/traffic_2ms_20pct GBmin: |d|=0.2 mV (limit 20)
+PASS  A1 weak/traffic_2ms_20pct TX: |d|=0.3 pts (limit 3)
+PASS  A1 weak/traffic_2ms_20pct up: sp=50.0944161 py=50.102000000000004 (limit 2 ms)
+weak  worst_11b_12ms       4.516/4.516   0.9/0.9   50.1/50.1    4.22/4.22      0/0
+PASS  A1 weak/worst_11b_12ms GBmin: |d|=0.2 mV (limit 20)
+PASS  A1 weak/worst_11b_12ms TX: |d|=0.1 pts (limit 3)
+PASS  A1 weak/worst_11b_12ms up: sp=50.0944161 py=50.102000000000004 (limit 2 ms)
+weak  stress_50pct         4.516/4.516   4.4/4.1   50.1/50.1    4.22/4.22      0/0
+PASS  A1 weak/stress_50pct GBmin: |d|=0.2 mV (limit 20)
+PASS  A1 weak/stress_50pct TX: |d|=0.3 pts (limit 3)
+PASS  A1 weak/stress_50pct up: sp=50.0944161 py=50.102000000000004 (limit 2 ms)
+
+## A2 timestep convergence (ngspice 20us vs 5us), worst_11b_12ms
+PASS  A2 fresh GBmin: 4.7830 vs 4.7830 (limit 5 mV)
+PASS  A2 fresh TX: 64.68% vs 64.63% (limit 1 pt)
+PASS  A2 tired GBmin: 4.6280 vs 4.6280 (limit 5 mV)
+PASS  A2 tired TX: 58.94% vs 58.89% (limit 1 pt)
+PASS  A2 weak GBmin: 4.5161 vs 4.5164 (limit 5 mV)
+PASS  A2 weak TX: 0.91% vs 0.86% (limit 1 pt)
+
+## A3 analytic console-rail floor
+PASS  A3 fresh: analytic 4.783 V, sim min 4.783 V (limit +-30 mV)
+PASS  A3 tired: analytic 4.628 V, sim min 4.628 V (limit +-30 mV)
+PASS  A3 weak: analytic 4.516 V, sim min 4.516 V (limit +-30 mV)
+
+## A4 energy sanity (pyref, 2 s)
+PASS  A4 fresh: source 3.10 J >= radio 1.05 J
+PASS  A4 tired: source 3.10 J >= radio 1.05 J
+PASS  A4 weak: source 2.26 J >= radio 0.51 J
+
+## A5 realistic firmware (frame gating, 1 ms ADC, RF cal not throttleable) x tolerance corners
+corners: ilim 120/150/180 mA (TPS2553 tolerance, to be confirmed vs datasheet), DPM 4.35/4.5/4.63 V,
+         logic load 40/60/100 mA, eta 0.80/0.88. Pass = console never < 4.5V AND (radio never resets after first power-good
+         unless the console is weak).
+fresh: GBmin 4.734 V (ilim 0.18, dpm 4.35, logic 0.1, eta 0.8, traffic_2ms_20pct); max ms<4.5V 0.0; max radio resets 40 (worst_11b_12ms, ilim 0.12, dpm 4.35); busy-traffic TX 61-99%
+PASS  A5 fresh console safe: max 0.0 ms below 4.5 V
+FAIL  A5 fresh radio no resets: max 40 power-good drops
+tired: GBmin 4.544 V (ilim 0.18, dpm 4.35, logic 0.1, eta 0.8, traffic_2ms_20pct); max ms<4.5V 0.0; max radio resets 40 (worst_11b_12ms, ilim 0.12, dpm 4.35); busy-traffic TX 1-99%
+PASS  A5 tired console safe: max 0.0 ms below 4.5 V
+FAIL  A5 tired radio no resets: max 40 power-good drops
+weak: GBmin 4.448 V (ilim 0.18, dpm 4.35, logic 0.1, eta 0.8, traffic_2ms_20pct); max ms<4.5V 1421.0; max radio resets 39 (worst_11b_12ms, ilim 0.18, dpm 4.5); busy-traffic TX 0-86%
+FAIL  A5 weak console safe: max 1421.0 ms below 4.5 V
+INFO  A5 weak radio resets: max 39 (radio may cycle on a weak console; console safety is the requirement)
+
+RESULT: 3 FAIL: A5 fresh radio no resets, A5 tired radio no resets, A5 weak console safe

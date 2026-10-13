@@ -171,53 +171,59 @@ VARIANTS = [  # (tag suffix, label, kwargs)
     ('c1320', 'final, 4x 330uF 1.8mm', dict(ilim=0.150, vdpm=4.5, psave=True, rsw=0.285, gain=5, gbwatch=True, vsup=4.45, cres=1.32e-3, resr=0.00625)),
     ('final_hi', 'same, DPM at 4.63V (max)', dict(ilim=0.150, vdpm=4.63, psave=True, rsw=0.285, gain=5, gbwatch=True, vsup=4.45)),
 ]
-rows = []
-for cons in CONSOLES:
+
+def main():
+    rows = []
+    for cons in CONSOLES:
+        for prof in PROFILES:
+            for chip in (ESP8266, ESPC3):
+                tag = f"old_{chip['name']}_{prof}_{cons}"
+                run(netlist_old(chip, prof, cons), tag)
+                t, gb, v33 = load(os.path.join(OUT, tag + '.dat'), 2)
+                dt = np.diff(t)
+                rows.append(dict(design='original', chip=chip['name'], prof=prof, cons=cons,
+                                 gb_min=gb.min(), unsafe=1000 * np.sum(dt[gb[:-1] < GB_MIN_OK]),
+                                 rail_min=v33[t > 0.1].min(), tx=1.0, radio_up_ms=None))
+            for suf, lab, kw in VARIANTS:
+                chip = ESPC3
+                tag = f"new_{chip['name']}_{prof}_{cons}_{suf}"
+                run(netlist_new(chip, prof, cons, **kw).replace('{TAG}', tag), tag)
+                t, gb, res, pg, thr, ipr, il = load(os.path.join(OUT, tag + '.dat'), 6)
+                dt = np.diff(t)
+                want = np.sum((np.maximum(ipr - chip['rx'], 0) * dt.tolist().__add__([0]))[t > CAL_MS / 1000])
+                got = np.sum((np.maximum(il - chip['rx'], 0) * dt.tolist().__add__([0]))[t > CAL_MS / 1000])
+                up = t[np.argmax(pg > 0.5)] * 1000 if (pg > 0.5).any() else None
+                rows.append(dict(design=suf, chip=chip['name'], prof=prof, cons=cons,
+                                 gb_min=gb.min(), unsafe=1000 * np.sum(dt[gb[:-1] < GB_MIN_OK]),
+                                 rail_min=res[t > (up or 0) / 1000 + 0.001].min() if up else res.min(),
+                                 tx=got / want if want else 0, radio_up_ms=up))
+
+    hdr = f"{'design':9} {'chip':9} {'profile':18} {'cons':5} {'GBmin':>6} {'GB<4.5V ms':>10} {'rail/res min':>12} {'TX delivered':>12} {'radio up ms':>11}"
+    lines = [hdr]
+    for r in rows:
+        up = f"{r['radio_up_ms']:.0f}" if r['radio_up_ms'] else '-'
+        lines.append(f"{r['design']:9} {r['chip']:9} {r['prof']:18} {r['cons']:5} {r['gb_min']:6.2f} {r['unsafe']:10.1f} "
+                     f"{r['rail_min']:12.2f} {100 * r['tx']:11.0f}% {up:>11}")
+    open(os.path.join(OUT, 'results.txt'), 'w').write('\n'.join(lines) + '\n')
+    print('\n'.join(lines))
+
     for prof in PROFILES:
-        for chip in (ESP8266, ESPC3):
-            tag = f"old_{chip['name']}_{prof}_{cons}"
-            run(netlist_old(chip, prof, cons), tag)
-            t, gb, v33 = load(os.path.join(OUT, tag + '.dat'), 2)
-            dt = np.diff(t)
-            rows.append(dict(design='original', chip=chip['name'], prof=prof, cons=cons,
-                             gb_min=gb.min(), unsafe=1000 * np.sum(dt[gb[:-1] < GB_MIN_OK]),
-                             rail_min=v33[t > 0.1].min(), tx=1.0, radio_up_ms=None))
-        for suf, lab, kw in VARIANTS:
-            chip = ESPC3
-            tag = f"new_{chip['name']}_{prof}_{cons}_{suf}"
-            run(netlist_new(chip, prof, cons, **kw).replace('{TAG}', tag), tag)
-            t, gb, res, pg, thr, ipr, il = load(os.path.join(OUT, tag + '.dat'), 6)
-            dt = np.diff(t)
-            want = np.sum((np.maximum(ipr - chip['rx'], 0) * dt.tolist().__add__([0]))[t > CAL_MS / 1000])
-            got = np.sum((np.maximum(il - chip['rx'], 0) * dt.tolist().__add__([0]))[t > CAL_MS / 1000])
-            up = t[np.argmax(pg > 0.5)] * 1000 if (pg > 0.5).any() else None
-            rows.append(dict(design=suf, chip=chip['name'], prof=prof, cons=cons,
-                             gb_min=gb.min(), unsafe=1000 * np.sum(dt[gb[:-1] < GB_MIN_OK]),
-                             rail_min=res[t > (up or 0) / 1000 + 0.001].min() if up else res.min(),
-                             tx=got / want if want else 0, radio_up_ms=up))
+        fig, ax = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
+        for tag, lab in [(f'old_ESP8266_{prof}_tired', 'original + ESP8266'), (f'old_ESP32-C3_{prof}_tired', 'original + ESP32-C3')] + \
+                [(f'new_ESP32-C3_{prof}_tired_{suf}', lab + ' + ESP32-C3') for suf, lab, _ in VARIANTS]:
+            d = np.loadtxt(os.path.join(OUT, tag + '.dat'))
+            ax[0].plot(d[:, 0] * 1000, d[:, 1], lw=0.8, label=lab)
+            ax[1].plot(d[:, 0] * 1000, d[:, 3], lw=0.8, label=lab)
+        ax[0].axhline(GB_MIN_OK, color='r', ls='--', lw=0.8)
+        ax[0].set_ylabel('Game Boy 5V rail (V)')
+        ax[1].set_ylabel('orig: 3.3V rail / new: reservoir (V)')
+        ax[1].set_xlabel('ms after hot-plug (tired batteries, 1.2 ohm)')
+        ax[0].legend(fontsize=7, loc='lower right')
+        ax[0].set_title(f'Power path, profile {prof}, tired batteries')
+        fig.tight_layout()
+        fig.savefig(os.path.join(HERE, f'plot_{prof}.png'), dpi=110)
+    print('plots written')
 
-hdr = f"{'design':9} {'chip':9} {'profile':18} {'cons':5} {'GBmin':>6} {'GB<4.5V ms':>10} {'rail/res min':>12} {'TX delivered':>12} {'radio up ms':>11}"
-lines = [hdr]
-for r in rows:
-    up = f"{r['radio_up_ms']:.0f}" if r['radio_up_ms'] else '-'
-    lines.append(f"{r['design']:9} {r['chip']:9} {r['prof']:18} {r['cons']:5} {r['gb_min']:6.2f} {r['unsafe']:10.1f} "
-                 f"{r['rail_min']:12.2f} {100 * r['tx']:11.0f}% {up:>11}")
-open(os.path.join(OUT, 'results.txt'), 'w').write('\n'.join(lines) + '\n')
-print('\n'.join(lines))
 
-for prof in PROFILES:
-    fig, ax = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
-    for tag, lab in [(f'old_ESP8266_{prof}_tired', 'original + ESP8266'), (f'old_ESP32-C3_{prof}_tired', 'original + ESP32-C3')] + \
-            [(f'new_ESP32-C3_{prof}_tired_{suf}', lab + ' + ESP32-C3') for suf, lab, _ in VARIANTS]:
-        d = np.loadtxt(os.path.join(OUT, tag + '.dat'))
-        ax[0].plot(d[:, 0] * 1000, d[:, 1], lw=0.8, label=lab)
-        ax[1].plot(d[:, 0] * 1000, d[:, 3], lw=0.8, label=lab)
-    ax[0].axhline(GB_MIN_OK, color='r', ls='--', lw=0.8)
-    ax[0].set_ylabel('Game Boy 5V rail (V)')
-    ax[1].set_ylabel('orig: 3.3V rail / new: reservoir (V)')
-    ax[1].set_xlabel('ms after hot-plug (tired batteries, 1.2 ohm)')
-    ax[0].legend(fontsize=7, loc='lower right')
-    ax[0].set_title(f'Power path, profile {prof}, tired batteries')
-    fig.tight_layout()
-    fig.savefig(os.path.join(HERE, f'plot_{prof}.png'), dpi=110)
-print('plots written')
+if __name__ == '__main__':
+    main()
