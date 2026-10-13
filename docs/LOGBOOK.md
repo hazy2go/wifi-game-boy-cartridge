@@ -469,7 +469,7 @@ The earlier run died while drawing the schematic. Picking it up: `gen_radio_shee
 2. Update the PCB from the schematic, place the radio/power block on the top side, route, DRC gate, parity gate.
 3. JLC BOM/CPL export and the assembly-side checks.
 
-## 2026-10-14 09:03 Footprints for the two remaining parts; ERC clean
+## 2026-10-14 08:56 Footprints for the two remaining parts; ERC clean
 
 `hw/rev-b/radio.pretty` built by `hw/rev-b/tools/gen_radio_footprints.py`, registered in the project `fp-lib-table`.
 
