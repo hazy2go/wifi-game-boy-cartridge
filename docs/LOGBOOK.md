@@ -392,3 +392,39 @@ Round 5 (`out/inreg_fixx_round5.log`): unwind time ~ dVk * Rth * Cc / dVref, so 
 | Cc 1n, Rc 100k | 26.5 | 59.6 | 0 | +5.5 | **-29.5** |
 | Cc 2.2n, Rc 10k | 49.9 | 48.8 | 0 | +5.5 | -95.8 |
 Trend is right and the stability margins have room to spare. Round 6: Cc 470p/1n x Rc 220k/470k/1M.
+
+## 2026-10-14 08:42 Regulator closed: round 6, A8 all pass, model audited against the datasheet, netlist added
+
+### Round 6 (`sim/power/out/inreg_fixx_round6.log`)
+| X (cathode integrator, Rk = Rg = 680) | GM min | PM min | ring | hot-plug | burst |
+|---|---|---|---|---|---|
+| Cc 470p, Rc 220k | 19.8 | 54.7 | 0.1 mV | +5.5 | +10.3 |
+| Cc 470p, Rc 470k | 14.1 | 53.5 | 0.1 mV | +5.5 | +23.6 |
+| Cc 470p, Rc 1M | 9.1 | 20.3 | 0.2 mV | +5.5 | +42.9 |
+| Cc 1n, Rc 220k | 19.8 | 71.6 | 0 | +5.5 | -15.1 |
+(the log prints 470p as "0.5n".) Picked **Cc 470 pF, Rc 330k** between the two passing points; the audit decides, not the interpolation.
+
+### Auditing the model the audit relies on
+The loop now crosses over at 0.4-54 kHz, so the TLV431 model has to be right well above the 1-14 kHz I had trusted it for. `sim/models/tests/tlv431_ac_vs_datasheet.py` rebuilds the datasheet's Figure 5-14 test circuit (SLVS139Z: 180 ohm from 5 V, 6.8k/4.3k, 10 uF into REF, IK 10 mA) and compares V(cathode)/V(REF):
+- phase matches within 2 deg at 1 k / 10 k / 100 k / 1 MHz;
+- **gain is 2.9 dB lower than the typical curve** at every frequency (model 56.9 dB vs ~59 dB flat, 36.9 vs ~40 dB at 10 kHz).
+A real part therefore has ~3 dB more loop gain than the simulation, which eats gain margin. **A8.3 gain-margin limit raised from 10 to 13 dB** and the 2.5 ohm console added to the A8.3 corners.
+(First version of that test divided by the source voltage instead of V(REF) and showed a nonsense low-frequency slope; the 6.8k feedback makes V(REF) itself small at low frequency.)
+
+### Power-on hold: is it needed, and is it sensitive to its MOSFET?
+Hot-plug margin with the hold vs without, 1.6-3.0 ohm x 47/220 uF: with +4.8 to +95.9 mV, without +3.9 to +59.9 mV. **Not required any more** (it was with the gate integrator), worth 40-50 mV at 1.6-2.5 ohm, kept. The 2N7002's Vth spread (1.0-2.5 V) changes nothing at 2.0 and 3.0 ohm and costs 27 mV at 2.5 ohm (+60.8 mV left). The generic NMOS model in the sim is therefore acceptable for this part.
+
+### A8 final (`sim/power/out/audit_inreg.log`): ALL PASS
+114 logged checks + 120 AC corners: set-point within +0.22 %; every operating point plausible; TLV431 cathode >= 2.448 V (limit 1.44 V); PM >= 58.8 deg, GM >= 16.5 dB over every crossing; hot-plug >= +4.8 mV (3.0 ohm console, which sits at the limit by itself); burst-after-idle >= +16.5 mV; gate ringing above 20 kHz <= 0.14 mV p-p.
+The thin spot is the hot-plug at 3.0 ohm (+4.8 mV), where the console alone is already at 4.52 V and the regulator correctly stays off; the margin there is the cart's own idle draw, not the loop.
+
+### Into the netlist
+`docs/design/netlist_radio.json` gets the regulator (the "GAP" note is gone): U109 TLV431BIDBZR (C398375, confirmed TI on LCSC), Q101 SiA975DJ dual PMOS (C141597, 2692 in stock), R126/R127 27.0k/10.0k 0.1 % thin film (C723421/C190095), R128/R129 680 (C137948), C123 470 pF C0G (C76971; the X7R C1537 would add temperature drift to the integrator), R130 330k (C25778), D101-D104 1N4148WS (C2128, basic), Q102 2N7002 (C8545, basic), C124 100n, R131 470k, R132 1k.
+Two custom symbols in `radio_symbols.json` with datasheet pin sources:
+- **TLV431DBZ: REF 1, K 2, A 3.** KiCad's built-in TL431DBZ symbol is **K 1, REF 2, A 3**. Using the stock symbol for a TLV431 would have swapped REF and cathode on the board. Caught while checking pinouts.
+- SiA975DJ: 1 S1, 2 G1, 3 D2, 4 S2, 5 G2, 6 D1 (Vishay doc 65710 bottom view); KiCad's Vishay_PowerPAK_SC70-6L_Dual footprint numbers its exposed pads 3 and 6, i.e. D2 and D1. Matches.
+Checks: `verify/netlist_check.py` PASS (70 parts, 245 pins, 52 nets) and `--selftest` PASS. New **`verify/sim_vs_netlist.py`**: every element of the simulated regulator must exist in the netlist between the same nets with the same value, and every part on a REG_ net must have been simulated. PASS; mutation test: TLV431 REF/K swap, Rc 33k, reversed clamp diode, PMOS drain/source swap, an extra part on the gate net: **5/5 caught**.
+
+### Still open on the regulator
+- Real-hardware checks for the first boards: hot-plug on a weak DMG, burst-after-idle on a 2.0-2.3 ohm console, and probing the gate for any oscillation (the sim says none; the model's gain is 3 dB low, which the 13 dB rule covers).
+- Board layout: keep REG_REF/REG_CCN short and away from the TPS63802 switch node (high-impedance nodes, 330k).

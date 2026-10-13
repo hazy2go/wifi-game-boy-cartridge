@@ -40,9 +40,9 @@
   "VRES": "output of Hazy's regulator -> reservoir, comparator, TPS63802"
  },
  "notes": [
-  "GAP: the precision input-voltage regulator between VLIM and VRES is intentionally absent (Hazy designs it). VLIM and VRES are global labels so a separate sheet can attach.",
   "DEBUG_UART_TX (RP2350 GPIO46) becomes the ESP chip select; Croco's R11 + J3 debug header should be removed (they would leave a stub on CS).",
-  "Refs U101-U108, R101-R125, C101-C122, L101, Y101 do not clash with Croco (U1-U7, R1-R17, C1-C28, L1, Y1-Y2)."
+  "Refs U101-U108, R101-R125, C101-C122, L101, Y101 do not clash with Croco (U1-U7, R1-R17, C1-C28, L1, Y1-Y2).",
+  "Precision input-voltage regulator VLIM -> VRES added 2026-10-14 (U109, Q101-Q102, R126-R132, C123-C124, D101-D104), values from sim/power/inreg.py DESIGN, audit A8 all pass."
  ],
  "parts": [
   {
@@ -799,6 +799,206 @@
     "2": "ESP_USB_DM"
    },
    "why": "ESP USB D- series R"
+  },
+  {
+   "ref": "U109",
+   "symbol": "radio:TLV431DBZ",
+   "value": "TLV431BIDBZR",
+   "footprint": "Package_TO_SOT_SMD:SOT-23",
+   "lcsc": "C398375",
+   "pins": {
+    "1": "REG_REF",
+    "2": "REG_K",
+    "3": "GND"
+   },
+   "why": "Input-voltage regulator error amp: holds VMUX at 1.24 V x 3.7 = 4.588 V +-1 %; sinks current through REG_K to turn the PMOS pair on while VMUX is above the set-point (sim/power/inreg.py DESIGN, audit A8 (LOGBOOK 08:40))",
+   "datasheet": "https://www.ti.com/lit/ds/symlink/tlv431.pdf"
+  },
+  {
+   "ref": "Q101",
+   "symbol": "radio:SiA975DJ",
+   "value": "SIA975DJ-T1-GE3",
+   "footprint": "Package_TO_SOT_SMD:Vishay_PowerPAK_SC70-6L_Dual",
+   "lcsc": "C141597",
+   "pins": {
+    "1": "REG_S",
+    "2": "REG_G",
+    "3": "VRES",
+    "4": "REG_S",
+    "5": "REG_G",
+    "6": "VLIM"
+   },
+   "why": "Back-to-back PMOS pair VLIM -> VRES, sources and gates joined: blocks the reservoir from back-feeding the cart rail in both directions; pass element of the regulator",
+   "datasheet": "https://www.vishay.com/docs/65710/sia975dj.pdf"
+  },
+  {
+   "ref": "R126",
+   "symbol": "Device:R",
+   "value": "27.0k 0.1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C723421",
+   "pins": {
+    "1": "VMUX",
+    "2": "REG_REF"
+   },
+   "why": "Set-point divider top (4.588 V); 0.1 % so the set-point stays within +-1 % with the TLV431B"
+  },
+  {
+   "ref": "R127",
+   "symbol": "Device:R",
+   "value": "10.0k 0.1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C190095",
+   "pins": {
+    "1": "REG_REF",
+    "2": "GND"
+   },
+   "why": "Set-point divider bottom"
+  },
+  {
+   "ref": "R128",
+   "symbol": "Device:R",
+   "value": "680 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C137948",
+   "pins": {
+    "1": "REG_S",
+    "2": "REG_G"
+   },
+   "why": "Gate pull-up to source (PMOS off by default); with R129 = R128 the TLV431 cathode stays >= Vref + 1.2 V (A8.6)"
+  },
+  {
+   "ref": "R129",
+   "symbol": "Device:R",
+   "value": "680 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C137948",
+   "pins": {
+    "1": "REG_G",
+    "2": "REG_K"
+   },
+   "why": "Gate drive from the TLV431 cathode, bounds the TLV431 current to ~4 mA when it saturates"
+  },
+  {
+   "ref": "C123",
+   "symbol": "Device:C",
+   "value": "470pF 50V C0G",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C76971",
+   "pins": {
+    "1": "REG_K",
+    "2": "REG_CCN"
+   },
+   "why": "Integrator capacitor, Type-II compensation cathode -> REF (on the gate it caused a 250-320 kHz oscillation, LOGBOOK 08:27); small for fast wind-up recovery"
+  },
+  {
+   "ref": "R130",
+   "symbol": "Device:R",
+   "value": "330k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25778",
+   "pins": {
+    "1": "REG_CCN",
+    "2": "REG_REF"
+   },
+   "why": "Compensation zero / proportional term; PM >= 58.8 deg, GM >= 16.5 dB over all A8 corners"
+  },
+  {
+   "ref": "D101",
+   "symbol": "Device:D",
+   "value": "1N4148WS",
+   "footprint": "Diode_SMD:D_SOD-323",
+   "lcsc": "C2128",
+   "pins": {
+    "1": "REG_CL1",
+    "2": "REG_S"
+   },
+   "why": "Gate clamp 1/3: limits Vsg to ~1.8 V (enough for 150 mA, limits how far the gate can be driven)"
+  },
+  {
+   "ref": "D102",
+   "symbol": "Device:D",
+   "value": "1N4148WS",
+   "footprint": "Diode_SMD:D_SOD-323",
+   "lcsc": "C2128",
+   "pins": {
+    "1": "REG_CL2",
+    "2": "REG_CL1"
+   },
+   "why": "Gate clamp 2/3"
+  },
+  {
+   "ref": "D103",
+   "symbol": "Device:D",
+   "value": "1N4148WS",
+   "footprint": "Diode_SMD:D_SOD-323",
+   "lcsc": "C2128",
+   "pins": {
+    "1": "REG_G",
+    "2": "REG_CL2"
+   },
+   "why": "Gate clamp 3/3"
+  },
+  {
+   "ref": "C124",
+   "symbol": "Device:C",
+   "value": "100nF 16V X7R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C1525",
+   "pins": {
+    "1": "VMUX",
+    "2": "REG_POR_G"
+   },
+   "why": "Power-on hold: pulse from VMUX keeps Q102 on for ~30-70 ms after hot-plug so the loop starts from off (adds 40-50 mV hot-plug margin; not required to pass)"
+  },
+  {
+   "ref": "R131",
+   "symbol": "Device:R",
+   "value": "470k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25790",
+   "pins": {
+    "1": "REG_POR_G",
+    "2": "GND"
+   },
+   "why": "Power-on hold time constant 47 ms"
+  },
+  {
+   "ref": "D104",
+   "symbol": "Device:D",
+   "value": "1N4148WS",
+   "footprint": "Diode_SMD:D_SOD-323",
+   "lcsc": "C2128",
+   "pins": {
+    "1": "REG_POR_G",
+    "2": "GND"
+   },
+   "why": "Clamps the hold node at unplug (VMUX falling would drive it negative)"
+  },
+  {
+   "ref": "Q102",
+   "symbol": "Transistor_FET:2N7002",
+   "value": "2N7002",
+   "footprint": "Package_TO_SOT_SMD:SOT-23",
+   "lcsc": "C8545",
+   "pins": {
+    "1": "REG_POR_G",
+    "2": "GND",
+    "3": "REG_RSS"
+   },
+   "why": "Power-on hold switch: pulls REF low through R132; Vth 1.0-2.5 V, hot-plug result insensitive across it (LOGBOOK 08:40)"
+  },
+  {
+   "ref": "R132",
+   "symbol": "Device:R",
+   "value": "1k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C11702",
+   "pins": {
+    "1": "REG_REF",
+    "2": "REG_RSS"
+   },
+   "why": "Power-on hold pull-down on REF"
   }
  ]
 }

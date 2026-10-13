@@ -406,5 +406,57 @@
     "type": "power_in"
    }
   }
+ },
+ "TLV431DBZ": {
+  "description": "Adjustable precision shunt regulator 1.24 V, B grade 0.5 %",
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "datasheet": "https://www.ti.com/lit/ds/symlink/tlv431.pdf",
+  "pinout_source": "TI SLVS139Z Table 4-1 Pin Functions, DBZ column: REF 1, CATHODE 2, ANODE 3. NOT the KiCad TL431DBZ symbol, which is K 1 / REF 2 / A 3 (TL431 pinout): using it would swap REF and cathode.",
+  "pins": {
+   "1": {
+    "name": "REF",
+    "type": "input"
+   },
+   "2": {
+    "name": "K",
+    "type": "passive"
+   },
+   "3": {
+    "name": "A",
+    "type": "passive"
+   }
+  }
+ },
+ "SiA975DJ": {
+  "description": "Dual P-channel 12 V MOSFET, 41 mOhm at -4.5 V",
+  "footprint": "Package_TO_SOT_SMD:Vishay_PowerPAK_SC70-6L_Dual",
+  "datasheet": "https://www.vishay.com/docs/65710/sia975dj.pdf",
+  "pinout_source": "Vishay doc 65710 Rev. A p1, PowerPAK SC-70-6L Dual bottom view: 1 S1, 2 G1, 3 D2, 4 S2, 5 G2, 6 D1; the two exposed pads are D1 and D2. KiCad footprint numbers the exposed pads 6 (D1) and 3 (D2), matching.",
+  "pins": {
+   "1": {
+    "name": "S1",
+    "type": "passive"
+   },
+   "2": {
+    "name": "G1",
+    "type": "passive"
+   },
+   "3": {
+    "name": "D2",
+    "type": "passive"
+   },
+   "4": {
+    "name": "S2",
+    "type": "passive"
+   },
+   "5": {
+    "name": "G2",
+    "type": "passive"
+   },
+   "6": {
+    "name": "D1",
+    "type": "passive"
+   }
+  }
  }
 }

@@ -9,3 +9,4 @@ sim/models/*/
 sim/models/tests/*.out
 sim/power/out/inreg_*.cir
 sim/power/out/*.dat
+sim/models/tests/*.cir

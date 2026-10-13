@@ -28,7 +28,9 @@ CLAMP = '.model DSS D(Is=2.52n N=1.752 Rs=0.568 Cjo=4p)\nDcl1 s cl1 DSS\nDcl2 cl
 # starts from "off" and engages slowly as the pulse decays (no gate-to-REF kick during the ramp-up).
 POR = ('.model NMPOR NMOS(VTO=1.8 KP=0.2)\n.model DPOR D(Is=2.52n N=1.752)\n'
        'Cpor vmux gpor 100n\nRpor gpor 0 470k\nDpor 0 gpor DPOR\nRss ref rss 1k\nMpor rss gpor 0 0 NMPOR')
-DESIGN = dict(R1=27.0e3, R2=10.0e3, Rg=680.0, Rk=2.2e3, Rbias=1e9, Cg=1e-12, Cc=2.2e-9, Rc=10e3, comp_node='g',
+# LOGBOOK 08:40: integrator back on the TLV431 cathode (Type-II, Cc + Rc to REF; on the gate it formed a local loop that
+# oscillated at 250-320 kHz), Rk = Rg so the cathode stays >= Vref + 0.2 V, small Cc + large Rc against wind-up
+DESIGN = dict(R1=27.0e3, R2=10.0e3, Rg=680.0, Rk=680.0, Rbias=1e9, Cg=1e-12, Cc=470e-12, Rc=330e3, comp_node='k',
               clamp=CLAMP, por=True, t_en=15e-3, tps2553='vendor', options='.options method=trap reltol=1e-3', ilim=0.150, rsw=0.085, rmux=0.07,
               gb_cap=100e-6, gb_load=0.100, logic_load=0.060)
 

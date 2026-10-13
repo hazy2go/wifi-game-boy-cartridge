@@ -1,0 +1,4 @@
+X Cc 0.5n Rc 220k | Vka 2.45 V | minGM  19.8 dB | ring    0.1 mV | minPM  54.7 | hot-plug    5.5 mV | burst   10.3 mV
+X Cc 0.5n Rc 470k | Vka 2.45 V | minGM  14.1 dB | ring    0.1 mV | minPM  53.5 | hot-plug    5.5 mV | burst   23.6 mV
+X Cc 0.5n Rc 1000k | Vka 2.45 V | minGM   9.1 dB | ring    0.2 mV | minPM  20.3 | hot-plug    5.5 mV | burst   42.9 mV
+X Cc 1.0n Rc 220k | Vka 2.45 V | minGM  19.8 dB | ring    0.0 mV | minPM  71.6 | hot-plug    5.5 mV | burst  -15.1 mV
