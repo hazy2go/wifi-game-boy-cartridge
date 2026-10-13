@@ -1,0 +1,804 @@
+{
+ "schema": "gen_radio_sheet.py netlist v1 (+ checker-only keys: croco_edits, external_sources, interface_nets, notes)",
+ "global_nets": [
+  "VCC",
+  "VBUS",
+  "+3V3",
+  "GND",
+  "SPI_CLK",
+  "SPI_MOSI",
+  "SPI_MISO",
+  "DEBUG_UART_TX",
+  "USB_D_prot+",
+  "USB_D_prot-",
+  "USB_RP_D+",
+  "USB_RP_D-",
+  "VLIM",
+  "VRES"
+ ],
+ "croco_edits": [
+  {
+   "ref": "R9",
+   "pin": "2",
+   "from": "USB_D_prot+",
+   "to": "USB_RP_D+",
+   "why": "insert CH334P between the USBLC6 and the RP2350: R9 (27R) now hangs off hub downstream port 1"
+  },
+  {
+   "ref": "R10",
+   "pin": "2",
+   "from": "USB_D_prot-",
+   "to": "USB_RP_D-",
+   "why": "same for D-"
+  }
+ ],
+ "external_sources": {
+  "VRES": "output of Hazy's VLIM->VRES input-voltage regulator (TLV431 + back-to-back PMOS), not in this netlist"
+ },
+ "interface_nets": {
+  "VLIM": "TPS2553 output -> input of Hazy's regulator (to be added)",
+  "VRES": "output of Hazy's regulator -> reservoir, comparator, TPS63802"
+ },
+ "notes": [
+  "GAP: the precision input-voltage regulator between VLIM and VRES is intentionally absent (Hazy designs it). VLIM and VRES are global labels so a separate sheet can attach.",
+  "DEBUG_UART_TX (RP2350 GPIO46) becomes the ESP chip select; Croco's R11 + J3 debug header should be removed (they would leave a stub on CS).",
+  "Refs U101-U108, R101-R125, C101-C122, L101, Y101 do not clash with Croco (U1-U7, R1-R17, C1-C28, L1, Y1-Y2)."
+ ],
+ "parts": [
+  {
+   "ref": "U101",
+   "symbol": "Power_Management:TPS2116DRL",
+   "value": "TPS2116DRLR",
+   "footprint": "Package_TO_SOT_SMD:SOT-583-8",
+   "lcsc": "C3235557",
+   "pins": {
+    "1": "GND",
+    "2": "VMUX",
+    "3": "VBUS",
+    "4": "MUX_PR1",
+    "5": "VBUS",
+    "6": "VCC",
+    "7": "VMUX",
+    "8": "USB_PWR_ST"
+   },
+   "why": "Power mux, priority mode: MODE tied to VIN1=VBUS, PR1 divider from VBUS; VIN2 = raw cart VCC (SLVSFG1A 7.3.1 p10, 7.6.1 p12)",
+   "datasheet": "https://www.ti.com/lit/ds/symlink/tps2116.pdf"
+  },
+  {
+   "ref": "R101",
+   "symbol": "Device:R",
+   "value": "5.1k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25905",
+   "pins": {
+    "1": "VBUS",
+    "2": "MUX_PR1"
+   },
+   "why": "PR1 divider top: USB is used when VBUS > 3.55 V nom (3.22-3.89 V worst)"
+  },
+  {
+   "ref": "R102",
+   "symbol": "Device:R",
+   "value": "2.0k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C4109",
+   "pins": {
+    "1": "MUX_PR1",
+    "2": "GND"
+   },
+   "why": "PR1 divider bottom; 7.1 kOhm total also pulls a floating VBUS (D3 reverse leakage) to ground"
+  },
+  {
+   "ref": "C101",
+   "symbol": "Device:C",
+   "value": "1uF 25V X5R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C52923",
+   "pins": {
+    "1": "VBUS",
+    "2": "GND"
+   },
+   "why": "TPS2116 VIN1 input cap, 1 uF per SLVSFG1A section 9 p16"
+  },
+  {
+   "ref": "C102",
+   "symbol": "Device:C",
+   "value": "1uF 25V X5R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C52923",
+   "pins": {
+    "1": "VCC",
+    "2": "GND"
+   },
+   "why": "TPS2116 VIN2 input cap on the cart rail, 1 uF per SLVSFG1A section 9 p16"
+  },
+  {
+   "ref": "C103",
+   "symbol": "Device:C",
+   "value": "1uF 25V X5R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C52923",
+   "pins": {
+    "1": "VMUX",
+    "2": "GND"
+   },
+   "why": "TPS2116 output (>=0.1 uF for linear soft start, 7.3.2 p11) and TPS2553 IN cap (>=0.1 uF, SLVS841F 7.3 p6)"
+  },
+  {
+   "ref": "R115",
+   "symbol": "Device:R",
+   "value": "100k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25741",
+   "pins": {
+    "1": "+3V3_RF",
+    "2": "USB_PWR_ST"
+   },
+   "why": "Pull-up for TPS2116 open-drain ST (high = running from USB), to the radio rail so it cannot back-power the ESP"
+  },
+  {
+   "ref": "U102",
+   "symbol": "radio:TPS2553DBV",
+   "value": "TPS2553DBVR",
+   "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+   "lcsc": "C55266",
+   "pins": {
+    "1": "VMUX",
+    "2": "GND",
+    "3": "VMUX",
+    "4": "LIM_FAULT_N",
+    "5": "LIM_ILIM",
+    "6": "VLIM"
+   },
+   "why": "150 mA constant-current limiter (not the -1 latch-off part); EN is active high on TPS2553 and tied to IN (SLVS841F p5)",
+   "datasheet": "https://www.ti.com/lit/ds/symlink/tps2553.pdf"
+  },
+  {
+   "ref": "R103",
+   "symbol": "Device:R",
+   "value": "180k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25760",
+   "pins": {
+    "1": "LIM_ILIM",
+    "2": "GND"
+   },
+   "why": "RILIM: IOS = 23950/180^0.977 = 149.9 mA nom, 129-174 mA (SLVS841F eq.1 p15)"
+  },
+  {
+   "ref": "R104",
+   "symbol": "Device:R",
+   "value": "100k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25741",
+   "pins": {
+    "1": "+3V3_RF",
+    "2": "LIM_FAULT_N"
+   },
+   "why": "Pull-up for open-drain FAULT, read by ESP GPIO4 (= limiter in current limit > 7.5 ms)"
+  },
+  {
+   "ref": "C104",
+   "symbol": "Device:C",
+   "value": "1uF 25V X5R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C52923",
+   "pins": {
+    "1": "VLIM",
+    "2": "GND"
+   },
+   "why": "Local cap on the limiter output / input of the VLIM->VRES regulator (Hazy designs that stage)"
+  },
+  {
+   "ref": "C105",
+   "symbol": "Device:C_Polarized",
+   "value": "330uF 6.3V 25mOhm 6TPE330MAP",
+   "footprint": "Capacitor_Tantalum_SMD:CP_EIA-7343-20_Kemet-V",
+   "lcsc": "C79112",
+   "pins": {
+    "1": "VRES",
+    "2": "GND"
+   },
+   "why": "Reservoir, Panasonic POSCAP 6TPE330MAP 1.8 mm tall, 3x = 990 uF (logbook 04:59)"
+  },
+  {
+   "ref": "C106",
+   "symbol": "Device:C_Polarized",
+   "value": "330uF 6.3V 25mOhm 6TPE330MAP",
+   "footprint": "Capacitor_Tantalum_SMD:CP_EIA-7343-20_Kemet-V",
+   "lcsc": "C79112",
+   "pins": {
+    "1": "VRES",
+    "2": "GND"
+   },
+   "why": "Reservoir, Panasonic POSCAP 6TPE330MAP 1.8 mm tall, 3x = 990 uF (logbook 04:59)"
+  },
+  {
+   "ref": "C107",
+   "symbol": "Device:C_Polarized",
+   "value": "330uF 6.3V 25mOhm 6TPE330MAP",
+   "footprint": "Capacitor_Tantalum_SMD:CP_EIA-7343-20_Kemet-V",
+   "lcsc": "C79112",
+   "pins": {
+    "1": "VRES",
+    "2": "GND"
+   },
+   "why": "Reservoir, Panasonic POSCAP 6TPE330MAP 1.8 mm tall, 3x = 990 uF (logbook 04:59)"
+  },
+  {
+   "ref": "C108",
+   "symbol": "Device:C",
+   "value": "10uF 10V X5R",
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "lcsc": "C19702",
+   "pins": {
+    "1": "VRES",
+    "2": "GND"
+   },
+   "why": "Ceramic HF bypass at the reservoir bank"
+  },
+  {
+   "ref": "C109",
+   "symbol": "Device:C",
+   "value": "10uF 10V X5R",
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "lcsc": "C19702",
+   "pins": {
+    "1": "VRES",
+    "2": "GND"
+   },
+   "why": "TPS63802 input cap, 10 uF recommended (SLVSEU9D 10.2.2.4 p19), at VIN/GND pins"
+  },
+  {
+   "ref": "U108",
+   "symbol": "radio:TLV3012B",
+   "value": "TLV3012BIDBVR",
+   "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+   "lcsc": "C20345924",
+   "pins": {
+    "1": "RF_EN",
+    "2": "GND",
+    "3": "PG_SENSE",
+    "4": "PG_REF",
+    "5": "PG_REF",
+    "6": "VRES"
+   },
+   "why": "Power-good for the radio: EN on at VRES >= 4.21 V, off below 2.01 V; push-pull out = VRES gives ratiometric hysteresis; POR holds out low below 1.65 V (SBOS300C 9.4.5 p22)",
+   "datasheet": "https://www.ti.com/lit/ds/symlink/tlv3012.pdf"
+  },
+  {
+   "ref": "R123",
+   "symbol": "Device:R",
+   "value": "1.3M 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C423245",
+   "pins": {
+    "1": "VRES",
+    "2": "PG_SENSE"
+   },
+   "why": "Comparator divider top (see DESIGN_CALCS 3)"
+  },
+  {
+   "ref": "R124",
+   "symbol": "Device:R",
+   "value": "1.0M 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C26083",
+   "pins": {
+    "1": "PG_SENSE",
+    "2": "GND"
+   },
+   "why": "Comparator divider bottom"
+  },
+  {
+   "ref": "R125",
+   "symbol": "Device:R",
+   "value": "1.2M 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C43675",
+   "pins": {
+    "1": "RF_EN",
+    "2": "PG_SENSE"
+   },
+   "why": "Hysteresis feedback from push-pull output"
+  },
+  {
+   "ref": "C121",
+   "symbol": "Device:C",
+   "value": "10nF 50V X7R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C15195",
+   "pins": {
+    "1": "PG_REF",
+    "2": "GND"
+   },
+   "why": "REF decoupling, <= 10 nF so the reference settles inside the 1.9 ms POR window (SBOS300C 9.4.5 p22)"
+  },
+  {
+   "ref": "C122",
+   "symbol": "Device:C",
+   "value": "100nF 16V X7R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C1525",
+   "pins": {
+    "1": "VRES",
+    "2": "GND"
+   },
+   "why": "TLV3012B supply decoupling"
+  },
+  {
+   "ref": "U103",
+   "symbol": "radio:TPS63802DLA",
+   "value": "TPS63802DLAR",
+   "footprint": "radio:TI_DLA0010A_VSON-HR-10_2x3mm_P0.5mm",
+   "lcsc": "C2845237",
+   "pins": {
+    "1": "RF_EN",
+    "2": "GND",
+    "3": "GND",
+    "4": "RF_FB",
+    "5": "RF_PG",
+    "6": "+3V3_RF",
+    "7": "RF_L2",
+    "8": "GND",
+    "9": "RF_L1",
+    "10": "VRES"
+   },
+   "why": "Buck-boost VRES (2.0-5.5 V) -> 3.3 V radio rail; MODE=GND = automatic PFM/PWM (SLVSEU9D 9.3.3 p11)",
+   "datasheet": "https://www.ti.com/lit/ds/symlink/tps63802.pdf"
+  },
+  {
+   "ref": "L101",
+   "symbol": "Device:L",
+   "value": "0.47uH 5.5A 26mOhm DFE201612E-R47M",
+   "footprint": "Inductor_SMD:L_Murata_DFE201610P",
+   "lcsc": "C668312",
+   "pins": {
+    "1": "RF_L1",
+    "2": "RF_L2"
+   },
+   "why": "0.47 uH as recommended (SLVSEU9D 8.3 p5, Table 10-2 p19 lists exactly DFE201612E 0.47 uH 5.5 A)"
+  },
+  {
+   "ref": "R109",
+   "symbol": "Device:R",
+   "value": "511k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C64042",
+   "pins": {
+    "1": "+3V3_RF",
+    "2": "RF_FB"
+   },
+   "why": "FB top, 511k/91k -> 3.308 V (SLVSEU9D eq.3 p19, Table 10-5 p20)"
+  },
+  {
+   "ref": "R110",
+   "symbol": "Device:R",
+   "value": "91k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C4147",
+   "pins": {
+    "1": "RF_FB",
+    "2": "GND"
+   },
+   "why": "FB bottom (<=100k required, 10.2.2.5 p19)"
+  },
+  {
+   "ref": "C110",
+   "symbol": "Device:C",
+   "value": "22uF 6.3V X5R",
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "lcsc": "C59461",
+   "pins": {
+    "1": "+3V3_RF",
+    "2": "GND"
+   },
+   "why": "TPS63802 output cap, 1x 22 uF for VOUT <= 3.6 V (10.2.2.3 p19)"
+  },
+  {
+   "ref": "R108",
+   "symbol": "Device:R",
+   "value": "10k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25744",
+   "pins": {
+    "1": "+3V3_RF",
+    "2": "RF_PG"
+   },
+   "why": "PG pull-up (open drain, sinks <= 1 mA, 9.3.10 p12)"
+  },
+  {
+   "ref": "R111",
+   "symbol": "Device:R",
+   "value": "10k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25744",
+   "pins": {
+    "1": "RF_PG",
+    "2": "ESP_EN"
+   },
+   "why": "ESP CHIP_EN RC: PG acts as 3.0-3.14 V supervisor, R per Espressif HW guide 1.3.3"
+  },
+  {
+   "ref": "C113",
+   "symbol": "Device:C",
+   "value": "100nF 16V X7R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C1525",
+   "pins": {
+    "1": "ESP_EN",
+    "2": "GND"
+   },
+   "why": "ESP CHIP_EN RC cap; tau 2 ms release / 1 ms reset (see DESIGN_CALCS 7 for why not 1 uF)"
+  },
+  {
+   "ref": "U104",
+   "symbol": "radio:ESP32-C3-MINI-1U",
+   "value": "ESP32-C3-MINI-1U-N4",
+   "footprint": "radio:ESP32-C3-MINI-1U",
+   "lcsc": "C2911374",
+   "pins": {
+    "1": "GND",
+    "2": "GND",
+    "3": "+3V3_RF",
+    "4": "NC",
+    "5": "ESP_IO2_MISO",
+    "6": "USB_PWR_ST",
+    "7": "NC",
+    "8": "ESP_EN",
+    "9": "NC",
+    "10": "NC",
+    "11": "GND",
+    "12": "ADC_VRES",
+    "13": "ADC_VCC",
+    "14": "GND",
+    "15": "NC",
+    "16": "ESP_CS",
+    "17": "NC",
+    "18": "LIM_FAULT_N",
+    "19": "NC",
+    "20": "ESP_SCK",
+    "21": "ESP_MOSI",
+    "22": "ESP_IO8",
+    "23": "ESP_IO9",
+    "24": "NC",
+    "25": "NC",
+    "26": "ESP_USB_DM",
+    "27": "ESP_USB_DP",
+    "28": "NC",
+    "29": "NC",
+    "30": "NC",
+    "31": "NC",
+    "32": "NC",
+    "33": "NC",
+    "34": "NC",
+    "35": "NC",
+    "36": "GND",
+    "37": "GND",
+    "38": "GND",
+    "39": "GND",
+    "40": "GND",
+    "41": "GND",
+    "42": "GND",
+    "43": "GND",
+    "44": "GND",
+    "45": "GND",
+    "46": "GND",
+    "47": "GND",
+    "48": "GND",
+    "49": "GND",
+    "50": "GND",
+    "51": "GND",
+    "52": "GND",
+    "53": "GND"
+   },
+   "why": "Radio. SPI slave on IO_MUX pins (CS=IO10 FSPICS0, SCK=IO6 FSPICLK, MOSI=IO7 FSPID, MISO=IO2 FSPIQ), ADC1 on IO0/IO1, native USB IO18/IO19",
+   "datasheet": "https://www.espressif.com/sites/default/files/documentation/esp32-c3-mini-1_datasheet_en.pdf"
+  },
+  {
+   "ref": "C111",
+   "symbol": "Device:C",
+   "value": "10uF 10V X5R",
+   "footprint": "Capacitor_SMD:C_0603_1608Metric",
+   "lcsc": "C19702",
+   "pins": {
+    "1": "+3V3_RF",
+    "2": "GND"
+   },
+   "why": "ESP 3V3 bulk, 10 uF recommended for TX current steps (HW guide 1.3.2)"
+  },
+  {
+   "ref": "C112",
+   "symbol": "Device:C",
+   "value": "100nF 16V X7R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C1525",
+   "pins": {
+    "1": "+3V3_RF",
+    "2": "GND"
+   },
+   "why": "ESP 3V3 HF decoupling at module pin 3"
+  },
+  {
+   "ref": "R112",
+   "symbol": "Device:R",
+   "value": "10k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25744",
+   "pins": {
+    "1": "+3V3_RF",
+    "2": "ESP_IO2_MISO"
+   },
+   "why": "Strap GPIO2 = 1 (recommended pull-up, MINI-1 DS Table 4-3 p13)"
+  },
+  {
+   "ref": "R113",
+   "symbol": "Device:R",
+   "value": "10k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25744",
+   "pins": {
+    "1": "+3V3_RF",
+    "2": "ESP_IO8"
+   },
+   "why": "Strap GPIO8 = 1 (needed for download boot, defined ROM-log level)"
+  },
+  {
+   "ref": "R114",
+   "symbol": "Device:R",
+   "value": "10k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25744",
+   "pins": {
+    "1": "+3V3_RF",
+    "2": "ESP_IO9"
+   },
+   "why": "Strap GPIO9 = 1 = SPI boot (HW guide 1.3.9: pull-up recommended, no large cap)"
+  },
+  {
+   "ref": "R116",
+   "symbol": "Device:R",
+   "value": "680k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C4131",
+   "pins": {
+    "1": "VRES",
+    "2": "ADC_VRES"
+   },
+   "why": "VRES sense divider top, k = 0.2273, ATTEN=2 full scale 5.72 V"
+  },
+  {
+   "ref": "R117",
+   "symbol": "Device:R",
+   "value": "200k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25764",
+   "pins": {
+    "1": "ADC_VRES",
+    "2": "GND"
+   },
+   "why": "VRES sense divider bottom"
+  },
+  {
+   "ref": "C114",
+   "symbol": "Device:C",
+   "value": "2.2nF 50V X7R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C84703",
+   "pins": {
+    "1": "ADC_VRES",
+    "2": "GND"
+   },
+   "why": "ADC hold cap, tau 0.34 ms (fast enough for the 1 ms firmware loop)"
+  },
+  {
+   "ref": "R118",
+   "symbol": "Device:R",
+   "value": "680k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C4131",
+   "pins": {
+    "1": "VCC",
+    "2": "ADC_VCC"
+   },
+   "why": "Cart VCC sense divider top (raw VCC before Croco D2); only a 5.7 uA load, cannot source current into VCC"
+  },
+  {
+   "ref": "R119",
+   "symbol": "Device:R",
+   "value": "200k 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25764",
+   "pins": {
+    "1": "ADC_VCC",
+    "2": "GND"
+   },
+   "why": "Cart VCC sense divider bottom; also keeps an unpowered VCC net at 0 V"
+  },
+  {
+   "ref": "C115",
+   "symbol": "Device:C",
+   "value": "2.2nF 50V X7R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C84703",
+   "pins": {
+    "1": "ADC_VCC",
+    "2": "GND"
+   },
+   "why": "ADC hold cap, tau 0.34 ms"
+  },
+  {
+   "ref": "U105",
+   "symbol": "74xGxx:SN74LVC1G125DBV",
+   "value": "SN74LVC1G125DBVR",
+   "footprint": "Package_TO_SOT_SMD:SOT-23-5",
+   "lcsc": "C23654",
+   "pins": {
+    "1": "DEBUG_UART_TX",
+    "2": "ESP_IO2_MISO",
+    "3": "GND",
+    "4": "SPI_MISO",
+    "5": "+3V3"
+   },
+   "why": "MISO tri-state buffer, /OE = ESP chip select (GPIO46). Powered from Croco +3V3: off with Croco -> Ioff Hi-Z, never drives an unpowered RP2350/SD/RTC (SCES223U 7.3.2 p10)",
+   "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc1g125.pdf"
+  },
+  {
+   "ref": "C116",
+   "symbol": "Device:C",
+   "value": "100nF 16V X7R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C1525",
+   "pins": {
+    "1": "+3V3",
+    "2": "GND"
+   },
+   "why": "U105 VCC decoupling"
+  },
+  {
+   "ref": "U106",
+   "symbol": "74xGxx:74LVC3G34",
+   "value": "SN74LVC3G34DCUR",
+   "footprint": "Package_SO:VSSOP-8_2.3x2mm_P0.5mm",
+   "lcsc": "C130024",
+   "pins": {
+    "1": "SPI_CLK",
+    "2": "ESP_CS",
+    "3": "SPI_MOSI",
+    "4": "GND",
+    "5": "ESP_MOSI",
+    "6": "DEBUG_UART_TX",
+    "7": "ESP_SCK_BUF",
+    "8": "+3V3_RF"
+   },
+   "why": "Inbound SCK/MOSI/CS buffer powered from the radio rail: Ioff blocks the RP2350 from back-powering an unpowered ESP through its IO clamps (ESP VIH max = VDD+0.3 V) (SCES366L p1, p8)",
+   "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc3g34.pdf"
+  },
+  {
+   "ref": "C117",
+   "symbol": "Device:C",
+   "value": "100nF 16V X7R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C1525",
+   "pins": {
+    "1": "+3V3_RF",
+    "2": "GND"
+   },
+   "why": "U106 VCC decoupling"
+  },
+  {
+   "ref": "R122",
+   "symbol": "Device:R",
+   "value": "33R 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25105",
+   "pins": {
+    "1": "ESP_SCK_BUF",
+    "2": "ESP_SCK"
+   },
+   "why": "SCK series damping at the buffer output (HW guide 1.3.8 recommends R on SPI_CLK)"
+  },
+  {
+   "ref": "U107",
+   "symbol": "radio:CH334P",
+   "value": "CH334P",
+   "footprint": "Package_DFN_QFN:QFN-16-1EP_3x3mm_P0.5mm_EP1.75x1.75mm",
+   "lcsc": "C5373042",
+   "pins": {
+    "1": "HUB_XO",
+    "2": "HUB_XI",
+    "3": "NC",
+    "4": "NC",
+    "5": "NC",
+    "6": "NC",
+    "7": "HUB_P2_DM",
+    "8": "HUB_P2_DP",
+    "9": "USB_RP_D-",
+    "10": "USB_RP_D+",
+    "11": "USB_D_prot-",
+    "12": "USB_D_prot+",
+    "13": "NC",
+    "14": "NC",
+    "15": "+3V3",
+    "16": "+3V3",
+    "17": "GND"
+   },
+   "why": "USB 2.0 hub behind Croco USB-C/USBLC6: port 1 -> RP2350 (via existing R9/R10), port 2 -> ESP32-C3. V5 = VDD33 = Croco +3V3 (external 3.3 V mode, CH334 DS 4.2 p19). RESET# and PGANG left open (internal pull-ups, 3.2.2 p11)",
+   "datasheet": "https://www.wch-ic.com/downloads/CH334DS1_PDF.html"
+  },
+  {
+   "ref": "Y101",
+   "symbol": "Device:Crystal_GND24",
+   "value": "12MHz 10pF 10ppm",
+   "footprint": "Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm",
+   "lcsc": "C668845",
+   "pins": {
+    "1": "HUB_XO",
+    "2": "GND",
+    "3": "HUB_XI",
+    "4": "GND"
+   },
+   "why": "Hub crystal (crystal-less mode is a factory option not guaranteed on stock parts, CH334 DS 6.2 p27). No load caps: XI/XO have ~16 pF internal (6.1 p26). Same part as Croco Y1."
+  },
+  {
+   "ref": "C118",
+   "symbol": "Device:C",
+   "value": "1uF 25V X5R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C52923",
+   "pins": {
+    "1": "+3V3",
+    "2": "GND"
+   },
+   "why": "CH334P V5 pin cap (>=1 uF, Table 1-3 p4)"
+  },
+  {
+   "ref": "C119",
+   "symbol": "Device:C",
+   "value": "1uF 25V X5R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C52923",
+   "pins": {
+    "1": "+3V3",
+    "2": "GND"
+   },
+   "why": "CH334P VDD33 decoupling (1 uF option, Table 1-3 p4)"
+  },
+  {
+   "ref": "C120",
+   "symbol": "Device:C",
+   "value": "100nF 16V X7R",
+   "footprint": "Capacitor_SMD:C_0402_1005Metric",
+   "lcsc": "C1525",
+   "pins": {
+    "1": "+3V3",
+    "2": "GND"
+   },
+   "why": "CH334P VDD33 HF decoupling"
+  },
+  {
+   "ref": "R120",
+   "symbol": "Device:R",
+   "value": "22R 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25092",
+   "pins": {
+    "1": "HUB_P2_DP",
+    "2": "ESP_USB_DP"
+   },
+   "why": "ESP USB D+ series R, 22-33 R recommended near the chip (HW guide 1.3.12)"
+  },
+  {
+   "ref": "R121",
+   "symbol": "Device:R",
+   "value": "22R 1%",
+   "footprint": "Resistor_SMD:R_0402_1005Metric",
+   "lcsc": "C25092",
+   "pins": {
+    "1": "HUB_P2_DM",
+    "2": "ESP_USB_DM"
+   },
+   "why": "ESP USB D- series R"
+  }
+ ]
+}

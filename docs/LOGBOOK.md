@@ -270,3 +270,44 @@ Findings:
   - do the first full calibration on USB power (when flashing) and store it in NVS; the cart slot must never see a full calibration;
   - measure the partial-calibration current profile on a dev board before ordering. Pass if it is below the 10 ms @ 50 % energy (about 7 mJ above the input supply).
 - With forced 1 Mbps frames of 4.5 ms (536-byte MSS) the admission rule refuses everything at the worst corner (it assumes no input during the frame). **MSS has to come down to about 300 bytes** for the 1 Mbps fallback case, or the admission rule must count the guaranteed input current. To do in the firmware.
+
+## 2026-10-14 06:03 Replacing the BQ24075: precision input-voltage regulator, transistor level
+
+### Why
+The BQ24075 was the only A5 failure (weak console at its 4.35 V VIN-DPM minimum). It is also a Li-ion charger running without a battery (endless 250 ms battery-detect cycle, sleep comparator ~0.15 V above the DPM minimum). Research found no stocked part with a resistor-set threshold better than +-2 %. So: a discrete loop.
+
+### Circuit (sim/power/inreg.py)
+`VMUX -> TPS2553 (150 mA) -> back-to-back PMOS pair (Vishay SiA975DJ dual, C141597) -> VRES`. A TLV431B (0.5 %, C398375) watches VMUX through 27.0k/10.0k (set-point 1.24 x 3.7 = 4.588 V) and pulls the shared gate down when the console rail is above the set-point. Back-to-back so neither the reservoir nor USB can ever feed the cart rail. The divider senses the mux output, so on USB power the regulator is simply fully on.
+
+### Vendor models (sim/models/)
+- A helper downloaded TI's TLV431 (SLIM005), TPS2553 (SLVM425), TPS63802 (SLVMCX1) and Vishay SiA975DJ / Si2371EDS models and checked each against its datasheet: TLV431 1.2409 V and 0.251 ohm dynamic impedance (datasheet 1.240 V, 0.25 ohm); SiA975DJ 54.8 mOhm at -2.5 V (datasheet 49 typ / 60 max); TPS2553 limit 1.288 A at 20k (equation 1.28 A).
+- Two TI models were silently broken in ngspice: PSpice's boolean XOR `^` is the power operator in ngspice, which disabled the TPS2553 a millisecond after start; the TPS63802 one-shot had a zero-delay loop. Both patched, documented.
+- Model caveat: the TLV431 model's regulation knee is too soft below ~0.5 mA (sinks current slightly below the threshold). Pessimistic for us; designs are kept in the >0.5 mA region.
+- **Licence:** TI/Vishay allow simulation use, not public redistribution. The repo is public, so the vendor files are git-ignored and `sim/models/fetch_models.py` downloads them, checks SHA-256 and applies the patches. Audited: its output is line-for-line identical to the hand-patched files.
+
+### Results so far
+- DC: regulates the console at **4.589-4.598 V** from weak (2.5 ohm) to tired-plus (1.4 ohm) consoles (load regulation 9 mV). Fresh and tired consoles are above the set-point at the full 150 mA, so the regulator is simply fully on there.
+- Loop gain (Middlebrook injection between VMUX and the divider, where the impedance ratio is ~37k : 1 ohm): with Cc = 10 nF from cathode to REF, crossover 14-390 Hz, **phase margin 69-85 deg**, gain margin > 57 dB across console impedance 1.4-2.55 ohm and console capacitance 47-220 uF.
+- Bug in my own harness, caught by a nonsense result: the DC operating point converged to VCC = 1.09 V for one variant, and the AC analysis was then computed around that garbage point (it showed PM "999"). Fix: `.nodeset` initial guess, and every operating point is checked for plausibility.
+
+### Problem found: integrator wind-up
+New transient tests (cart-side soft start modelled: TPS2116 1 ms, TPS2553 1.5 ms rise):
+1. **Hot-plug on a weak console:** VCC dips to 4.38 V (R = 2.0 ohm) for ~4 ms.
+2. **Burst after idle (worse, it happens in normal use):** when the reservoir is full no current flows, the console looks healthy, so the TLV431 integrator winds all the way to "fully on" (cathode at 0 V, Cc charged the wrong way). The next radio burst drains the reservoir, the full 150 mA flows instantly, and the loop needs 3-5 ms to unwind. VCC 4.38 V at 2.0 ohm, 4.29 V at 2.3 ohm.
+
+What did not fix it (all simulated, numbers in `sim/power/inreg_search.py` history):
+- TPS2553 enable delay (15 ms): no change, the wind-up happens anyway.
+- Bias resistor from VMUX to the cathode: no change.
+- Faster/larger proportional term (Rc up to 2.2 M): hot-plug improves but phase margin collapses to 14-38 deg, and crossover moves to 14-74 kHz where the TLV431 macro-model is least trustworthy. Rejected.
+- Gate capacitor as the dominant pole instead of Cc: unstable (negative phase margin).
+
+**What works: anti-wind-up clamp.** Move the integrator capacitor to the gate node and clamp the gate to at most ~2 diode drops below the source. The integrator can then only wind up to "just fully on" (~0.4 V of extra swing instead of ~3.4 V), and the TLV431's current in saturation is bounded by Rk. First results: burst-after-idle +17 to +74 mV margin (was -213 mV), hot-plug +8 mV with Rk 2.2k / Cc 2.2 nF; phase margin 42 deg there, just under my 45 deg rule. Fine-tuning Rk/Cc/Rc now.
+
+## 2026-10-14 06:20 A8: formal regulator audit of the anti-wind-up candidate (Rk 2.2k, Cc 2.2n on gate, Rc 10k, 2-diode clamp)
+
+`sim/power/audit_inreg.py`, ~140 corners (console 1.4-3.0 ohm and 47-220 uF, Cc +-10 %, Rk/Rc +-1 %). **58 FAIL. Not accepted.** What it found:
+1. **The clamp starves the charger.** Two diodes clamp the gate to about -1.2 V, which on the SiA975DJ only passes ~70 mA when the reservoir is low (FET in saturation, 0.6 V overdrive). At 1.4 and 1.8 ohm the console sits at 4.67 V instead of 4.59 V, i.e. the "regulator" is stuck on the clamp, loop gain -55 dB. Safe for the console, but it would halve the radio's power on fresh consoles. The clamp needs to sit near -1.5 V (enough overdrive for 150 mA, little extra wind-up).
+2. **Hot-plug on the weakest consoles (2.5 ohm with 47 uF, 3.0 ohm):** dips 7-82 mV under the limit. At 3.0 ohm the console alone is below the set-point, so the regulator should never turn on. Suspect the TLV431 model's soft knee (it sinks current 1.5 % below the threshold, the real part does not). Needs a cross-check with an independent TLV431 model before I believe either way.
+3. Passed: set-point accuracy where it regulates (+0.03 to +0.42 %), all operating points plausible, worst phase margin 46 deg, burst-after-idle +79 to +137 mV everywhere it applies.
+
+Next: clamp at ~1.5 V (diode + resistor, or a red LED as a 1.6 V knee), second TLV431 model for cross-check, re-run A8.

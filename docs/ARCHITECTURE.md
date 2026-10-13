@@ -13,9 +13,11 @@ Status: design in progress (2026-10-14). Nothing here has been built yet. See `L
                    │                    ▲
    USB-C VBUS ─────┼── F1 ── D3 ────────┘
                    │
-                   │   NEW (bottom side)
-                   └─► power mux (prefers USB) ─► TPS2553 (150mA cap) ─► BQ24075 (holds input >= 4.5V)
-                        ─► 1.4mF polymer reservoir ─► TPS63802 buck-boost ─► 3.3V radio rail ─► ESP32-C3-MINI-1
+                   │   NEW (top side, Croco top side re-laid out; see LOGBOOK 04:54 / 04:57)
+                   └─► TPS2116 power mux (prefers USB) ─► VMUX ─► TPS2553 (150mA cap, 129-174mA)
+                        ─► precision input-voltage regulator (TLV431B + back-to-back PMOS, holds VMUX >= 4.58V +-1%)
+                        ─► ~1mF reservoir (3x 6TPE330MAP, 1.8mm) ─► power-good (on 4.2V / off 2.0V)
+                        ─► TPS63802 buck-boost ─► 3.3V radio rail ─► ESP32-C3-MINI-1U (u.FL, stick-on antenna)
                                                                                  │
    RP2350 SPI0 (GPIO0 MISO / GPIO2 SCK / GPIO3 MOSI, shared with SD + RTC) ◄────┤ SPI slave
    RP2350 GPIO46 (was debug UART TX) ─── ESP chip select ───────────────────────┘
@@ -25,16 +27,16 @@ Status: design in progress (2026-10-14). Nothing here has been built yet. See `L
 
 | Block | Why |
 |---|---|
-| Croco V2 untouched on the top side | Proven on DMG and GBC, already JLC-assembly ready. Every Croco part sits on the top; the bottom is empty, so the radio lives there without moving anything that works. |
-| Power stage taps the raw cart VCC, **before** Croco's D2 Schottky | The input-voltage regulation has to see the real console rail. Behind the diode it would see ~0.3V less and fold back on healthy consoles. |
-| Power mux (prefers USB) | Lets the radio run (and be flashed) on USB alone, and when both are present takes power from USB so the console is spared. Part being selected (TPS2116 class ideal-diode mux). |
-| TPS2553 at 150mA | Smooth, constant ceiling on what the cartridge can ever take for the radio, inrush-free hot-plug. |
-| BQ24075 in USB500 mode | Datasheet-guaranteed VIN-DPM loop: cuts current so its input never falls below 4.5V typ (4.35-4.63V). Only works in USB modes (EN2 low), checked in datasheet. |
-| Precision 4.45V comparator on the charge path | Hard floor that covers the BQ24075's 4.35V worst-case tolerance. |
-| 1.4mF reservoir (3x Panasonic 6TPE470MI) | Carries 2-12ms TX bursts. Polymer: 18 mOhm ESR each, no supercap aging. |
-| TPS63802 buck-boost | Keeps 3.3V down to ~1.6V reservoir, so the reservoir's whole charge is usable. |
-| ESP32-C3-MINI-1 | In JLC stock, RISC-V, native USB for flashing, mature IDF/Arduino. Datasheet peak 335mA is absorbed by the reservoir. |
-| Radio firmware owns its power policy | It reads its reservoir and the cart rail on its own ADC: below 4.0V reservoir no new TX bursts, below 3.5V modem-sleep, cart rail below 4.55V back off. Simulated in `sim/power`. |
+| Croco V2 core kept, top side re-laid out | Proven on DMG and GBC, JLC-assembly ready. The shell leaves ~0 mm under the board, so the radio has to go on the top side; the RP2350/HyperRAM/flash core routing stays untouched, peripheral parts move (LOGBOOK 04:54, 04:57). |
+| Power stage taps the cart rail before Croco's D2 Schottky | The input-voltage regulation has to see the real console rail. Behind the diode it would see ~0.3V less and fold back on healthy consoles. |
+| TPS2116 power mux (prefers USB) | Radio runs and can be flashed on USB alone; with both present the console is spared. The regulator senses the mux output, so on USB it is simply fully on. |
+| TPS2553 at ~150mA (RILIM 180k: 129/150/174 mA min/nom/max) | Absolute ceiling and inrush-free hot-plug. 150 mA at 5 V is about the power of the whole DMG (Pan Docs: ~0.7 W), which is why it is not higher. |
+| Precision input-voltage regulator (TLV431B + back-to-back PMOS) | Replaces the BQ24075 (LOGBOOK 05:22 / 05:29): its VIN-DPM tolerance (4.35 V min) let a weak console sit at 4.45 V, it is a Li-ion charger running without a battery, and its sleep comparator sits close to the DPM point. The TLV431B loop holds the console at 4.58 V +-1 %, set by one resistor. Stability to be proven in `sim/power/inreg.py` with vendor models. |
+| ~1 mF reservoir (3x Panasonic 6TPE330MAP, 1.8 mm) | Fits the shell height (the 3.8 mm 6TPE470MI did not). Carries 2-2.5 ms TX frames; console safety does not depend on its size. |
+| Power-good on 4.2 V / off 2.0 V | The radio is either properly powered or completely off; never browns out (ESP-IDF issue #17881: a C3 brown-out mid-TX can leave the RF stuck on). |
+| TPS63802 buck-boost | Keeps 3.3 V down to ~1.3 V input, so most of the reservoir's charge is usable. |
+| ESP32-C3-MINI-1U | In JLC stock, native USB for flashing, u.FL to a stick-on antenna in the shell's grip (no soldering). TX peak 350 mA is absorbed by the reservoir. |
+| Radio firmware owns its power policy | `firmware/esp32c3/components/power_mgr`: per-frame TX admission from reservoir energy, modem/light-sleep, controlled park, cart-rail watch with hysteresis. Co-simulated as shipped C code (`sim/power/cosim.py`, audit A6). Hard rules: full RF calibration only on USB, 11b data rates off, small MSS. |
 
 ## RP2350 pin budget
 

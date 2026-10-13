@@ -1,0 +1,32 @@
+* TPS2553 transient model test (ngspice-patched lib)
+* VIN=5V, EN driven high at 0.2ms, RILIM=20k (datasheet: IOS(mA) = 23950/RILIM(kohm)^0.977 = 1281 mA)
+* Load A: 10 ohm (0.5A, below limit). Load B: 1 ohm (forces current limit).
+.include ../ti_tps2553/TPS2553_TRANS.lib
+Vin in 0 5
+Ven en 0 PULSE(0 5 0.2m 10u 10u 100 200)
+XA in 0 en 0 fltA ilimA outA TPS2553_TRANS
+RilA ilimA 0 20k
+RlA outA 0 10
+CoA outA 0 10u
+RpuA in fltA 100k
+XB in 0 en 0 fltB ilimB outB TPS2553_TRANS
+RilB ilimB 0 20k
+RlB outB 0 1
+CoB outB 0 10u
+RpuB in fltB 100k
+.tran 1u 12m
+.control
+run
+meas tran voutA_5m FIND v(outA) AT=5m
+meas tran iin_both_5m FIND i(Vin) AT=5m
+meas tran voutB_5m FIND v(outB) AT=5m
+let iB = v(outB)/1
+meas tran ioutB_5m FIND iB AT=5m
+meas tran ioutB_pk MAX iB FROM=0.2m TO=12m
+meas tran voutA_0p1m FIND v(outA) AT=0.1m
+meas tran fltB_6m FIND v(fltB) AT=6m
+meas tran fltB_11m FIND v(fltB) AT=11m
+meas tran tfault WHEN v(fltB)=2.5 FALL=1
+meas tran fltA_6m FIND v(fltA) AT=6m
+.endc
+.end
