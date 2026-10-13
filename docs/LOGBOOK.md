@@ -347,3 +347,21 @@ New time-domain test `sim/power/inreg_ring.py`: reservoir held at 3.0 V like the
 - The console rail barely sees it (< 0.6 mV), so it would not crash a Game Boy, but a regulator that oscillates is not acceptable: it is a sign the loop is wrong somewhere, it radiates next to a 2.4 GHz radio front-end, and it can change character with real part spread.
 - Quick scan at 1.4 ohm: Rc 0 still rings (179 mV), a cap on REF makes it worse (lower frequency, larger), **Rg = Rk = 4.7k or a 47 nF gate-source capacitor stop it completely**.
 - So the ring test is a gate of its own. Search round 3 (`inreg_vka.py`): Rg 1.5k/2.2k, Rk 1k/2.2k, Cc 2.2/3.3 nF, Cg 10/22/47 nF, gated on Vka, GM >= 10 dB over all crossings, ring < 5 mV over 5 console impedances x 2 capacitances, then PM/hot-plug/burst. Running.
+
+## 2026-10-14 08:27 The oscillation is real; round 3 fails everywhere; root cause and two fixes
+
+### Round 3 (`out/inreg_vka.log`): 24/24 rejected
+Rg 1.5k/2.2k x Rk 1k/2.2k x Cc 2.2/3.3n x Cg 10/22/47n. Cathode now in range everywhere (1.96-3.02 V), but gain margin -13 to +5 dB and gate ringing 8-320 mV in every combination. Rk changes nothing in AC (identical GM for 1k and 2.2k), larger Rg makes the ringing worse.
+
+### Is it the model? Two suspects eliminated
+1. **The behavioural TPS2553** (ideal instantaneous current limit) could fight the regulator. Raising its limit to 0.5 A so it never limits: still rings (146 mV vs 283 mV for Rg 1.5k at 1.4 ohm). Then `sim/power/inreg_ring_vendor.py` with **TI's TPS2553 transient model** (start from an empty cart, power-on hold releases at ~45 ms, step at 80 ms, 200 ns max step): current design 27 mV at 314 kHz with a 41 mA p-p current ripple, Rg 1.5k/Rk 1k 228 mV at 258 kHz with 200 mA p-p and the switch pushed into its limit. Same as the behavioural model. **Real, within the vendor models.**
+2. Numerics: already excluded (08:19).
+
+### Root cause
+`sim/power` probe at 1.4 ohm, Rg 1.5k/Rk 1k: the console rail moves 0.5 mV, but REF swings 130 mV, the cathode 1.15 V, the gate 310 mV and the reservoir current 300 mA p-p. The outer loop (through the console) is quiet, a **local loop is oscillating**: TLV431 -> Rk -> gate (Cc + FET input capacitance) -> Cc -> Rc -> REF -> TLV431. Putting the integrator capacitor on the gate (the 06:03 anti-wind-up change) put an Rk-C pole *inside* the TLV431's own feedback path, and the TLV431's rising output impedance does the rest.
+
+Quick ring test, 4 consoles (1.4-2.2 ohm), behavioural model:
+- **X: integrator back on the cathode (classic TL431 Type-II), Cc 10 nF, Rk = Rg = 680:** no ringing anywhere, cathode 2.45-2.69 V (in range). Wind-up then has to be bounded on the cathode instead of the gate.
+- **Y: keep it on the gate, add a gate-source capacitor (47-100 nF):** no ringing anywhere.
+- Damping the switch output node (series resistance on its 1 uF) does nothing.
+Round 4 (`sim/power/inreg_fix.py`) runs X and Y variants through every gate (cathode range, GM over all crossings, ring test at 5 consoles x 2 capacitances, PM, hot-plug, burst-after-idle).
