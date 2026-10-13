@@ -60,4 +60,21 @@ Reading it:
 3. With input-voltage regulation the console rail **never** goes below 4.5V in any case. On a weak console the radio gets almost no power, so it stays associated in modem-sleep and waits. The game never crashes. That is the intended trade.
 4. Thresholds matter: the first run throttled at 3.0V and the reservoir lived at 3V, where a linear current limiter only delivers I x 3V into it. Moving throttle/power-save to 4.0V/3.5V keeps the reservoir near 4-4.5V and lifted busy-traffic throughput from 79% to 99% at the same 150mA.
 
+## Results, round 4: the chosen parts (TPS2553 150mA -> BQ24075 VIN-DPM)
+
+Variants `final` (BQ24075 VIN-DPM at 4.5V typ), `final_lo` (4.35V, datasheet min) and `final_hi` (4.63V, max), all with a 4.45V precision supervisor and the firmware rail watch (radio backs off when the cart rail < 4.55V). Full table in `out/results.txt`.
+
+| console | corner | GBmin | ms < 4.5V | TX delivered (traffic / worst / stress) |
+|---|---|---|---|---|
+| fresh | all three | 4.78 | 0 | 99% / 79% / 62% |
+| tired | typ / min | 4.63 | 0 | 99% / 71% / 62% |
+| tired | max | 4.66 | 0 | 98% / 61% / 41% |
+| weak | typ | 4.52 | 0 | 6% / 1% / 6% (radio parked) |
+| weak | min | **4.46** | **57 (once, at plug-in)** | 6% / 1% / 6% |
+| weak | max | 4.63 | 0 | 0%, reservoir 2.06V: radio power cycles -> firmware must deep-sleep below 3.0V |
+
+Open item for hardware: the 57ms plug-in dip to 4.46V on a weak console with a min-tolerance BQ24075. Likely harmless (CMOS logic, brief), but it is the single case below the conservative 4.5V line.
+
+Also tested and rejected: BQ24075 alone in USB100 (95mA, only 34% busy-traffic airtime) and alone in USB500 (100% airtime but the console rail swings 0.3-0.4V on every burst on a fresh console). Those rows were produced by an earlier revision of the script (variants `bq100`, `bq100lo`, `bq500`).
+
 Plots: `plot_traffic_2ms_20pct.png`, `plot_worst_11b_12ms.png`, `plot_stress_50pct.png` (tired-battery case).
