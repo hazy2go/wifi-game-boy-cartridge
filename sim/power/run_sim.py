@@ -91,7 +91,7 @@ quit
 """
 
 
-def netlist_new(chip, prof, cons, ilim=0.150, cres=1.41e-3, vdpm=None, psave=False, rsw=0.085, gain=None, gbwatch=False, vsup=4.38):
+def netlist_new(chip, prof, cons, ilim=0.150, cres=1.41e-3, vdpm=None, psave=False, rsw=0.085, gain=None, gbwatch=False, vsup=4.38, resr=0.006):
     """Proposed: GB 5V -> current-limited switch (TPS2553 class, optional input-voltage regulation
     'DPM' loop) -> polymer reservoir -> TPS63802 buck-boost -> 3.3V radio.
     Croco logic (RP2350+HyperRAM via AP2112) sits on the raw cartridge rail.
@@ -117,7 +117,7 @@ Ren en 0 1meg
 * current-limited switch: 85 mOhm, constant-current limit, no reverse current, optional DPM foldback
 Bsw gb res I = V(en) * max(0, min({lim}, (V(gb)-V(res))/{rsw}))
 Cres res cresn {cres}
-Resr cresn 0 0.006
+Resr cresn 0 {resr}
 Rbleed res 0 100k
 * radio power-good with hysteresis (on at 4.2V, off at 2.0V)
 Bpgx pgx 0 V = 0.5*(1+tanh((V(res)-(4.2-2.2*V(pg)))/0.02))
@@ -165,6 +165,10 @@ VARIANTS = [  # (tag suffix, label, kwargs)
     # chosen: TPS2553 150mA in front of BQ24075 USB500 (VIN-DPM 4.35/4.5/4.63V) + firmware rail watch
     ('final', 'TPS2553 150mA + BQ24075 DPM 4.5V typ + fw', dict(ilim=0.150, vdpm=4.5, psave=True, rsw=0.285, gain=5, gbwatch=True, vsup=4.45)),
     ('final_lo', 'same, DPM at 4.35V (min)', dict(ilim=0.150, vdpm=4.35, psave=True, rsw=0.285, gain=5, gbwatch=True, vsup=4.45)),
+    # low-profile reservoir (shell height): 6TPE330MAP 330uF 25mOhm 1.8mm, n in parallel
+    ('c660', 'final, 2x 330uF 1.8mm', dict(ilim=0.150, vdpm=4.5, psave=True, rsw=0.285, gain=5, gbwatch=True, vsup=4.45, cres=0.66e-3, resr=0.0125)),
+    ('c990', 'final, 3x 330uF 1.8mm', dict(ilim=0.150, vdpm=4.5, psave=True, rsw=0.285, gain=5, gbwatch=True, vsup=4.45, cres=0.99e-3, resr=0.0083)),
+    ('c1320', 'final, 4x 330uF 1.8mm', dict(ilim=0.150, vdpm=4.5, psave=True, rsw=0.285, gain=5, gbwatch=True, vsup=4.45, cres=1.32e-3, resr=0.00625)),
     ('final_hi', 'same, DPM at 4.63V (max)', dict(ilim=0.150, vdpm=4.63, psave=True, rsw=0.285, gain=5, gbwatch=True, vsup=4.45)),
 ]
 rows = []

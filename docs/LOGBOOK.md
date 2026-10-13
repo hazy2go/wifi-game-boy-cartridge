@@ -1,21 +1,21 @@
 # Logbook: WiFi Game Boy cartridge, rock-solid revision
 
 Running engineering log. Newest entries at the bottom. Every entry says what was done, what was found, why a decision was made, and what is still unverified.
-Times are JST.
+Times are JST. (Corrected 04:58: the first entries were written with estimated times; all headings now match the git commit times.)
 
 ---
 
-## 2026-10-14 04:05 Starting point
+## 2026-10-14 04:04 Starting point
 
 - Upstream: Staacks/wifi-game-boy-cartridge (2021). ESP8266 + 32KiB EEPROM + 74AHCT logic, two magic addresses (0x7FFE read, 0x7FFF write) mapped to the ESP.
 - Upstream README: "The brown-out issues have never been resolved and this is more a proof of concept than a consumer product."
 - Goal for this fork: a revision that is rock solid on every Game Boy and can be ordered fully assembled (JLCPCB PCBA). Nothing hand-soldered. Nothing gets ordered until simulation, design rule checks and a written test plan all pass.
 
-## 2026-10-14 04:10 Fork
+## 2026-10-14 04:09 Fork
 
 - Forked to hazy2go/wifi-game-boy-cartridge, `upstream` remote kept. Work happens on branch `redesign`.
 
-## 2026-10-14 04:15 Audit of the original design
+## 2026-10-14 04:12 Audit of the original design
 
 Method: parsed `pcb/wifi-gb-cart.kicad_pcb` (pad-to-net map), read the legacy schematic, BOM and every firmware file. Full findings in `docs/REDESIGN.md` section 1. The ones that matter most:
 
@@ -26,7 +26,7 @@ Method: parsed `pcb/wifi-gb-cart.kicad_pcb` (pad-to-net map), read the legacy sc
 5. Firmware: no WiFi mode/TX power/sleep settings, ISRs mask interrupts and busy-wait with no guaranteed output-off timeout, open-drain pin init (D7 stuck low), samples taken after timed-out edge waits (ghost button presses), stack overflow in wiki.ino URL builder.
 6. Board: no decoupling on U1-U5/U8/U9, top ground split into ~27 islands, status LED reversed.
 
-## 2026-10-14 04:20 Prior art research
+## 2026-10-14 04:18 Prior art research
 
 - Upstream issue #2 "Power instabilities" still open: 5V measured collapsing to ~3V on tired NiMH while the ESP boots. Author swapped NCP1117 for AP7361C (lower dropout), not confirmed as a fix.
 - Upstream issue #6 (Jan 2026): author says he would design many things differently, BLE "might immediately solve the issue of brownouts", no further work planned.
@@ -34,7 +34,7 @@ Method: parsed `pcb/wifi-gb-cart.kicad_pcb` (pad-to-net map), read the legacy sc
 - No documented current limit exists for the cartridge 5V pin on any Game Boy. DMG 5V is a crude transformer converter (2SD1664 + 4.7V zener feedback), not a regulated supply. Nintendo gave GBC rumble carts their own AAA battery. Croco Cartridge warns an overclocked RP2040 can already be too much for an original DMG.
 - **Newer WiFi chips are worse on peaks, not better:** ESP8266 170mA, ESP32-C3 335mA, C6 354mA, S3 340mA, C5 up to 408mA, Pico W radio 271mA (all at 3.3V, datasheets). So the fix must be in the power path, not in the chip choice.
 
-## 2026-10-14 04:25 Decision: Rev B (base on Croco Cartridge V2)
+## 2026-10-14 04:26 Decision: Rev B (base on Croco Cartridge V2)
 
 Options were Rev A (patch the Staacks design) or Rev B (start from Croco Cartridge V2 by shilga, add WiFi).
 
@@ -44,7 +44,7 @@ Chosen: **Rev B**. Why:
 - The only new risk is the radio + power stage, and that can be simulated before ordering.
 - Cost: roughly $25-35 per assembled board vs ~$15 for Rev A. Worth it.
 
-## 2026-10-14 04:30 Croco V2 board scan
+## 2026-10-14 04:27 Croco V2 board scan
 
 Source: github.com/shilga/rp-gameboy-cartridge-hw, `KiCad/V2/GameboyCartridgeV2.1`.
 - 4-layer board, outline 52.8 x 61.2 mm, 0.8mm thickness + ENIG recommended by the author.
@@ -53,11 +53,11 @@ Source: github.com/shilga/rp-gameboy-cartridge-hw, `KiCad/V2/GameboyCartridgeV2.
 - No bulk energy storage anywhere on V2.
 - Open questions: free RP2350 GPIOs for an SPI link to the radio, shell clearance on the bottom side, antenna keep-out vs ground pours on a 4-layer board.
 
-## 2026-10-14 04:35 Tooling
+## 2026-10-14 04:27 Tooling
 
 - Installed ngspice (brew) for the power simulation. KiCad 9 installing (cask) for ERC/DRC and BOM/CPL export from the command line.
 
-## 2026-10-14 04:40 Power simulation, round 1 (plain limiter)
+## 2026-10-14 04:30 Power simulation, round 1 (plain limiter)
 
 Built `sim/power/run_sim.py` (behavioural ngspice models, all assumptions in `sim/power/README.md`). Every run is a hot-plug into a running console, 2s, three radio load profiles, three console supply strengths.
 
@@ -65,13 +65,13 @@ Built `sim/power/run_sim.py` (behavioural ngspice models, all assumptions in `si
 - Swapping the original's ESP8266 for an ESP32-C3 makes it much worse (tired console: 3ms below 4.5V becomes 353-747ms). Confirms "a newer chip alone is not a fix".
 - A plain 150mA limiter + reservoir fixes fresh and tired consoles (rail never below 4.63V) but **fails on a weak console**: the rail sits at 4.39V the whole time, because 100mA console + 60mA Croco + 150mA radio is too much for a weak supply.
 
-## 2026-10-14 04:45 Round 2: input-voltage regulation (DPM)
+## 2026-10-14 04:32 Round 2: input-voltage regulation (DPM)
 
 Idea taken from solar/USB battery chargers: instead of a fixed current, the cartridge only takes what the console can give while its rail stays above a threshold.
 - With fold-back at 4.6V: console rail never below 4.62V in all 9 cases. But on a weak console the radio starved: reservoir fell to 2.05V, radio nearly lost power.
 - Added a firmware power-save state (radio drops to modem-sleep when the reservoir is low). Still starved at 4.6V; at 4.5V fold-back there is enough headroom.
 
-## 2026-10-14 04:50 Round 3: throttle thresholds (the non-obvious one)
+## 2026-10-14 04:34 Round 3: throttle thresholds (the non-obvious one)
 
 - With the firmware throttle at 3.0V the reservoir lived at ~3V. A linear current limiter delivers I x V(reservoir) into the cap and burns the rest, so at 3V it only delivers ~60% of what it takes from the console. Throughput was capped at 79% on busy traffic.
 - Raised throttle to 4.0V and power-save to 3.5V: the reservoir lives near 4-4.5V where the limiter is efficient. Busy-traffic throughput went to **99%** at the same 150mA.
@@ -83,7 +83,7 @@ Idea taken from solar/USB battery chargers: instead of a fixed current, the cart
 
 Still unverified (needs real hardware): actual console supply impedance, Croco's real current, ESP32-C3 modem-sleep average, real fold-back circuit behaviour. A part search for a buildable fold-back circuit is running.
 
-## 2026-10-14 04:55 Finding a real chip for the fold-back
+## 2026-10-14 04:37 Finding a real chip for the fold-back
 
 Part search (datasheets downloaded, stock from JLC's API):
 - **BQ24075** (TI Li-ion charger with power path, C15464, 16.7k in stock, ~$1.07). Has a VIN-DPM loop: below 4.5V typ (4.35 min, 4.63 max) on its input it cuts current. Checked in the datasheet text: VIN-DPM is only active in USB100/USB500 modes (EN2 low). Resistor-ILIM mode has no DPM. Used with charging disabled (CE high) and BAT switch off (SYSOFF high), its OUT pin is simply a current-limited, input-regulated supply for our reservoir.
@@ -93,7 +93,7 @@ Part search (datasheets downloaded, stock from JLC's API):
 - MCP73871 (VPCC adjustable) rejected: VPCC only cuts battery charging, load on OUT is unprotected.
 - Rejected for stock/specs: BQ25173 (no VINDPM, 0 stock), BQ25185 (100uF max on SYS), LTC4041/LTC3226 (cost/stock), MAX38889, BQ25190, BQ25504/BQ25570.
 
-## 2026-10-14 05:00 Power simulation, round 4: real BQ24075 behaviour + tolerance corners
+## 2026-10-14 04:39 Power simulation, round 4: real BQ24075 behaviour + tolerance corners
 
 Ran the BQ24075 alone in both modes and then the combination:
 - USB100 alone (95mA): console safe, but only 34% of busy-traffic airtime. Too little.
@@ -105,7 +105,7 @@ Ran the BQ24075 alone in both modes and then the combination:
 - Fixes: (1) radio firmware also watches the cart rail on its ADC and backs off below 4.55V, (2) precision 4.45V comparator gating the charge path as a hard floor (instead of the 4.38V APX803).
 - Result: worst corner is now a single 57ms dip to 4.46V right at plug-in on a weak console with a min-tolerance BQ24075, then >= 4.5V. Max-tolerance corner on a weak console: radio parks/cycles, console unaffected. Firmware rule added: if the reservoir falls below 3.0V the radio goes to deep sleep and retries later, instead of cycling.
 
-## 2026-10-14 05:10 How the radio connects to Croco
+## 2026-10-14 04:41 How the radio connects to Croco
 
 - Mapped every RP2350B pin from the Croco V2 PCB netlist: **all 48 GPIOs are used** (GB bus 17-45, HyperRAM 6-16, SPI0 + SD/RTC 0-3/5, button 4, debug UART TX 46, WS2812 LED 47).
 - Croco V2 firmware is Rust/Embassy (shilga/rp2350-gameboy-cartridge-firmware, GPL-3). GPIO46 is only defmt-serial logging.
@@ -115,20 +115,20 @@ Ran the BQ24075 alone in both modes and then the combination:
 - Radio flashing without soldering: ESP32-C3 native USB; preferred a USB hub chip behind the USB-C (both chips enumerate), fallback analog USB switch + slide switch.
 - Details: `docs/ARCHITECTURE.md`.
 
-## 2026-10-14 05:15 KiCad baseline
+## 2026-10-14 04:43 KiCad baseline
 
 - KiCad 10.0.6 installed. Ran ERC/DRC on the **unmodified** Croco V2.1 files to have a baseline before touching anything.
 - DRC (zones refilled): 199 solder-mask bridges, 107 clearance, 15 shorting items, 10 via diameter, 4 hole clearance, 3 unconnected, 2 items-not-allowed. ERC: 262 (mostly library/symbol link issues from opening a KiCad 8/9 project in 10).
 - Spot checks: the "shorts" are copper graphics inside footprints (SW1 soft button, J5 edge connector polygon); clearance hits use KiCad 10's default 0.2mm board minimum, Croco was designed to tighter JLC 4-layer rules. These boards were ordered and work, so most of this is rule configuration, not real defects.
 - Next: set an explicit JLC 4-layer rule set, re-run, and triage what is left into real vs. artefact **before** adding anything, so every new violation is ours.
 
-## 2026-10-14 05:20 Open mechanical question: does anything fit on the bottom?
+## 2026-10-14 04:44 Open mechanical question: does anything fit on the bottom?
 
 - A cartridge shell has limited interior depth. The coin-cell holder, USB-C and microSD on the top side set where the PCB sits. If the bottom only has ~1mm, a 2.4mm-thick ESP32-C3-MINI-1 does not fit there.
 - Antenna: a PCB antenna needs a copper keep-out on all 4 layers and must sit in the part of the cart that sticks out of the console. The top edge of Croco V2 is crowded (USB-C, microSD, LED, RTC crystal). Leaning towards ESP32-C3-MINI-1U (u.FL) + a stick-on FPC antenna in the shell's label area: plugs in, no soldering.
 - Research on shell clearances and stock for the remaining parts (power mux, USB hub, buffer, low-profile reservoir caps, MINI-1U, antenna) is running.
 
-## 2026-10-14 05:45 Mechanical result: the bottom side is unusable (plan change)
+## 2026-10-14 04:54 Mechanical result: the bottom side is unusable (plan change)
 
 Measured a community 3D model of an original-style DMG shell (Printables #804399, ±0.2mm, cross-checked against Wikipedia's 65.5 x 57 x 7.5mm):
 - Back wall ~1.15mm, front (label) wall ~2.0mm, interior cavity 4.65mm (5.3mm near the connector).
@@ -148,3 +148,22 @@ Candidate ways to make room on the top side (decision pending with Hazy):
 1. Replace the CR1220 coin-cell holder (largest top part, ~13 x 15mm footprint) with a small SMD rechargeable cell (e.g. ML621) and resync the clock over WiFi (NTP). Put the ESP32-C3-MINI-1U where the holder was, u.FL cable to a stick-on antenna in the shell's grip end.
 2. Keep the coin cell, relayout the whole top side tighter (high effort, high risk on a proven board).
 3. Bare ESP32-C3 chip with our own RF design (smallest, riskiest).
+
+## 2026-10-14 04:57 Decision: option 2, keep the coin cell, relayout the top side (Hazy)
+
+- Hazy chose to keep the CR1220 coin cell (clock retention for years) and relayout Croco's top side to fit the radio + power stage.
+- Area budget from the board file (KiCad pcbnew API, courtyard areas, top side): board 52.95 x 61.34mm. Edge connector region ~540mm2. Existing top parts excluding the connector ~1370mm2 of ~2650mm2 usable (52%). New parts estimate ~520mm2 courtyard (MINI-1U ~190, 3 reservoir caps ~110, BQ24075/TPS2553/TPS63802/mux/hub/buffer + passives ~220). After: ~71% density. Tight but realistic for 4 layers with 0402 passives.
+- Layout constraints to respect: top-side height 3.3-3.85mm, shell ribs at ~11mm and ~62mm from the connector end (keep tall parts out of those bands, Croco already does), antenna cable to the grip end.
+
+## 2026-10-14 05:02 Power simulation, round 5: low-profile reservoir
+
+The 3.8mm-tall 6TPE470MI does not fit, so re-ran the chosen design with 1.8mm-tall 6TPE330MAP (330uF, 25 mOhm) in parallel:
+
+| caps | radio up after plug-in | busy traffic | worst 802.11b (fresh/tired) | stress | console rail |
+|---|---|---|---|---|---|
+| 2x 330uF | 18ms | 99% | 54% / 50% | 63% | unchanged |
+| **3x 330uF** | 27ms | 99% | 65% / 59% | 62% | unchanged |
+| 4x 330uF | 37ms | 99% | 76% / 68% | 62% | unchanged |
+
+- Console safety does not depend on reservoir size at all (the limiter and the DPM loop decide that). Reservoir size only buys airtime for the long 12ms 802.11b frames.
+- **Chosen: 3x 6TPE330MAP (~1mF).** Firmware will disable 802.11b rates (`esp_wifi_config_11b_rate`), which removes the 12ms frames that need the big reservoir in the first place.
