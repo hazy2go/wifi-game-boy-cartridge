@@ -1,0 +1,100 @@
+# A8 precision input-voltage regulator audit
+design: R1 27000 R2 10000 Rg 680 Rk 2200 Cc 2.2n Rc 10000 comp on g, 2-diode gate clamp, TPS2553 EN delay 15 ms; set-point 4.588 V
+
+## A8.1/A8.2 DC set-point and operating-point plausibility
+PASS  A8.2 op R=1.4 vres=0.5: VCC 4.5983 V, I 125.3 mA, Vgs -1.03 V
+PASS  A8.1 set-point R=1.4 vres=0.5: 4.5983 V vs 4.5880 V (+0.22 %)
+PASS  A8.2 op R=1.4 vres=3.0: VCC 4.5983 V, I 125.3 mA, Vgs -1.04 V
+PASS  A8.1 set-point R=1.4 vres=3.0: 4.5983 V vs 4.5880 V (+0.22 %)
+PASS  A8.2 op R=1.4 vres=4.3: VCC 4.5983 V, I 125.3 mA, Vgs -1.04 V
+PASS  A8.1 set-point R=1.4 vres=4.3: 4.5983 V vs 4.5880 V (+0.22 %)
+PASS  A8.2 op R=1.8 vres=0.5: VCC 4.5940 V, I 64.0 mA, Vgs -1.00 V
+PASS  A8.1 set-point R=1.8 vres=0.5: 4.5940 V vs 4.5880 V (+0.13 %)
+PASS  A8.2 op R=1.8 vres=3.0: VCC 4.5940 V, I 64.0 mA, Vgs -1.00 V
+PASS  A8.1 set-point R=1.8 vres=3.0: 4.5940 V vs 4.5880 V (+0.13 %)
+PASS  A8.2 op R=1.8 vres=4.3: VCC 4.5940 V, I 64.0 mA, Vgs -1.01 V
+PASS  A8.1 set-point R=1.8 vres=4.3: 4.5940 V vs 4.5880 V (+0.13 %)
+PASS  A8.2 op R=2.2 vres=0.5: VCC 4.5911 V, I 24.4 mA, Vgs -0.92 V
+PASS  A8.1 set-point R=2.2 vres=0.5: 4.5911 V vs 4.5880 V (+0.07 %)
+PASS  A8.2 op R=2.2 vres=3.0: VCC 4.5911 V, I 24.4 mA, Vgs -0.93 V
+PASS  A8.1 set-point R=2.2 vres=3.0: 4.5911 V vs 4.5880 V (+0.07 %)
+PASS  A8.2 op R=2.2 vres=4.3: VCC 4.5911 V, I 24.4 mA, Vgs -0.93 V
+PASS  A8.1 set-point R=2.2 vres=4.3: 4.5911 V vs 4.5880 V (+0.07 %)
+PASS  A8.2 op R=2.5 vres=0.5: VCC 4.5893 V, I 3.0 mA, Vgs -0.77 V
+PASS  A8.1 set-point R=2.5 vres=0.5: 4.5893 V vs 4.5880 V (+0.03 %)
+PASS  A8.2 op R=2.5 vres=3.0: VCC 4.5893 V, I 3.0 mA, Vgs -0.77 V
+PASS  A8.1 set-point R=2.5 vres=3.0: 4.5893 V vs 4.5880 V (+0.03 %)
+PASS  A8.2 op R=2.5 vres=4.3: VCC 4.5893 V, I 3.0 mA, Vgs -0.78 V
+PASS  A8.1 set-point R=2.5 vres=4.3: 4.5893 V vs 4.5880 V (+0.03 %)
+
+## A8.3 loop stability over corners
+FAIL  A8.3 R=1.4 C=47u Cc x0.9 Rk x0.99 Rc x0.99: PM 89.3 deg, GM 3.6188337912560065, fc 1998 Hz
+FAIL  A8.3 R=1.4 C=47u Cc x0.9 Rk x0.99 Rc x1.01: PM 89.5 deg, GM 1.2562436369043617, fc 2000 Hz
+FAIL  A8.3 R=1.4 C=47u Cc x0.9 Rk x1.01 Rc x0.99: PM 89.3 deg, GM 3.618819100961697, fc 1998 Hz
+FAIL  A8.3 R=1.4 C=47u Cc x0.9 Rk x1.01 Rc x1.01: PM 89.5 deg, GM 1.2562248366469266, fc 2000 Hz
+FAIL  A8.3 R=1.4 C=47u Cc x1.1 Rk x0.99 Rc x1.01: PM 92.1 deg, GM 1.1165214084284818, fc 1659 Hz
+FAIL  A8.3 R=1.4 C=47u Cc x1.1 Rk x1.01 Rc x1.01: PM 92.1 deg, GM 1.1165019401963951, fc 1659 Hz
+FAIL  A8.3 R=1.4 C=100u Cc x0.9 Rk x0.99 Rc x0.99: PM 77.2 deg, GM 4.153902454731717, fc 1808 Hz
+FAIL  A8.3 R=1.4 C=100u Cc x0.9 Rk x0.99 Rc x1.01: PM 77.4 deg, GM 1.9813192120172651, fc 1809 Hz
+FAIL  A8.3 R=1.4 C=100u Cc x0.9 Rk x1.01 Rc x0.99: PM 77.2 deg, GM 4.153888890835819, fc 1808 Hz
+FAIL  A8.3 R=1.4 C=100u Cc x0.9 Rk x1.01 Rc x1.01: PM 77.4 deg, GM 1.981302299371881, fc 1809 Hz
+FAIL  A8.3 R=1.4 C=100u Cc x1.1 Rk x0.99 Rc x0.99: PM 80.9 deg, GM 4.0595684243253825, fc 1534 Hz
+FAIL  A8.3 R=1.4 C=100u Cc x1.1 Rk x0.99 Rc x1.01: PM 81.1 deg, GM 1.8300551556056415, fc 1535 Hz
+FAIL  A8.3 R=1.4 C=100u Cc x1.1 Rk x1.01 Rc x0.99: PM 80.9 deg, GM 4.059554535673181, fc 1534 Hz
+FAIL  A8.3 R=1.4 C=100u Cc x1.1 Rk x1.01 Rc x1.01: PM 81.1 deg, GM 1.8300375913187144, fc 1535 Hz
+FAIL  A8.3 R=1.4 C=220u Cc x0.9 Rk x0.99 Rc x0.99: PM 62.7 deg, GM 4.389711589333119, fc 1464 Hz
+FAIL  A8.3 R=1.4 C=220u Cc x0.9 Rk x0.99 Rc x1.01: PM 62.9 deg, GM 2.301967384194422, fc 1465 Hz
+FAIL  A8.3 R=1.4 C=220u Cc x0.9 Rk x1.01 Rc x0.99: PM 62.7 deg, GM 4.389698544823481, fc 1464 Hz
+FAIL  A8.3 R=1.4 C=220u Cc x0.9 Rk x1.01 Rc x1.01: PM 62.9 deg, GM 2.3019512960353428, fc 1465 Hz
+FAIL  A8.3 R=1.4 C=220u Cc x1.1 Rk x0.99 Rc x0.99: PM 66.4 deg, GM 4.291593704879332, fc 1277 Hz
+FAIL  A8.3 R=1.4 C=220u Cc x1.1 Rk x0.99 Rc x1.01: PM 66.6 deg, GM 2.1477495425554674, fc 1278 Hz
+FAIL  A8.3 R=1.4 C=220u Cc x1.1 Rk x1.01 Rc x0.99: PM 66.4 deg, GM 4.291580322864364, fc 1277 Hz
+FAIL  A8.3 R=1.4 C=220u Cc x1.1 Rk x1.01 Rc x1.01: PM 66.6 deg, GM 2.1477328254783172, fc 1278 Hz
+worst phase margin 45.8 deg at (R, Ccons, Cc, Rk, Rc, fc, GM) = (2.2, 0.00022, 0.9, 0.99, 0.99, np.float64(742.9442694058254), np.float64(30.396209175729084))
+PASS  A8.3 min phase margin >= 45 deg: 45.8 deg
+
+## A8.4 hot-plug
+PASS  A8.4 R=1.6 C=47u Cc x0.9: min 4.5955 V, limit 4.5000 V, margin +95.5 mV
+PASS  A8.4 R=1.6 C=47u Cc x1.1: min 4.5955 V, limit 4.5000 V, margin +95.5 mV
+PASS  A8.4 R=1.6 C=220u Cc x0.9: min 4.5823 V, limit 4.5000 V, margin +82.3 mV
+PASS  A8.4 R=1.6 C=220u Cc x1.1: min 4.5853 V, limit 4.5000 V, margin +85.3 mV
+PASS  A8.4 R=2.0 C=47u Cc x0.9: min 4.5922 V, limit 4.5000 V, margin +92.2 mV
+PASS  A8.4 R=2.0 C=47u Cc x1.1: min 4.5924 V, limit 4.5000 V, margin +92.4 mV
+PASS  A8.4 R=2.0 C=220u Cc x0.9: min 4.5799 V, limit 4.5000 V, margin +79.9 mV
+PASS  A8.4 R=2.0 C=220u Cc x1.1: min 4.5815 V, limit 4.5000 V, margin +81.5 mV
+PASS  A8.4 R=2.3 C=47u Cc x0.9: min 4.5902 V, limit 4.5000 V, margin +90.2 mV
+PASS  A8.4 R=2.3 C=47u Cc x1.1: min 4.5905 V, limit 4.5000 V, margin +90.5 mV
+PASS  A8.4 R=2.3 C=220u Cc x0.9: min 4.5825 V, limit 4.5000 V, margin +82.5 mV
+PASS  A8.4 R=2.3 C=220u Cc x1.1: min 4.5837 V, limit 4.5000 V, margin +83.7 mV
+PASS  A8.4 R=2.5 C=47u Cc x0.9: min 4.5875 V, limit 4.5000 V, margin +87.5 mV
+PASS  A8.4 R=2.5 C=47u Cc x1.1: min 4.5875 V, limit 4.5000 V, margin +87.5 mV
+PASS  A8.4 R=2.5 C=220u Cc x0.9: min 4.5884 V, limit 4.5000 V, margin +88.4 mV
+PASS  A8.4 R=2.5 C=220u Cc x1.1: min 4.5887 V, limit 4.5000 V, margin +88.7 mV
+PASS  A8.4 R=3.0 C=47u Cc x0.9: min 4.5050 V, limit 4.5000 V, margin +5.0 mV
+PASS  A8.4 R=3.0 C=47u Cc x1.1: min 4.5050 V, limit 4.5000 V, margin +5.0 mV
+PASS  A8.4 R=3.0 C=220u Cc x0.9: min 4.5088 V, limit 4.5000 V, margin +8.8 mV
+PASS  A8.4 R=3.0 C=220u Cc x1.1: min 4.5088 V, limit 4.5000 V, margin +8.8 mV
+
+## A8.5 burst after idle (wind-up)
+PASS  A8.5 R=1.6 C=47u Cc x0.9: min 4.5866 V, limit 4.5000 V, margin +86.6 mV
+PASS  A8.5 R=1.6 C=47u Cc x1.1: min 4.5867 V, limit 4.5000 V, margin +86.7 mV
+PASS  A8.5 R=1.6 C=220u Cc x0.9: min 4.5846 V, limit 4.5000 V, margin +84.6 mV
+PASS  A8.5 R=1.6 C=220u Cc x1.1: min 4.5845 V, limit 4.5000 V, margin +84.5 mV
+PASS  A8.5 R=1.8 C=47u Cc x0.9: min 4.5812 V, limit 4.5000 V, margin +81.2 mV
+PASS  A8.5 R=1.8 C=47u Cc x1.1: min 4.5810 V, limit 4.5000 V, margin +81.0 mV
+PASS  A8.5 R=1.8 C=220u Cc x0.9: min 4.5790 V, limit 4.5000 V, margin +79.0 mV
+PASS  A8.5 R=1.8 C=220u Cc x1.1: min 4.5787 V, limit 4.5000 V, margin +78.7 mV
+PASS  A8.5 R=2.0 C=47u Cc x0.9: min 4.5758 V, limit 4.5000 V, margin +75.8 mV
+PASS  A8.5 R=2.0 C=47u Cc x1.1: min 4.5754 V, limit 4.5000 V, margin +75.4 mV
+PASS  A8.5 R=2.0 C=220u Cc x0.9: min 4.5738 V, limit 4.5000 V, margin +73.8 mV
+PASS  A8.5 R=2.0 C=220u Cc x1.1: min 4.5732 V, limit 4.5000 V, margin +73.2 mV
+PASS  A8.5 R=2.2 C=47u Cc x0.9: min 4.5702 V, limit 4.5000 V, margin +70.2 mV
+PASS  A8.5 R=2.2 C=47u Cc x1.1: min 4.5694 V, limit 4.5000 V, margin +69.4 mV
+PASS  A8.5 R=2.2 C=220u Cc x0.9: min 4.5686 V, limit 4.5000 V, margin +68.6 mV
+PASS  A8.5 R=2.2 C=220u Cc x1.1: min 4.5677 V, limit 4.5000 V, margin +67.7 mV
+INFO  A8.5 R=2.4: reservoir only 2.42 V before the burst (console too weak to fill it), case not applicable
+INFO  A8.5 R=2.4: reservoir only 2.41 V before the burst (console too weak to fill it), case not applicable
+INFO  A8.5 R=2.4: reservoir only 2.42 V before the burst (console too weak to fill it), case not applicable
+INFO  A8.5 R=2.4: reservoir only 2.42 V before the burst (console too weak to fill it), case not applicable
+
+RESULT: 22 FAIL: A8.3 R=1.4 C=47u Cc x0.9 Rk x0.99 Rc x0.99, A8.3 R=1.4 C=47u Cc x0.9 Rk x0.99 Rc x1.01, A8.3 R=1.4 C=47u Cc x0.9 Rk x1.01 Rc x0.99, A8.3 R=1.4 C=47u Cc x0.9 Rk x1.01 Rc x1.01, A8.3 R=1.4 C=47u Cc x1.1 Rk x0.99 Rc x1.01, A8.3 R=1.4 C=47u Cc x1.1 Rk x1.01 Rc x1.01, A8.3 R=1.4 C=100u Cc x0.9 Rk x0.99 Rc x0.99, A8.3 R=1.4 C=100u Cc x0.9 Rk x0.99 Rc x1.01, A8.3 R=1.4 C=100u Cc x0.9 Rk x1.01 Rc x0.99, A8.3 R=1.4 C=100u Cc x0.9 Rk x1.01 Rc x1.01, A8.3 R=1.4 C=100u Cc x1.1 Rk x0.99 Rc x0.99, A8.3 R=1.4 C=100u Cc x1.1 Rk x0.99 Rc x1.01

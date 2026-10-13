@@ -1,0 +1,6 @@
+{'Rg': 680, 'Rk': 470, 'Cc': 2.2e-09} Vka 2.78 V | minGM -15.9 dB | minPM  47.6 | hot-plug    5.7 mV | burst  -14.7 mV
+{'Rg': 680, 'Rk': 470, 'Cc': 4.7e-09} Vka 2.78 V | minGM  18.7 dB | minPM  62.0 | hot-plug    5.4 mV | burst  -52.3 mV
+{'Rg': 680, 'Rk': 680, 'Cc': 2.2e-09} Vka 2.45 V | minGM -15.9 dB | minPM  47.6 | hot-plug    5.7 mV | burst   -7.8 mV
+{'Rg': 680, 'Rk': 680, 'Cc': 4.7e-09} Vka 2.45 V | minGM  18.7 dB | minPM  62.0 | hot-plug    5.4 mV | burst  -42.5 mV
+{'Rg': 680, 'Rk': 1000, 'Cc': 2.2e-09} Vka 1.97 V | minGM -15.9 dB | minPM  47.6 | hot-plug    5.5 mV | burst    3.5 mV
+{'Rg': 680, 'Rk': 1000, 'Cc': 4.7e-09} Vka 1.97 V | minGM  18.7 dB | minPM  62.0 | hot-plug    5.7 mV | burst  -26.5 mV

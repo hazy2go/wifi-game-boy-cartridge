@@ -23,9 +23,13 @@ OUT = os.path.join(HERE, 'out')
 os.makedirs(OUT, exist_ok=True)
 
 # anti-wind-up clamp: two diodes from source to gate (LOGBOOK 06:03); generic small-signal diode model
-CLAMP = '.model DSS D(Is=2.52n N=1.752 Rs=0.568 Cjo=4p)\nDcl1 s cl1 DSS\nDcl2 cl1 g DSS'
+CLAMP = '.model DSS D(Is=2.52n N=1.752 Rs=0.568 Cjo=4p)\nDcl1 s cl1 DSS\nDcl2 cl1 cl2 DSS\nDcl3 cl2 g DSS'
+# start-up hold: a power-on pulse (Cpor/Rpor from VMUX) turns an NMOS on that pulls REF low, so the loop
+# starts from "off" and engages slowly as the pulse decays (no gate-to-REF kick during the ramp-up).
+POR = ('.model NMPOR NMOS(VTO=1.8 KP=0.2)\n.model DPOR D(Is=2.52n N=1.752)\n'
+       'Cpor vmux gpor 100n\nRpor gpor 0 470k\nDpor 0 gpor DPOR\nRss ref rss 1k\nMpor rss gpor 0 0 NMPOR')
 DESIGN = dict(R1=27.0e3, R2=10.0e3, Rg=680.0, Rk=2.2e3, Rbias=1e9, Cg=1e-12, Cc=2.2e-9, Rc=10e3, comp_node='g',
-              clamp=CLAMP, t_en=15e-3, ilim=0.150, rsw=0.085, rmux=0.07,
+              clamp=CLAMP, por=True, t_en=15e-3, tps2553='vendor', options='.options method=trap reltol=1e-3', ilim=0.150, rsw=0.085, rmux=0.07,
               gb_cap=100e-6, gb_load=0.100, logic_load=0.060)
 
 
@@ -44,17 +48,29 @@ class Vendor:
         return f'X{name} {a} {k} {ref} TLV431'
 
 
+def tps2553(p, sr, ramp):
+    # vendor model in transients only: its DC operating point does not converge reliably (VCC = 2.7 V seen),
+    # and in DC/AC the switch is just its on-resistance or a constant-current limit, which the behavioural
+    # model reproduces (vendor model: 149 mA at RILIM 180k, behavioural 150 mA)
+    if p.get('tps2553') == 'vendor' and ramp:
+        # TI SLVM425 transient model (ngspice-patched, sim/models), RILIM sets the limit; EN after t_en
+        return (f".include {MODELS_DIR}/ti_tps2553/TPS2553_TRANS.lib\n"
+                f"Xsw vmux 0 en 0 flt ilim a TPS2553_TRANS\nRilim ilim 0 {p.get('rilim', 180e3)}\nRflt flt vmux 100k\n"
+                + f"Ben en 0 V = V(vmux) * 0.5*(1+tanh((time-{p.get('t_en', 0.5e-3)})/20e-6))")
+    return ("* TPS2553 behavioural: constant-current limit, 1.5 ms ramp of the limit, 85 mOhm\n"
+            f"Bsw vmux a I = max(0, min({p['ilim']} * {sr}, (V(vmux)-V(a))/{p['rsw']}))")
+
+
 def core(m, p, ramp=False):
-    mr = 'min(1, max(1e-6, time/1e-3))' if ramp else '1'
     t_en = p.get('t_en', 0.5e-3)  # TPS2553 EN delay after VMUX (RC on EN)
     sr = f'min(1, max(1e-6, (time-{t_en})/1.5e-3))' if ramp else '1'
     rc = f"Rc ccn ref {p['Rc']}" if p['Rc'] > 0 else 'Vrc ccn ref DC 0'
     return f"""* --- precision input-voltage regulator (sim/power/inreg.py) ---
-* TPS2116 mux: on-resistance with a 1 ms turn-on ramp (soft-start), so hot-plug starts from an empty cart
-Bmux vcc vmux I = (V(vcc)-V(vmux))/{p['rmux']} * {mr}
+* TPS2116 mux: 70 mOhm; on hot-plug its output slews up softly (modelled as a 5 mA charge current for the
+* first 2 ms, i.e. ~1 ms ramp of the 1 uF output), then full conduction
+Bmux vcc vmux I = min((V(vcc)-V(vmux))/{p['rmux']}, {"0.005 + 2*0.5*(1+tanh((time-2e-3)/50e-6))" if ramp else "10"})
 Cmux vmux 0 1u
-* TPS2553: constant-current limit, 1.5 ms output rise (datasheet tr), 85 mOhm
-Bsw vmux a I = max(0, min({p['ilim']} * {sr}, (V(vmux)-V(a))/{p['rsw']}))
+{tps2553(p, sr, ramp)}
 Ca a 0 1u
 {m.pmos('Q1', 'a', 'g', 's')}
 {m.pmos('Q2', 'vres', 'g', 's')}
@@ -67,6 +83,8 @@ R2 ref 0 {p['R2']}
 {m.tlv431('U1', 'k', '0', 'ref')}
 Cc {p.get('comp_node', 'k')} ccn {p['Cc']}
 {p.get('clamp', '')}
+{p.get('extra', '')}
+{POR if p.get('por') else ''}
 {rc}
 """
 
@@ -84,7 +102,9 @@ def ngspice(net, tag):
     path = os.path.join(OUT, f'inreg_{tag}.cir')
     open(path, 'w').write(net)
     r = subprocess.run(['ngspice', '-b', path], capture_output=True, text=True, cwd=OUT)  # out/.spiceinit: ngbehavior=psa
-    if r.returncode != 0 or 'Error' in r.stdout or 'error' in r.stderr.lower():
+    bad = ('Error' in r.stdout or 'error' in r.stderr.lower() or 'aborted' in (r.stdout + r.stderr)
+           or 'Timestep too small' in (r.stdout + r.stderr))
+    if r.returncode != 0 or bad:
         raise RuntimeError(f'ngspice {tag}:\n{r.stdout[-3000:]}\n{r.stderr[-3000:]}')
     return r.stdout
 
@@ -119,7 +139,7 @@ quit
 .endc
 .end
 """
-    out = ngspice(net, f'dc_{rsrc}_{vres}')
+    out = ngspice(net, f'dc_{rsrc}_{vres}_{os.getpid()}')
     vals = {}
     for line in out.splitlines():
         if '=' in line:
@@ -142,27 +162,33 @@ Rres vres_src vres 0.01
 .control
 op
 print v(vcc)
-ac dec 50 {fstart} {fstop}
+ac dec 200 {fstart} {fstop}
 let T = -v(vmux)/v(top)
-wrdata {OUT}/inreg_ac.dat mag(T) ph(T)
+wrdata {OUT}/inreg_ac_{os.getpid()}.dat mag(T) ph(T)
 quit
 .endc
 .end
 """
-    ngspice(net, f'ac_{rsrc}_{vres}')
-    d = np.loadtxt(os.path.join(OUT, 'inreg_ac.dat'))
+    ngspice(net, f'ac_{rsrc}_{vres}_{os.getpid()}')
+    d = np.loadtxt(os.path.join(OUT, f'inreg_ac_{os.getpid()}.dat'))
     f, db = d[:, 0], 20 * np.log10(d[:, 1])
     ph = np.degrees(np.unwrap(d[:, 3]))       # ngspice ph() is in radians
     ph = ph - 360 * np.round(ph[0] / 360)      # start in (-180, 180]
-    idx = np.where((db[:-1] > 0) & (db[1:] <= 0))[0]
+    # every 0 dB crossing counts, not only the first: a minor-loop peak far above the main crossover can
+    # cross 0 dB again (LOGBOOK 08:13). PM = worst crossing, fc = the crossing it was found at.
+    lf = np.log10(f)
+    idx = np.where(np.sign(db[:-1]) != np.sign(db[1:]))[0]
     fc = pm = gm = None
-    if len(idx):
-        i = idx[0]
-        fc = 10 ** np.interp(0, [db[i + 1], db[i]], [np.log10(f[i + 1]), np.log10(f[i])])
-        pm = 180 + np.interp(np.log10(fc), np.log10(f), ph)   # distance of the phase from -180 deg
-    cross = np.where((ph[:-1] > -180) & (ph[1:] <= -180))[0]
+    for i in idx:
+        x = lf[i] + (0 - db[i]) / (db[i + 1] - db[i]) * (lf[i + 1] - lf[i])
+        w = (np.interp(x, lf, ph) + 180) % 360 - 180   # phase wrapped into [-180, 180)
+        pmx = 180 - abs(w)                              # angular distance from -180 deg, conservative
+        if pm is None or pmx < pm:
+            fc, pm = 10 ** x, pmx
+    # gain margin: worst over every -180 deg (mod 360) crossing; negative means |T| > 1 there = unstable
+    cross = np.where(np.floor((ph[:-1] + 180) / 360) != np.floor((ph[1:] + 180) / 360))[0]
     if len(cross):
-        gm = -db[cross[0]]
+        gm = float(min(-db[cross]))
     return f, db, ph, fc, pm, gm
 
 
@@ -190,8 +216,9 @@ Rpg pgx pg 1k
 Cpg pg 0 100n
 Vtx txp 0 PWL({' '.join(pts)})
 Bbb vres 0 I = V(pg) * 3.3*({rx} + ({tx}-{rx})*V(txp))/({eta}*max(V(vres),1.0)) * 0.5*(1+tanh((V(vres)-1.6)/0.02))
-.ic v(vcc)={5.0 - rsrc * (p['gb_load'] + p['logic_load'])} v(vmux)=0 v(a)=0 v(s)=0 v(g)=0 v(k)=0 v(ref)=0 v(top)=0 v(vres)=0 v(pg)=0
-.options method=gear reltol=1e-3
+* the console rail is live at t=0, the cartridge is empty
+.ic v(vcc)={5.0 - rsrc * (p['gb_load'] + p['logic_load'])} v(vmux)=0 v(a)=0 v(gpor)=0 v(s)=0 v(g)=0 v(k)=0 v(ref)=0 v(top)=0 v(vres)=0 v(pg)=0
+{p.get('options', '.options method=gear reltol=1e-3')}
 .tran 5u {t_end} 0 5u uic
 .control
 run
@@ -202,4 +229,7 @@ quit
 """
     ngspice(net, tag)
     d = np.loadtxt(os.path.join(OUT, f'inreg_{tag}.dat'))
+    # a run that stopped early leaves a truncated file; never analyse one (LOGBOOK 06:40)
+    if d[-1, 0] < 0.999 * t_end:
+        raise RuntimeError(f'transient {tag} ended at {d[-1, 0]:.4f} s of {t_end} s')
     return dict(t=d[:, 0], vcc=d[:, 1], vres=d[:, 3], pg=d[:, 5])

@@ -311,3 +311,39 @@ What did not fix it (all simulated, numbers in `sim/power/inreg_search.py` histo
 3. Passed: set-point accuracy where it regulates (+0.03 to +0.42 %), all operating points plausible, worst phase margin 46 deg, burst-after-idle +79 to +137 mV everywhere it applies.
 
 Next: clamp at ~1.5 V (diode + resistor, or a red LED as a 1.6 V knee), second TLV431 model for cross-check, re-run A8.
+
+## 2026-10-14 08:13 Resume after the 06:2x run died; A8 re-run on the work-in-progress design
+
+The agent run that was doing the A8 corner audit died mid-way (orchestration failure, not a sim failure). Uncommitted work found on disk and kept:
+- **3-diode gate clamp** (was 2): gate can swing ~1.8 V below the source, enough overdrive for 150 mA (the 06:20 finding that 2 diodes starve the charger at ~70 mA).
+- **Power-on hold:** a 100 nF / 470k pulse from VMUX turns a small NMOS on that pulls REF low, so after hot-plug the loop starts from "off" and engages as the pulse decays. Generic NMOS model for now (VTO 1.8 V); needs a real part model before layout.
+- **TI's TPS2553 transient model** now used in hot-plug/burst transients (behavioural model kept for DC/AC, where the vendor model's operating point does not converge). Vendor 149 mA vs behavioural 150 mA at RILIM 180k.
+- Harness: a transient that stops early (truncated .dat) now raises instead of being analysed; "Timestep too small" and "aborted" count as failures.
+
+Re-ran A8 on it (`out/audit_inreg.log`):
+- **A8.4 hot-plug: all PASS** now, including 3.0 ohm consoles (+5.0 mV worst, was -82 mV). The power-on hold fixed it.
+- **A8.3: 24 FAIL, all gain margin at 1.4 ohm (1.1-4.4 dB).** Phase margin is fine (worst 45.8 deg). The cause: a sharp peak in the loop gain at ~330 kHz with a 180 deg phase flip. There is no inductor anywhere in the netlist, so this is an active minor loop: TLV431 -> Rk -> gate -> Cc -> Rc -> REF, i.e. the TLV431 inside its own local feedback.
+
+### New finding the audit did not check: the TLV431 is outside its datasheet range
+Looking at why the minor loop rings, the operating points show the **TLV431 cathode at 0.11-1.30 V while regulating** (1.4 ohm: 0.11-0.14 V). The datasheet minimum cathode voltage is Vref (1.24 V). Below that the part is saturated and its gain is not specified, so every regulation, stability and wind-up result in that region relies on macro-model behaviour outside the region it was fitted for.
+Cause: cathode = gate - Ik*Rk with Ik = Vsg/Rg, so the cathode sits at Vs - Vsg*(1 + Rk/Rg). With Rk 2.2k / Rg 680 and Vsg ~1.04 V that is ~4.2 V below the source.
+- New hard constraint: Vka >= Vref + 0.2 V at every regulating operating point, i.e. Rk/Rg <= ~1.9. To be added to A8 as A8.6.
+- Harness changes for this: AC sweep 50 -> 200 points/decade (50 can step over a sharp peak and miss a 0 dB crossing), per-process AC/DC file names (two sims running at once could read each other's output).
+- Search `sim/power/inreg_vka.py` over Rg 680/1k/1.5k, Rk 470/680/1k, Cc 2.2/4.7 nF with the Vka constraint, gain margin, phase margin, hot-plug and burst-after-idle. Running.
+
+## 2026-10-14 08:45 Stability: two bugs in my own checker, and AC vs time domain disagree
+
+### A8 result on the work-in-progress design (`sim/power/out/audit_inreg_wip_0813.log`)
+22 FAIL, all A8.3 (gain margin 1.1-4.4 dB at 1.4 ohm). A8.4 hot-plug and A8.5 burst-after-idle: all PASS.
+
+### Checker bug 1: only the first 0 dB crossing was looked at
+`inreg.loop_gain` took the first 0 dB crossing for phase margin and the first -180 deg crossing for gain margin. Re-sampled at 200 points/decade, the 324 kHz peak at 1.4 ohm is **+15.9 dB**, not -1 dB: the loop gain crosses 0 dB a second time with the phase through -180 deg. That is an oscillator, and the old code reported PM 62-92 deg / GM 1-4 dB. Fixed: PM is now the worst over every 0 dB crossing (angular distance from -180 deg, conservative), GM the worst over every -180 deg (mod 360) crossing, negative meaning unstable.
+Diagnosis of the peak (`out/inreg_vka_round1.log` and ad-hoc runs): unaffected by the power-on hold, Rk (470 vs 2.2k gives identical numbers) or console capacitance; strongly affected by the mux/switch resistances (70 -> 200 mOhm: +15.9 -> +1 dB) and by Rg (2k: -1.3 dB). It is the high-frequency plateau of the loop (above ~60 kHz Cc is a short, the TLV431 + Rc form a proportional stage) meeting a resonance inside the TLV431/FET models.
+
+### Checker bug 2: the AC result alone is not trustworthy here
+New time-domain test `sim/power/inreg_ring.py`: reservoir held at 3.0 V like the AC analysis, regulator settled, 10 mA console load step, then the gate voltage's content above 20 kHz (Hann-windowed FFT, so slow settling at the 1 kHz crossover does not count).
+- Every candidate oscillates at 1.4 ohm: current design 28 mV p-p at 320 kHz; Cc 4.7n (clean in AC, GM +18.7 dB) 30 mV; Rg 2k (peak -1.3 dB in AC) **222 mV at 225 kHz**; Rg 1.5k / Rk 1k 313 mV at 247 kHz.
+- Not numerical: gear 20 ns / reltol 1e-4, trap 5 ns / 1e-5 and gear 2 ns / 1e-6 give the same 636 mV at 265 kHz for one case.
+- The console rail barely sees it (< 0.6 mV), so it would not crash a Game Boy, but a regulator that oscillates is not acceptable: it is a sign the loop is wrong somewhere, it radiates next to a 2.4 GHz radio front-end, and it can change character with real part spread.
+- Quick scan at 1.4 ohm: Rc 0 still rings (179 mV), a cap on REF makes it worse (lower frequency, larger), **Rg = Rk = 4.7k or a 47 nF gate-source capacitor stop it completely**.
+- So the ring test is a gate of its own. Search round 3 (`inreg_vka.py`): Rg 1.5k/2.2k, Rk 1k/2.2k, Cc 2.2/3.3 nF, Cg 10/22/47 nF, gated on Vka, GM >= 10 dB over all crossings, ring < 5 mV over 5 console impedances x 2 capacitances, then PM/hot-plug/burst. Running.
