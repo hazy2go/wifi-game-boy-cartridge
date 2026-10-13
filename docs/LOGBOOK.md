@@ -429,7 +429,7 @@ Checks: `verify/netlist_check.py` PASS (70 parts, 245 pins, 52 nets) and `--self
 - Real-hardware checks for the first boards: hot-plug on a weak DMG, burst-after-idle on a 2.0-2.3 ohm console, and probing the gate for any oscillation (the sim says none; the model's gain is 3 dB low, which the 13 dB rule covers).
 - Board layout: keep REG_REF/REG_CCN short and away from the TPS63802 switch node (high-impedance nodes, 330k).
 
-## 2026-10-14 08:47 System audit (A1-A7) re-run against the real regulator
+## 2026-10-14 08:46 System audit (A1-A7) re-run against the real regulator
 
 `sim/power/audit.py` still modelled the BQ24075 (DPM 4.35/4.50/4.63 V, 5 A/V) **plus a 4.45 V cart-rail supervisor that is not in the netlist** (U102's EN is tied to VMUX). Sim and schematic had drifted apart; caught while switching the model over. Now: DPM 4.542/4.588/4.634 V (A8.1 tolerance), 15 A/V (A8 load regulation ~9 mV over 0-150 mA), switch path 0.3 ohm nominal (TPS2553 + SiA975DJ pair at Vgs -1.8 V), no supervisor. The transistor-level loop stays in A8; A5 uses the behavioural limit.
 
@@ -443,4 +443,4 @@ Result (`sim/power/out/audit_tlv431_fw455.txt`, BQ24075 run kept as `audit_bq240
 | RF calibration the radio survives on a weak console | 10 ms @ 50 % | **5 ms @ 50 %** |
 The calibration budget on a weak console halves because the regulator no longer lets the radio take power the console cannot spare. That tightens the bench requirement: **partial calibration must fit 5 ms at 50 % TX duty** (the assumed value, now with zero margin on weak consoles). If the dev-board measurement comes in higher, the firmware must defer WiFi start until the reservoir is full and the console is not weak.
 
-Firmware rail watch (sleep 4.55 / resume 4.60 V) was set for the BQ24075. With the regulator's low corner at 4.542 V I expected it to throttle the radio. `sim/power/fw_watch_sweep.py`: 4.55/4.60 and 4.52/4.535 give identical results (0 ms below 4.5 V, 0 resets, worst busy TX 13 % tired / 0 % weak). The 13 % is the power budget of a tired console at the low corners, not the watch. **Firmware thresholds unchanged** (no evidence for a change).
+Firmware rail watch (sleep 4.55 / resume 4.60 V) was set for the BQ24075. With the regulator's low corner at 4.542 V I expected it to throttle the radio. `sim/power/fw_watch_sweep.py`: 4.55/4.60, 4.52/4.535 and 4.51/4.53 give identical results (0 ms below 4.5 V, 0 resets, worst busy TX 13 % tired / 0 % weak). The 13 % is the power budget of a tired console at the low corners, not the watch. **Firmware thresholds unchanged** (no evidence for a change).

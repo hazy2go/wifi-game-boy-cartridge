@@ -1,4 +1,4 @@
-"""Firmware cart-rail watch thresholds vs the new regulator (LOGBOOK 08:55). The 4.55/4.60 V watch was set for the
+"""Firmware cart-rail watch thresholds vs the new regulator (LOGBOOK 08:46). The 4.55/4.60 V watch was set for the
 BQ24075 (DPM 4.35-4.63 V). The TLV431B regulator holds the rail at 4.542-4.634 V, so a 4.55 V watch puts the
 radio to sleep whenever the regulator is working at its low corner. Sweep sleep/resume pairs, report safety
 (time below 4.5 V, radio resets) and busy-traffic TX airtime at the worst corners."""
