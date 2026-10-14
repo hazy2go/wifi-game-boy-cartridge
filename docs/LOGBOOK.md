@@ -480,7 +480,7 @@ Independent check: pulled JLC/LCSC's own footprint (C2845237, via easyeda2kicad)
 
 Checks: every symbol pin of U103/U104 has a pad and every pad a pin. `netlist_check.py` now requires `radio:` footprints to exist in `radio.pretty` (it used to skip them as "to be created"): PASS, selftest PASS. **`kicad_check.py`: ERC PASS (0 new)**, DRC PASS, unconnected PASS. Parity still FAIL (72): the PCB has not been updated from the schematic. That is the next phase (layout).
 
-## 2026-10-14 09:02 Board: schematic and PCB in sync (parts staged, not placed)
+## 2026-10-14 09:00 Board: schematic and PCB in sync (parts staged, not placed)
 
 - `hw/rev-b/tools/update_pcb.py` (runs under KiCad's bundled Python/pcbnew): scripted "Update PCB from Schematic" driven by the kicad-cli netlist export. Adds missing footprints with value, LCSC/Datasheet/Description fields and the symbol link, staged in a grid to the right of the board; re-nets pads whose net changed; **refuses to re-net a pad whose old net has copper** unless that net is explicitly ripped up (`--rip`), so existing routing never silently changes meaning or shorts.
 - Ran it with `--rip USB_D_prot+ --rip USB_D_prot-`: those two nets were only Croco's 16 mm R9/R10 -> USBLC6 pair, which the hub now sits in the middle of (re-routed in layout). 70 footprints added, 257 pads netted.
