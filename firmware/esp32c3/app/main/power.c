@@ -25,6 +25,9 @@ static volatile bool s_usb, s_fault;
 /* a failed read keeps the last good value: a spurious 0 V would mean a spurious PARK */
 static float read_v(adc_channel_t ch, float k, float last)
 {
+#if CONFIG_GBW_BOARD_XIAO
+    return ch == ADC_CHANNEL_0 ? 4.60f : 0.0f; /* bench board: full reservoir, cart rail absent (USB) */
+#endif
     int raw = 0, mv = 0;
     if (adc_oneshot_read(s_adc, ch, &raw) != ESP_OK)
         return last;
@@ -104,10 +107,15 @@ void power_task(void *arg)
          * unpark threshold is evaluated, so this delays the exit by at most 10 ms */
         int ticks = prev == PM_PARK ? 10 : 1;
         vTaskDelayUntil(&last, pdMS_TO_TICKS(ticks));
-        s_usb = gpio_get_level(PIN_USB_PWR_ST);
         s_fault = !gpio_get_level(PIN_LIM_FAULT);
         s_v_res = read_v(ADC_CHANNEL_0, s_k_res, s_v_res);
         s_v_rail = read_v(ADC_CHANNEL_1, s_k_vcc, s_v_rail);
+        /* not the ST pin alone: D3 leakage can fake it in a hot cart (gbwifi.h) */
+#if CONFIG_GBW_BOARD_XIAO
+        s_usb = gbw_usb_trusted(true, s_v_rail); /* the XIAO runs from its USB-C */
+#else
+        s_usb = gbw_usb_trusted(gpio_get_level(PIN_USB_PWR_ST), s_v_rail);
+#endif
 
         xSemaphoreTake(gbw_pm_mtx, portMAX_DELAY);
         for (int i = 0; i < ticks; i++)

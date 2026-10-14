@@ -1,0 +1,14 @@
+menu "WiFi cartridge"
+    choice GBW_BOARD
+        prompt "Board"
+        default GBW_BOARD_CART
+        config GBW_BOARD_CART
+            bool "Cartridge Rev B (U104)"
+        config GBW_BOARD_XIAO
+            bool "Seeed XIAO ESP32C3 bench test (no ADC dividers: fixed full reservoir, USB power)"
+            help
+                Same SPI pins as the cart (D0 = IO2 MISO, D4 = IO6 SCK, D5 = IO7 MOSI, D10 = IO10 CS), so an RP2350
+                (Pico 2 link tester) can be wired straight to it. IO0/IO1 are not on the XIAO's pins, so the power
+                manager gets fixed readings. Never flash this onto a cart: it would ignore the real reservoir.
+    endchoice
+endmenu

@@ -10,6 +10,11 @@ float gbw_airtime_worst_s(size_t ip_len)
     return 192e-6f + (float)(ip_len + 24 + 8 + 4) * 8.0f / 1e6f;
 }
 
+bool gbw_usb_trusted(bool st_pin_high, float v_rail)
+{
+    return st_pin_high && v_rail < GBW_USB_RAIL_MAX_V;
+}
+
 float gbw_rail_for_pm(bool on_usb, float v_rail)
 {
     return on_usb ? 5.0f : v_rail;

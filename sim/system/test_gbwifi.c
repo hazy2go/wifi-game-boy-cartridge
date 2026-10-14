@@ -14,6 +14,8 @@ int main(void)
     CHECK(GBW_MTU == 340 && fabsf(gbw_airtime_worst_s(GBW_MTU) - (192e-6f + (340 + 36) * 8e-6f)) < 1e-7f, "airtime MTU");
     CHECK(gbw_airtime_worst_s(GBW_MTU) < 3.3e-3f, "MTU frame %.3f ms (A5 covered 4.5 ms)", gbw_airtime_worst_s(GBW_MTU) * 1e3);
     CHECK(gbw_rail_for_pm(true, 0.0f) == 5.0f && gbw_rail_for_pm(false, 4.6f) == 4.6f, "rail for pm");
+    CHECK(gbw_usb_trusted(true, 0.02f) && !gbw_usb_trusted(true, 4.6f) && !gbw_usb_trusted(false, 0.0f),
+          "USB trusted only with the cart rail below 1 V (D3 leakage can fake ST)");
 
     /* scan: strongest first, 19 columns max (ROM prints from column 1), names sanitised, 8 lines max */
     gbw_ap_t aps[10] = {

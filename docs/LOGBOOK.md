@@ -965,3 +965,14 @@ The gate checks are stronger as well:
 - **`netlist_check.py`: PASS** (0 errors). **`design_calcs.py`: all limits PASS.** **`sim_vs_netlist.py`: PASS.**
 - **Order files current:** Gerbers and drill files re-exported with kicad-cli 10.0.6 (no X2, soldermask subtracted, separate PTH/NPTH, mm) match `hw/rev-b/fab/gerbers` exactly on all 15 files (ignoring date and generator lines). The order zip holds the same 15 files byte for byte, plus the job file.
 - For the next fresh machine (CLAUDE.md tool notes): copy the stock lib tables before running the gate.
+
+## 2026-10-14 23:28 D3 leakage checked; USB guard; XIAO profile and Pico 2 link tester (Hazy: "so anything we missing?" ... "yes")
+- **DESIGN_CALCS open item 4, read from the datasheet now** (MCC SM5817PL, Rev.4-1):
+  - IR max 0.05 mA at 25 C and 9 mA at 100 C, both at the rated 20 V.
+  - Fig. 5 (typical) gives ~0.075 mA at 75 C and ~23 % of VR (4.7 V); the max/typ ratio is 6-8x (0.05 vs ~0.008 at 25 C, 9 vs ~1.1 at 100 C).
+  - Worst case is therefore **~0.5-0.6 mA at 70-75 C, against a 453 uA margin**. In a hot cart the TPS2116 could see "USB" on VBUS while the console powers the cart. ST would then read USB, and the radio would allow a full RF calibration and drop the cart-rail watch.
+  - At room temperature the margin is wide (~0.01-0.08 mA).
+- **Firmware guard:** `gbw_usb_trusted(st, v_rail)` trusts USB only when the cart rail reads below 1 V. The app uses it for everything USB-only. Host-tested in S1.8. The cost: the first calibration needs the cart on USB and out of the console (documented). The optional hardware fix is 2.2k from VBUS to GND; not done, Hazy's call.
+- **XIAO board profile for the radio app** (`CONFIG_GBW_BOARD_XIAO`, `sdkconfig.xiao`): same SPI pins, fixed readings for the missing ADC dividers. Plus a console `job <cmd> [payload]` that runs any mailbox command locally, so GET/TIME/SCAN/CONNECT can be tried on real WiFi. Both profiles build; the cart build was checked to default to the cart profile.
+- **Pico 2 link tester** (fork `link-tester/`, PR #4): `src/esp_link.rs` unchanged on an RP2350A, SPI0 on the cart's pins plus CS on GPIO5, with a USB serial console standing in for the Game Boy. It builds, and picotool reads the UF2 as an RP2350 ARM Secure image. Not run on hardware.
+- **Still to decide (Hazy):** a license for the new software (README lists only hw/ and legacy/), and NVS encryption for the stored WiFi credentials (off).

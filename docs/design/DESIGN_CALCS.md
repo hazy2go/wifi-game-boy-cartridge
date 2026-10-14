@@ -271,7 +271,7 @@ All resistors are UniOhm 0402WGF...TCE, 1 %, 100 ppm/C. Lowest stocks: ESP32-C3-
 1. Croco edit for the hub (R9/R10 pin 2 to `USB_RP_D+/-`) and removal of R11/J3; not done here (hw/ untouched).
 2. Footprints to create: TPS63802 DLA (SLVSEU9D p36) and ESP32-C3-MINI-1U (MINI-1 DS p38-39; a draft `mini1u.kicad_mod` exists outside the repo in /tmp/espfp and must be checked against the datasheet before use).
 3. `radio_symbols.json` uses KiCad's `open_collector` type for TPS2553 /FAULT and TPS63802 PG (open-drain); `gen_radio_sheet.py`'s symbol builder must accept it.
-4. D3 (SM5817PL) reverse leakage at 4.7 V/70 C vs the 453 uA margin of the PR1 divider: read the diode datasheet.
+4. D3 (SM5817PL) reverse leakage at 4.7 V/70 C vs the 453 uA margin of the PR1 divider: read the diode datasheet. **Read 2026-10-14 (LOGBOOK):** MCC Rev.4-1, IR max 0.05 mA at 25 C / 9 mA at 100 C (at 20 V). From the typical curve (Fig. 5, ~0.075 mA at 75 C and ~23 % VR) times the max/typ ratio (6-8x), that is ~0.5-0.6 mA worst case at 70-75 C: **the margin can be exceeded in a hot cart**, so ST may read USB while the console powers the cart. Mitigated in firmware: `gbw_usb_trusted()` trusts USB only when the cart rail reads < 1 V. Optional hardware fix: 2.2k from VBUS to GND (about 4x margin, 2.3 mA from USB).
 5. ON threshold worst case 4.39 V vs the VRES ceiling of Hazy's regulator.
 6. ADC divider needs per-board calibration for the 4.55/4.60 V firmware band.
 7. CH334P upstream pull-up without VBUS (lifts VBUS to ~2 V through the USBLC6); verify on hardware that the mux and Croco ignore it.

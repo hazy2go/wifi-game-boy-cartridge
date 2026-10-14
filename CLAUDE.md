@@ -19,6 +19,7 @@ Hardware (`hw/rev-b/`, KiCad 10, Croco Cartridge V2.1 + ESP32-C3-MINI-1U + power
   1. **A7, the calibration-energy budget.** Partial RF calibration must stay within 5 ms at 50 % TX (about 7 mJ above the input supply), measured on the dev board. This one is required.
   2. **Antenna RSSI** in three positions: free, about 2 mm over copper inside the shell, and with the cart inserted in a Game Boy.
   3. **Boot energy:** time to app_main (a7_cal prints it) and the boot current. It must fit about 7.5 mJ (S1.11).
+  - Optional, recommended: a **real-WiFi test** of the radio app on the XIAO (XIAO profile, console `job ...`), and the **link test** with a Pico 2 (fork `link-tester/`). See `firmware/xiao/README.md` section 3.
   4. Console 5 V: now optional. The DMG power-board schematics put it at 4.9 to 5.5 V, typically 5.1 to 5.2 V (LOGBOOK, last entry).
 - Antenna for the cart: Ebyte TX2400-FPC3-2509 with an IPEX3 / MHF III plug. **Not U.FL.**
 
