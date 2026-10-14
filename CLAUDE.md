@@ -50,7 +50,7 @@ Simulation (all passing):
      - Every TX frame goes through `pm_admit_tx`.
      - Cart-rail watch at 4.45 / 4.48 V.
 5. **Game Boy side.** Test ROMs in RGBDS: `sim/system/rom/wifitest.asm` and `btcdemo.asm`. Later: a GBDK-2020 library plus demos.
-6. Housekeeping: the old ESP8266 code in `esp8266/`, `gb/` and `python/` belongs to the original Rev A cart and is kept for reference only.
+6. `legacy/` holds the original ESP8266 cartridge's code, PCB and shell. It is kept for reference only; don't build on it.
 
 ## Tool notes
 - KiCad Python: `/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3`. It has no CA bundle, so use `curl` for HTTPS.
