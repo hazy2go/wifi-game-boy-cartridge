@@ -54,7 +54,12 @@ Simulation (all passing):
      - Every TX frame goes through `pm_admit_tx`, through the TX queue in `radio.c`. Never block lwIP's thread.
      - Cart-rail watch at 4.45 / 4.48 V.
 5. **Game Boy side.** Test ROMs in RGBDS: `sim/system/rom/wifitest.asm` and `btcdemo.asm`. **GBDK-2020 library done:** `gb/gbdk` (README there, `make` with GBDK 4.5.0 at `~/opt/gbdk`), with its demo in gate S1.9. More demos to come. The opt-in is `WIFICART` anywhere in bank 0.
-6. `legacy/` holds the original ESP8266 cartridge's code, PCB and shell. It is kept for reference only; don't build on it.
+6. **Later (after the cart works): ROM download over WiFi.** Software only, no hardware change. Design so far (LOGBOOK 2026-10-15):
+   - A store ROM shows a catalog (name, size, SHA-256, URL), loaded through normal GETs.
+   - A new mailbox command `08 DOWNLOAD`. The ESP fetches the file over HTTPS in chunks; the RP2350 pulls the chunks over a new SPI bulk frame type (protocol v2: C reference, Rust, vectors) and writes them to SD. The Game Boy only polls the progress.
+   - Write to a temp file and check the size, the SHA-256 and the header checksum before renaming it to an 8.3 name. Only URLs from the catalog.
+   - To check first: the SD write current on weak consoles. It comes from Croco's own supply, not the limited radio path. Option: buffer the whole ROM in the free HyperRAM, then write it in one go.
+7. `legacy/` holds the original ESP8266 cartridge's code, PCB and shell. It is kept for reference only; don't build on it.
 
 ## Building ROMs for the cart
 **Read `docs/ROM_DEV.md`** (skill `wifi-cart-rom`).
