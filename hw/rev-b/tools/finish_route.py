@@ -109,7 +109,7 @@ class Raster:
 
     def blocked(self, net, layer, halfw):
         g = (self.total[layer] - self.per[(net, layer)]) > 0
-        extra = halfw - (self.r - CLEAR)          # rasters were built for half-width 0.175 mm
+        extra = halfw - (self.r - CLEAR)          # rasters were built for half-width 0.075 mm
         if extra > 1e-9:
             k = int(math.ceil(extra / RES))
             gg = g.copy()
@@ -229,7 +229,7 @@ def main(pcb, drc_json, only=None):
         if only and net not in only:
             continue
         pairs.append((net, [(it['pos']['x'], it['pos']['y'], 'B.Cu' in it['description']) for it in its]))
-    R.prepare({n for n, _ in pairs}, CLEAR + 0.175)
+    R.prepare({n for n, _ in pairs}, CLEAR + 0.075)   # base raster for 0.15 mm tracks; wider things dilate
     ok = fail = 0
     for net, ends in pairs:
         ni = b.FindNet(net)
