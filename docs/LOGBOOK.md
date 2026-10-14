@@ -606,3 +606,6 @@ BUTTON had been routed by Freerouting straight through SW1's no-net contact patt
 Result: **27 -> 11 open**, new DRC copper items limited to 1 clearance (VMUX/GND, F.Cu), 1 co-located +3V3 via pair, 1 GBBUS_EN via pair too close, 4 dangling vias, the orphaned +5V plane patch. Added a full-board F.Cu GND pour (priority 0, islands removed).
 ### Still open (11)
 RP2350 pins boxed in by surrounding routing: GB_A3 (pad 23), GB_A12 (40), DATA_BUS0 (45), DEBUG_UART_TX (57), RTC_CS (2); U101 VBUS (needs a long run from the VBUS corner); PG_SENSE (R123-U108); three GND pads (U5 pad 3, C108, one track pair). Next: rip and re-route the slow Croco nets around the processor together with these (Freerouting can only re-route what is not fixed), re-shape the In4 split for the new power-part positions, then the clean-up and the full verification gates.
+
+## 2026-10-14 14:57 New gate before ordering (Hazy)
+Before any order, after layout step 3: **a full system simulation including a Game Boy ROM that uses the new parts** (the ROM running in an emulated Game Boy, talking to the emulated cartridge: RP2350 bus logic, the SPI link to the ESP32-C3, the ESP firmware, with the power path in the loop). Recorded as a hard gate in front of the JLC order files.
