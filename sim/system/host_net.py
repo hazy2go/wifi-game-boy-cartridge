@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Real-world network side of the BTC demo simulation (called by sysim's ESP32-C3 model through popen).
 
-  scan     the networks this Mac's WiFi radio actually sees (system_profiler). macOS redacts SSIDs without
+  scan     the networks this Mac's WiFi radio actually sees (or GBW_SCAN_FIXTURE=file, same line format; the live
+           scan varies with the room: the ESP32-C3 sees 2.4 GHz only, so a moment with only 5 GHz gives NO NETWORKS) (system_profiler). macOS redacts SSIDs without
            location permission, so names come back as "<redacted>"; channel, band, security and signal are real.
            Output: one line per network "NAME|CH|BAND|SEC|RSSI" (RSSI 0 when macOS does not report it), strongest
            first, max 8.
@@ -17,6 +18,8 @@ import json, os, re, subprocess, sys, time, urllib.request
 
 
 def scan():
+    if os.environ.get('GBW_SCAN_FIXTURE'):         # deterministic runs: lines NAME|CH|BAND|SEC|RSSI from a file
+        print(open(os.environ['GBW_SCAN_FIXTURE']).read(), end=''); return
     out = subprocess.run(['system_profiler', 'SPAirPortDataType', '-json'], capture_output=True, text=True, timeout=60).stdout
     nets = []
     for itf in json.loads(out)['SPAirPortDataType'][0].get('spairport_airport_interfaces', []):
