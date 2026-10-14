@@ -55,6 +55,12 @@ Simulation (all passing):
 5. **Game Boy side.** Test ROMs in RGBDS: `sim/system/rom/wifitest.asm` and `btcdemo.asm`. **GBDK-2020 library done:** `gb/gbdk` (README there, `make` with GBDK 4.5.0 at `~/opt/gbdk`), with its demo in gate S1.9. More demos to come. The opt-in is `WIFICART` anywhere in bank 0.
 6. `legacy/` holds the original ESP8266 cartridge's code, PCB and shell. It is kept for reference only; don't build on it.
 
+## Building ROMs for the cart
+**Read `docs/ROM_DEV.md`** (skill `wifi-cart-rom`).
+- Libraries: `gb/gbdk/lib` (C), `gb/rgbds` (assembly).
+- Starter: `gb/gbdk/template`.
+- Test any ROM on the simulated cart: `python3 sim/system/run_rom.py ROM.gb --console weak --expect ...`.
+
 ## Tool notes
 - KiCad Python: `/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3`. It has no CA bundle, so use `curl` for HTTPS.
 - KiCad gotchas:

@@ -82,3 +82,50 @@ uint8_t wifi_reservoir_20mv(void)
 {
     return MB[MB_RES];
 }
+
+uint8_t wifi_ping(void) { return wifi_request(WIFI_PING, NULL, WIFI_FRAMES_DEFAULT); }
+uint8_t wifi_time(void) { return wifi_request(WIFI_TIME, NULL, WIFI_FRAMES_DEFAULT); }
+uint8_t wifi_get(const char *url) { return wifi_request(WIFI_GET, url, WIFI_FRAMES_DEFAULT); }
+uint8_t wifi_power(void) { return wifi_request(WIFI_POWER, NULL, WIFI_FRAMES_DEFAULT); }
+uint8_t wifi_scan(void) { return wifi_request(WIFI_SCAN, NULL, WIFI_FRAMES_DEFAULT); }
+
+uint8_t wifi_connect(uint8_t line, const char *password)
+{
+    static char req[MAX_REQ + 1];
+    uint8_t i = 0;
+    req[i++] = (char)('0' + line);
+    req[i++] = '|';
+    while (password && *password && i < MAX_REQ)
+        req[i++] = *password++;
+    req[i] = 0;
+    return wifi_request(WIFI_CONNECT, req, WIFI_FRAMES_DEFAULT);
+}
+
+uint8_t wifi_line_count(void)
+{
+    const volatile uint8_t *p = MB + MB_RESP;
+    uint8_t n = 0;
+    if (!*p)
+        return 0;
+    for (; *p; p++)
+        if (*p == '\n')
+            n++;
+    return p[-1] == '\n' ? n : n + 1;
+}
+
+uint8_t wifi_line(uint8_t index, char *out, uint8_t max)
+{
+    const volatile uint8_t *p = MB + MB_RESP;
+    uint8_t len = 0;
+    while (index && *p) /* skip to line `index` */
+        if (*p++ == '\n')
+            index--;
+    if (index || !*p) {
+        out[0] = 0;
+        return 0;
+    }
+    while (*p && *p != '\n' && len + 1 < max)
+        out[len++] = (char)*p++;
+    out[len] = 0;
+    return len;
+}

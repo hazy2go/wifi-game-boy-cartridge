@@ -57,6 +57,9 @@ size_t gbw_fmt_scan(char *out, size_t cap, gbw_ap_t *aps, int n);
  * -1 if malformed, -2 if a WPA key is shorter than 8 characters (empty = open network). */
 int gbw_parse_connect(const char *payload, int n_aps, int *idx, const char **pass);
 
+/* GET bodies for the Game Boy font: every byte outside ASCII 32-126 except '\n' becomes '?'. In place. */
+void gbw_sanitize(char *s);
+
 size_t gbw_fmt_power(char *out, size_t cap, float rail_v, float res_v);
 size_t gbw_fmt_time(char *out, size_t cap, int year, int mon, int day, int h, int m, int s);
 

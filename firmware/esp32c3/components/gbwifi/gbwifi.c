@@ -213,3 +213,10 @@ int gbw_parse_klines(const char *j, double *closes, int max, double *close_ms)
     }
     return n;
 }
+
+void gbw_sanitize(char *s)
+{
+    for (; *s; s++)
+        if ((*s < 32 || *s > 126) && *s != '\n')
+            *s = '?';
+}

@@ -25,6 +25,9 @@
 #define WIFI_ERROR 3      /* the response holds the reason, e.g. "ERR NOT CONNECTED", "NO RADIO POWER" */
 #define WIFI_TIMEOUT 0    /* only from wifi_request(): no answer within the given frames */
 
+/* Frames to wait for one answer: the cartridge answers within 12 s (RADIO TIMEOUT), so 13 s never gives up early */
+#define WIFI_FRAMES_DEFAULT (60u * 13u)
+
 /* Enable cart RAM and select bank 15. Call once at start (and after switching to other RAM banks). */
 void wifi_open(void);
 
@@ -38,6 +41,19 @@ uint8_t wifi_request(uint8_t cmd, const char *payload, uint16_t frames);
 /* The response (0-terminated) and its length; valid until the next submit. */
 const char *wifi_response(void);
 uint16_t wifi_response_len(void);
+
+/* Convenience wrappers around wifi_request() (WIFI_FRAMES_DEFAULT frames). */
+uint8_t wifi_ping(void);
+uint8_t wifi_time(void);
+uint8_t wifi_get(const char *url);
+uint8_t wifi_power(void);
+uint8_t wifi_scan(void);
+uint8_t wifi_connect(uint8_t line, const char *password); /* line: 1-8, as numbered in the SCAN answer */
+
+/* The response as lines ('\n'-separated, the last one may lack it). */
+uint8_t wifi_line_count(void);
+/* Copy line `index` (0-based) into out (max-1 characters + 0). Returns its length, 0 if there is no such line. */
+uint8_t wifi_line(uint8_t index, char *out, uint8_t max);
 
 /* Live values the cartridge refreshes every millisecond: volts x 50 (20 mV steps), 0 = not measured. */
 uint8_t wifi_rail_20mv(void);

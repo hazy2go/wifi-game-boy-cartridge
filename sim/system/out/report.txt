@@ -121,4 +121,8 @@ PASS  S1.10 weak_plus_adc: resets 0, reservoir min 2.38 V, console min 4.588 V
 ## S1.11 weak_plus (2.5 ohm) with a fast ESP boot: 100 ms at 20 mA to app_main (app sdkconfig fast boot; measure on the XIAO)
 PASS  S1.11 weak_plus_fastboot: screen complete; resets 0, 129 frames, drops 0, parks 144, console min 4.588 V
 
+## S1.12 developer kit: RGBDS library example and GBDK template through run_rom.py (docs/ROM_DEV.md)
+PASS  S1.12 rgbds example (weak): PASS
+PASS  S1.12 gbdk template (weak): PASS
+
 RESULT: ALL PASS

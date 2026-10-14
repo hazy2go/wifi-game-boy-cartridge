@@ -45,8 +45,11 @@ Demo ROM in that simulation: WiFi scan (real networks seen by the host), passwor
 | `docs/ARCHITECTURE.md` | Block diagram, why each block, pin budget |
 | `docs/LOGBOOK.md` | Every decision, check and result, in order |
 | `hw/rev-b/` | KiCad project, layout tools, `fab/` order files (`fab/ORDER.md`) |
-| `firmware/esp32c3/` | Radio firmware (power manager done, app in progress) |
-| `sim/power/`, `sim/system/` | Power-stage and full-system simulations |
+| `docs/ROM_DEV.md` | **Building ROMs for the cart:** mailbox, commands, timing, testing |
+| `gb/gbdk/`, `gb/rgbds/` | WiFi libraries for C (GBDK-2020) and assembly (RGBDS), template, examples |
+| `firmware/esp32c3/` | Radio firmware: app, power manager, link protocol, shared C components |
+| `firmware/xiao/` | Bench tests for the dev board (calibration time, antenna, boot time) |
+| `sim/power/`, `sim/system/` | Power-stage and full-system simulations (`run_rom.py` runs any ROM on the simulated cart) |
 | `verify/` | Pre-order gates |
 | `legacy/` | The original ESP8266 cartridge's code, PCB and shell, kept for reference only |
 

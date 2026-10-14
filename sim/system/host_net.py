@@ -6,6 +6,9 @@
            Output: one line per network "NAME|CH|BAND|SEC|RSSI" (RSSI 0 when macOS does not report it), strongest
            first, max 8.
   ip       this Mac's IPv4 address on its WiFi interface (the address the cart would get from the same AP).
+  fetch U  GET of URL U for the GET command: prints the HTTP status, a newline, then up to 255 body bytes.
+           GBW_FIXTURES=file.json ({"url": "body"} or {"url": {"status": 404}}) answers from the file only;
+           GBW_OFFLINE=1 answers every URL with status 0 (ERR NO CONNECTION). Otherwise it fetches live.
   btc      live BTC/USDT from Binance (15 min candles, last 24 h; CoinGecko as fallback). Output:
            "UTC_HHMM|C0 C1 ... Cn" with the raw closes, oldest first.
 Network failures print "ERR <reason>" so the ROM shows an explicit error, never made-up data.
@@ -65,5 +68,29 @@ def btc():
     json.dump(closes, open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out', 'btc_closes.json'), 'w'))
 
 
+def fetch(url):
+    fx = os.environ.get('GBW_FIXTURES')
+    if fx:
+        v = json.load(open(fx)).get(url)
+        if v is None:
+            print('404'); return
+        if isinstance(v, dict):
+            print(v.get('status', 200)); print(v.get('body', ''), end=''); return
+        print('200'); print(v[:255], end=''); return
+    if os.environ.get('GBW_OFFLINE'):
+        print('0'); return
+    try:
+        req = urllib.request.Request(url, headers={'User-Agent': 'wifi-gb-cart-sim'})
+        with urllib.request.urlopen(req, timeout=8) as r:
+            print(r.status); print(r.read(255).decode('latin-1'), end='')
+    except urllib.error.HTTPError as e:
+        print(e.code)
+    except Exception:
+        print('0')
+
+
 if __name__ == '__main__':
-    {'scan': scan, 'ip': ip, 'btc': btc}[sys.argv[1]]()
+    if sys.argv[1] == 'fetch':
+        fetch(sys.argv[2])
+    else:
+        {'scan': scan, 'ip': ip, 'btc': btc}[sys.argv[1]]()
