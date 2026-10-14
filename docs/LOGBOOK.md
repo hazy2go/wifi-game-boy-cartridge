@@ -555,7 +555,7 @@ Conclusion: functional blocks (buck-boost, regulator, hub, buffers) have to be p
 - Area the remaining parts need (courtyards): power stage ~290 mm2 if kept together (mux 15, limiter 25, regulator 75 incl. four SOD-323 diodes = 26, reservoir 47, buck-boost block 64, power-good comparator 25, Croco's re-placed LDO/diodes 40) plus hub ~45, buffers/pull-ups ~60. The corner holds ~180. **The limiting factor is not part area but Croco's top-layer routing**: counting courtyards only there would be ~1,280 mm2 free; counting F.Cu copper it is 712, in fragments.
 - Options being put to Hazy: (a) keep 4 layers and hand-pack (shrink parts: SOT-23 dual diodes instead of 4 x SOD-323, 0402 everywhere, split the power stage between the corner and the old J3 area), slow; (b) go to 6 layers and move Croco's top-layer signal routing inward, which frees most of the top side but means re-routing much of Croco; (c) cut features (USB hub first).
 
-## 2026-10-14 13:55 Option A (keep 4 layers, hand-pack) checked against the numbers: it does not fit
+## 2026-10-14 13:51 Option A (keep 4 layers, hand-pack) checked against the numbers: it does not fit
 
 Hazy chose option A at 13:48. Before hand-placing, measured what has to fit and where it could go.
 
