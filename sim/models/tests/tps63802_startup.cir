@@ -1,0 +1,32 @@
+* TPS63802 transient model test: VIN=3.0V (buck-boost region) -> VOUT=3.3V, start-up + 1A load step
+* (a VIN 3.0->4.2V step at 1A aborted in ngspice at t=1.6ms with 'Timestep too small'; 4.2V is covered by tps63802_vin4p2.cir)
+* FB divider: VFB=0.5V, R1=560k, R2=100k -> 3.30V ; L=0.47uH ; Cout=2x22uF
+.include ../ti_tps63802/TPS63802_TRANS.lib
+Vin vin 0 PWL(0 0 50u 3.0)
+Cin vin 0 10u
+Ven en 0 PWL(0 0 100u 0 110u 3)
+* MODE high = forced PWM (FPWM); low = auto PFM/PWM
+Vmode mode 0 0
+X1 0 en fb 0 l1 l2 mode pg vin vout TPS63802_TRANS
+L1 l1 l2 0.47u
+Co vout 0 44u
+R1 vout fb 560k
+R2 fb 0 100k
+Rpg vout pg 100k
+Rld vout 0 33
+Sld vout 0 ldctl 0 swl
+Vld ldctl 0 PWL(0 0 0.8m 0 0.81m 1 1.2m 1)
+.model swl sw vt=0.5 vh=0.1 ron=3.3 roff=1e9
+.tran 0.1u 1.2m 0 20n
+.control
+run
+meas tran vout_0p7m AVG v(vout) FROM=0.6m TO=0.75m
+meas tran vout_1p1m AVG v(vout) FROM=1.0m TO=1.15m
+meas tran vmin_step MIN v(vout) FROM=0.8m TO=0.9m
+meas tran pg_1m FIND v(pg) AT=1m
+let pin = -v(vin)*i(Vin)
+meas tran pin_avg AVG pin FROM=1.0m TO=1.15m
+let pout = v(vout)*v(vout)/33 + v(vout)*v(vout)/3.3
+meas tran pout_avg AVG pout FROM=1.0m TO=1.15m
+.endc
+.end

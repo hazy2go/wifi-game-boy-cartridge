@@ -1,0 +1,19 @@
+{'Rg': 680, 'Rk': 2200.0, 'Cc': 2.2e-09, 'Rc': 0.0} clamp 2 diodes
+   minPM   42.3 | hot-plug     8.0 mV | burst-after-idle    74.2 mV
+{'Rg': 680, 'Rk': 2200.0, 'Cc': 2.2e-09, 'Rc': 10000.0} clamp 2 diodes
+   minPM   47.7 | hot-plug     6.4 mV | burst-after-idle    75.8 mV
+{'Rg': 680, 'Rk': 2200.0, 'Cc': 3.3e-09, 'Rc': 0.0} clamp 2 diodes
+   minPM   48.9 | hot-plug     2.1 mV | burst-after-idle    73.5 mV
+{'Rg': 680, 'Rk': 2200.0, 'Cc': 3.3e-09, 'Rc': 10000.0} clamp 2 diodes
+   minPM   55.1 | hot-plug    -1.7 mV | burst-after-idle    75.7 mV
+Traceback (most recent call last):
+  File "/Users/hazymacmini/Projects/wifi-game-boy-cartridge/sim/power/inreg_search.py", line 45, in <module>
+    pm, hp, bi = evaluate(dict(base, **g))
+                 ~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/hazymacmini/Projects/wifi-game-boy-cartridge/sim/power/inreg_search.py", line 31, in evaluate
+    bi = [burst_after_idle(p, r) for r in (1.8, 2.0, 2.3)]
+          ~~~~~~~~~~~~~~~~^^^^^^
+  File "/Users/hazymacmini/Projects/wifi-game-boy-cartridge/sim/power/inreg_search.py", line 16, in burst_after_idle
+    assert d['vres'][(t > 0.3) & (t < 0.35)].min() > 4.0, 'reservoir not full before the burst'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: reservoir not full before the burst

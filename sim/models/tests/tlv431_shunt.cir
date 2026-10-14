@@ -1,0 +1,38 @@
+* TLV431 (TI SLIM005 PSpice model, unmodified) sanity tests
+* Pin order: .SUBCKT TLV431 A K Fdbk   (anode, cathode, reference)
+.include ../ti_tlv431/TLV431.lib
+* (1) K tied to REF, 1k from 5V -> expect Vk = Vref ~ 1.24 V (datasheet 1.240 V typ)
+V1 vin 0 5
+R1 vin k 1k
+X1 0 k k TLV431
+* (2) divider: Vout = 1.24*(1+16.5k/10k) = 3.286 V
+V2 vin2 0 5
+R4 vin2 k2 470
+X2 0 k2 fb2 TLV431
+R2 k2 fb2 16.5k
+R3 fb2 0 10k
+* (3) Ik sweep with K=REF, driven by current source (min operating current, dynamic impedance)
+I3 0 k3 100u
+X3 0 k3 k3 TLV431
+.control
+op
+print v(k) v(k2) v(fb2) i(v1) i(v2)
+dc V1 0 6 0.5
+print v(k)
+dc I3 1u 20m 1u
+meas dc vk_10uA  FIND v(k3) AT=10u
+meas dc vk_55uA  FIND v(k3) AT=55u
+meas dc vk_100uA FIND v(k3) AT=100u
+meas dc vk_200uA FIND v(k3) AT=200u
+meas dc vk_500uA FIND v(k3) AT=500u
+meas dc vk_1mA   FIND v(k3) AT=1m
+meas dc vk_10mA  FIND v(k3) AT=10m
+meas dc vk_14mA  FIND v(k3) AT=14m
+meas dc vk_16mA  FIND v(k3) AT=16m
+meas dc vk_18mA  FIND v(k3) AT=18m
+meas dc ik_at_1p230V WHEN v(k3)=1.230
+meas dc ik_at_1p238V WHEN v(k3)=1.238
+let zka_1m_10m = (vk_10mA - vk_1mA)/9m
+print zka_1m_10m
+.endc
+.end

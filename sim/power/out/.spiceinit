@@ -1,0 +1,3 @@
+* ngspice init for vendor PSpice models
+set ngbehavior=psa
+set num_threads=1

@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+sim/power/out/audit_*.cir
+sim/power/out/*.so
+# vendor SPICE models: simulation use only, no public redistribution -> sim/models/fetch_models.py
+sim/models/*/
+!sim/models/tests/
+sim/models/tests/*.out
+sim/power/out/inreg_*.cir
+sim/power/out/*.dat
+sim/models/tests/*.cir
+sim/system/out/*.pgm
+sim/system/sysim
+sim/system/rom/*.o

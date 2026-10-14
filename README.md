@@ -1,3 +1,32 @@
+# wifi-game-boy-cartridge: Rev B (this fork)
+
+**This fork is a ground-up redesign of the cartridge.** It keeps the idea of the original (custom Game Boy code with WiFi) but replaces the hardware: the base is the proven [Croco Cartridge V2.1](https://github.com/shilga/rp-gameboy-cartridge-hw) (RP2350, CERN-OHL-P), with an **ESP32-C3** radio and a **console-safe power stage** added, so the WiFi can never brown out the Game Boy (the unresolved problem of the original, see below).
+
+| | |
+|---|---|
+| Status (2026-10-14) | Layout complete, all pre-order gates pass. **Not ordered or built yet.** Next: JLC order files and review. |
+| Board | 6 layers, 0.8 mm, fully assembled by JLCPCB (nothing to hand-solder), fits the standard shell |
+| Radio | ESP32-C3-MINI-1U (u.FL + stick-on antenna), on the RP2350's SPI bus; both flashable over the one USB-C (CH334P hub) |
+| Power | power mux (prefers USB) -> 150 mA limit -> precision input-voltage regulator (holds the console at >= 4.588 V) -> ~1 mF reservoir -> power-good -> buck-boost. The radio firmware admits every TX frame against the reservoir's energy |
+| Proven so far | KiCad ERC/DRC/parity clean vs Croco's baseline; transistor-level power simulations with vendor models; full-system simulation: a real Game Boy ROM in an emulated Game Boy, through the cartridge and the shipped power-manager code, on fresh to very weak batteries, with the routed copper's resistance included |
+
+![BTC demo in the simulated cartridge](docs/img/btc_demo_screens.png)
+
+*Demo ROM in the simulation: WiFi scan (real networks seen by the host's radio), password entry, live BTC/USD chart.*
+
+Where to look:
+- `docs/ARCHITECTURE.md`: block diagram and why each block
+- `docs/LOGBOOK.md`: every decision, check and result, in order
+- `hw/rev-b/`: the KiCad project (based on Croco V2.1) and the layout tools
+- `sim/power/`, `sim/system/`: power-stage and full-system simulations; `verify/`: the gates
+- `firmware/esp32c3/components/power_mgr`: the radio's power manager
+
+Credits: original cartridge and demos by [Staacks / there.oughta.be](https://github.com/Staacks/wifi-game-boy-cartridge) (GPL-3); cartridge core by [shilga / Croco Cartridge](https://github.com/shilga/rp-gameboy-cartridge-hw) (CERN-OHL-P); emulator in the simulation: [Peanut-GB](https://github.com/deltabeard/Peanut-GB) (MIT).
+
+---
+
+*Original README (the ESP8266 version this fork started from):*
+
 # wifi-game-boy-cartridge
 A WiFi cartridge for the original Game Boy.
 

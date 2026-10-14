@@ -1,0 +1,48 @@
+* PMOS Rds(on) extraction: Vds = -0.1 V, sweep Vgs 0 .. -4.5 V, T=25C
+* Rds(on) = Vds/Id. Datasheet max (25C): SiA975DJ 41m@-4.5V, 60m@-2.5V, 110m@-1.8V (typ 33m / 49m / 70m)
+*                                         Si2371EDS 53m@-4.5V, 80m@-2.5V (typ 44m / 66m)
+.include ../vishay_sia975dj/SiA975DJ_PS.lib
+.include ../vishay_si2371eds/Si2371EDS_PS_RevA.lib
+.temp 25
+* source at 0, drain at -0.1 V, gate swept negative
+Vd1 d1 0 -0.1
+Vg g 0 0
+X1 d1 g 0 SiA975DJ
+Vd2 d2 0 -0.1
+X2 d2 g 0 Si2371EDS
+* datasheet-condition test: forced drain current (SiA975DJ: -4.3A@-4.5V, -3.6A@-2.5V; Si2371EDS: -2A@-2.5V)
+Vg5 g5 0 -2.5
+Id5 d5 0 3.6
+X5 d5 g5 0 SiA975DJ
+Vg6 g6 0 -4.5
+Id6 d6 0 4.3
+X6 d6 g6 0 SiA975DJ
+Vg7 g7 0 -2.5
+Id7 d7 0 2
+X7 d7 g7 0 Si2371EDS
+* threshold test: Vds = Vgs, find Vgs where Id = -250uA
+Vd3 g3 0 0
+X3 g3 g3 0 SiA975DJ
+X4 g4 g4 0 Si2371EDS
+Vd4 g4 0 0
+.control
+op
+let r_sia975_3p6A_vgs2p5 = abs(v(d5)/3.6)
+let r_sia975_4p3A_vgs4p5 = abs(v(d6)/4.3)
+let r_si2371_2A_vgs2p5 = abs(v(d7)/2)
+print v(d5) v(d6) v(d7) r_sia975_3p6A_vgs2p5 r_sia975_4p3A_vgs4p5 r_si2371_2A_vgs2p5
+dc Vg 0 -5 -0.01
+let r1 = abs(0.1/i(Vd1))
+let r2 = abs(0.1/i(Vd2))
+meas dc rds_sia975_vgs4p5 FIND r1 AT=-4.5
+meas dc rds_sia975_vgs2p5 FIND r1 AT=-2.5
+meas dc rds_sia975_vgs1p8 FIND r1 AT=-1.8
+meas dc rds_si2371_vgs4p5 FIND r2 AT=-4.5
+meas dc rds_si2371_vgs2p5 FIND r2 AT=-2.5
+meas dc rds_si2371_vgs1p8 FIND r2 AT=-1.8
+dc Vd3 0 -2 -0.001 Vd4 0 0 1
+meas dc vth_sia975 FIND v(g3) WHEN i(Vd3)=250u
+dc Vd4 0 -2 -0.001
+meas dc vth_si2371 FIND v(g4) WHEN i(Vd4)=250u
+.endc
+.end

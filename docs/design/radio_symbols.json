@@ -1,0 +1,462 @@
+{
+ "TPS2553DBV": {
+  "description": "Adjustable current-limited power switch, EN active high, constant-current (non -1) variant",
+  "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+  "datasheet": "https://www.ti.com/lit/ds/symlink/tps2553.pdf",
+  "pinout_source": "TI SLVS841F, section 6 Pin Configuration and Functions, DBV 6-pin SOT-23 top view + Pin Functions table, PDF p5. EN is active-HIGH on TPS2553 (active-low on TPS2552), same page.",
+  "pins": {
+   "1": {
+    "name": "IN",
+    "type": "power_in"
+   },
+   "2": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "3": {
+    "name": "EN",
+    "type": "input"
+   },
+   "4": {
+    "name": "~{FAULT}",
+    "type": "open_collector"
+   },
+   "5": {
+    "name": "ILIM",
+    "type": "passive"
+   },
+   "6": {
+    "name": "OUT",
+    "type": "power_out"
+   }
+  }
+ },
+ "TPS63802DLA": {
+  "description": "2 A buck-boost converter, adjustable output (FB = 500 mV)",
+  "footprint": "radio:TI_DLA0010A_VSON-HR-10_2x3mm_P0.5mm",
+  "datasheet": "https://www.ti.com/lit/ds/symlink/tps63802.pdf",
+  "pinout_source": "TI SLVSEU9D, Figure 7-1 10-Pin DLA Package (Top View) and Table 7-1 Pin Functions, PDF p4. No exposed pad (package outline DLA0010A, PDF p35). Footprint must be drawn from the example board layout, PDF p36.",
+  "pins": {
+   "1": {
+    "name": "EN",
+    "type": "input"
+   },
+   "2": {
+    "name": "MODE",
+    "type": "input"
+   },
+   "3": {
+    "name": "AGND",
+    "type": "power_in"
+   },
+   "4": {
+    "name": "FB",
+    "type": "input"
+   },
+   "5": {
+    "name": "PG",
+    "type": "open_collector"
+   },
+   "6": {
+    "name": "VOUT",
+    "type": "power_out"
+   },
+   "7": {
+    "name": "L2",
+    "type": "passive"
+   },
+   "8": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "9": {
+    "name": "L1",
+    "type": "passive"
+   },
+   "10": {
+    "name": "VIN",
+    "type": "power_in"
+   }
+  }
+ },
+ "ESP32-C3-MINI-1U": {
+  "description": "WiFi/BLE module, ESP32-C3FN4 (4 MB flash in package), u.FL antenna connector",
+  "footprint": "radio:ESP32-C3-MINI-1U",
+  "datasheet": "https://www.espressif.com/sites/default/files/documentation/esp32-c3-mini-1_datasheet_en.pdf",
+  "pinout_source": "Espressif ESP32-C3-MINI-1 & MINI-1U Datasheet v2.2, Figure 3-1 Pin Layout (Top View) PDF p10 and Table 3-1 Pin Definitions PDF p11 (53 pins: GND 1,2,11,14,36-53; NC 4,7,9,10,15,17,24,25,28,29,32-35). Land pattern: same document 'Recommended PCB Land Pattern', PDF p38-39. The u.FL antenna connector is on the module.",
+  "pins": {
+   "1": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "2": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "3": {
+    "name": "3V3",
+    "type": "power_in"
+   },
+   "4": {
+    "name": "NC",
+    "type": "no_connect"
+   },
+   "5": {
+    "name": "IO2",
+    "type": "bidirectional"
+   },
+   "6": {
+    "name": "IO3",
+    "type": "bidirectional"
+   },
+   "7": {
+    "name": "NC",
+    "type": "no_connect"
+   },
+   "8": {
+    "name": "EN",
+    "type": "input"
+   },
+   "9": {
+    "name": "NC",
+    "type": "no_connect"
+   },
+   "10": {
+    "name": "NC",
+    "type": "no_connect"
+   },
+   "11": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "12": {
+    "name": "IO0",
+    "type": "bidirectional"
+   },
+   "13": {
+    "name": "IO1",
+    "type": "bidirectional"
+   },
+   "14": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "15": {
+    "name": "NC",
+    "type": "no_connect"
+   },
+   "16": {
+    "name": "IO10",
+    "type": "bidirectional"
+   },
+   "17": {
+    "name": "NC",
+    "type": "no_connect"
+   },
+   "18": {
+    "name": "IO4",
+    "type": "bidirectional"
+   },
+   "19": {
+    "name": "IO5",
+    "type": "bidirectional"
+   },
+   "20": {
+    "name": "IO6",
+    "type": "bidirectional"
+   },
+   "21": {
+    "name": "IO7",
+    "type": "bidirectional"
+   },
+   "22": {
+    "name": "IO8",
+    "type": "bidirectional"
+   },
+   "23": {
+    "name": "IO9",
+    "type": "bidirectional"
+   },
+   "24": {
+    "name": "NC",
+    "type": "no_connect"
+   },
+   "25": {
+    "name": "NC",
+    "type": "no_connect"
+   },
+   "26": {
+    "name": "IO18",
+    "type": "bidirectional"
+   },
+   "27": {
+    "name": "IO19",
+    "type": "bidirectional"
+   },
+   "28": {
+    "name": "NC",
+    "type": "no_connect"
+   },
+   "29": {
+    "name": "NC",
+    "type": "no_connect"
+   },
+   "30": {
+    "name": "RXD0",
+    "type": "bidirectional"
+   },
+   "31": {
+    "name": "TXD0",
+    "type": "bidirectional"
+   },
+   "32": {
+    "name": "NC",
+    "type": "no_connect"
+   },
+   "33": {
+    "name": "NC",
+    "type": "no_connect"
+   },
+   "34": {
+    "name": "NC",
+    "type": "no_connect"
+   },
+   "35": {
+    "name": "NC",
+    "type": "no_connect"
+   },
+   "36": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "37": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "38": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "39": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "40": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "41": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "42": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "43": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "44": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "45": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "46": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "47": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "48": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "49": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "50": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "51": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "52": {
+    "name": "GND",
+    "type": "power_in"
+   },
+   "53": {
+    "name": "GND",
+    "type": "power_in"
+   }
+  }
+ },
+ "CH334P": {
+  "description": "USB 2.0 4-port hub, MTT, QFN-16 3x3",
+  "footprint": "Package_DFN_QFN:QFN-16-1EP_3x3mm_P0.5mm_EP1.75x1.75mm",
+  "datasheet": "https://www.wch-ic.com/downloads/CH334DS1_PDF.html",
+  "pinout_source": "WCH CH334/CH335 datasheet V2.91 (Chinese), Figure 1-1 pin arrangement, CH334P QFN16 drawing, PDF p2 (1 XO, 2 XI, 3 DM4, 4 DP4, 5 DM3, 6 DP3, 7 DM2, 8 DP2, 9 DM1, 10 DP1, 11 DMU, 12 DPU, 13 RESET#/CDP, 14 PGANG, 15 V5, 16 VDD33, 0 = exposed pad GND). Pin '17' here = WCH pin 0 (exposed pad), numbered 17 to match the KiCad QFN-16-1EP footprint pad. Pin types from Table 1-3 PDF p4-5. EP size 1.75 mm from package drawing 5.1, PDF p21. VDD33 is typed power_in because V5 and VDD33 are both fed from external 3.3 V (allowed mode, section 4.2 PDF p19).",
+  "pins": {
+   "1": {
+    "name": "XO",
+    "type": "passive"
+   },
+   "2": {
+    "name": "XI",
+    "type": "passive"
+   },
+   "3": {
+    "name": "DM4",
+    "type": "bidirectional"
+   },
+   "4": {
+    "name": "DP4",
+    "type": "bidirectional"
+   },
+   "5": {
+    "name": "DM3",
+    "type": "bidirectional"
+   },
+   "6": {
+    "name": "DP3",
+    "type": "bidirectional"
+   },
+   "7": {
+    "name": "DM2",
+    "type": "bidirectional"
+   },
+   "8": {
+    "name": "DP2",
+    "type": "bidirectional"
+   },
+   "9": {
+    "name": "DM1",
+    "type": "bidirectional"
+   },
+   "10": {
+    "name": "DP1",
+    "type": "bidirectional"
+   },
+   "11": {
+    "name": "DMU",
+    "type": "bidirectional"
+   },
+   "12": {
+    "name": "DPU",
+    "type": "bidirectional"
+   },
+   "13": {
+    "name": "~{RESET}/CDP",
+    "type": "input"
+   },
+   "14": {
+    "name": "PGANG",
+    "type": "bidirectional"
+   },
+   "15": {
+    "name": "V5",
+    "type": "power_in"
+   },
+   "16": {
+    "name": "VDD33",
+    "type": "power_in"
+   },
+   "17": {
+    "name": "GND_EP",
+    "type": "power_in"
+   }
+  }
+ },
+ "TLV3012B": {
+  "description": "Nanopower comparator, push-pull output, integrated 1.242 V reference, power-on-reset holds output low (B version)",
+  "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+  "datasheet": "https://www.ti.com/lit/ds/symlink/tlv3012.pdf",
+  "pinout_source": "TI SBOS300C, Figure 5-1 DCK, DBV Package Top View and Table 5-1 Pin Functions, PDF p3 (1 OUT, 2 V-, 3 IN+, 4 IN-, 5 REF, 6 V+). TLV3012 = push-pull output (TLV3011 = open drain), datasheet p1.",
+  "pins": {
+   "1": {
+    "name": "OUT",
+    "type": "output"
+   },
+   "2": {
+    "name": "V-",
+    "type": "power_in"
+   },
+   "3": {
+    "name": "IN+",
+    "type": "input"
+   },
+   "4": {
+    "name": "IN-",
+    "type": "input"
+   },
+   "5": {
+    "name": "REF",
+    "type": "output"
+   },
+   "6": {
+    "name": "V+",
+    "type": "power_in"
+   }
+  }
+ },
+ "TLV431DBZ": {
+  "description": "Adjustable precision shunt regulator 1.24 V, B grade 0.5 %",
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "datasheet": "https://www.ti.com/lit/ds/symlink/tlv431.pdf",
+  "pinout_source": "TI SLVS139Z Table 4-1 Pin Functions, DBZ column: REF 1, CATHODE 2, ANODE 3. NOT the KiCad TL431DBZ symbol, which is K 1 / REF 2 / A 3 (TL431 pinout): using it would swap REF and cathode.",
+  "pins": {
+   "1": {
+    "name": "REF",
+    "type": "input"
+   },
+   "2": {
+    "name": "K",
+    "type": "passive"
+   },
+   "3": {
+    "name": "A",
+    "type": "passive"
+   }
+  }
+ },
+ "SiA975DJ": {
+  "description": "Dual P-channel 12 V MOSFET, 41 mOhm at -4.5 V",
+  "footprint": "Package_TO_SOT_SMD:Vishay_PowerPAK_SC70-6L_Dual",
+  "datasheet": "https://www.vishay.com/docs/65710/sia975dj.pdf",
+  "pinout_source": "Vishay doc 65710 Rev. A p1, PowerPAK SC-70-6L Dual bottom view: 1 S1, 2 G1, 3 D2, 4 S2, 5 G2, 6 D1; the two exposed pads are D1 and D2. KiCad footprint numbers the exposed pads 6 (D1) and 3 (D2), matching.",
+  "pins": {
+   "1": {
+    "name": "S1",
+    "type": "passive"
+   },
+   "2": {
+    "name": "G1",
+    "type": "passive"
+   },
+   "3": {
+    "name": "D2",
+    "type": "passive"
+   },
+   "4": {
+    "name": "S2",
+    "type": "passive"
+   },
+   "5": {
+    "name": "G2",
+    "type": "passive"
+   },
+   "6": {
+    "name": "D1",
+    "type": "passive"
+   }
+  }
+ }
+}

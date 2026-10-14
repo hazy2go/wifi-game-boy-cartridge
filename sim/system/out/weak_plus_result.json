@@ -1,0 +1,1 @@
+{"scenario": "weak_plus", "rsrc": 2.50, "seconds": 59.99, "console_min_v": 4.5883, "time_below_4v5_ms": 0.000, "radio_resets": 0, "reservoir_min_v_while_on": 2.975, "tx_frames": 141, "tx_refused_ms": 32005, "pm_parks": 163, "frames_admitted": 141, "frames_refused": 1}
