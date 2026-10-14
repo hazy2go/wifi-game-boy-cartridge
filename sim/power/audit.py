@@ -101,7 +101,8 @@ log('corners: ilim 129/150/174 mA (TPS2553 Eq.1 min/nom/max at 180k), DPM 4.542/
 log('         buck-boost eta 0.80/0.92, switch path 0.2/0.6 ohm, ESP32-C3-MINI-1U TX 350 mA.')
 log('traffic: busy 2ms/10ms, OFDM 2.5ms/6ms, stress 2ms/4ms, small-MTU 1Mbps fallback 4.5ms/20ms.')
 log('RF calibration at WiFi start: ASSUMED 5 ms at 50 % TX (partial calibration, NVS data). Not measured; see A7.')
-FW = dict(CHOSEN, tx=0.350, fw_cres=float(os.environ.get('FW_CRES', 0.0)))
+# PARK current: 1.4 mA = the app's auto light-sleep, still associated (LOGBOOK step 4; was 1 mA). PARK_A overrides.
+FW = dict(CHOSEN, tx=0.350, fw_cres=float(os.environ.get('FW_CRES', 0.0)), park_a=float(os.environ.get('PARK_A', 0.0014)))
 for k in ('psave',):
     FW.pop(k, None)
 TRAFFIC = {'busy': (2, 10), 'ofdm': (2.5, 6), 'stress': (2, 4), 'mtu1M': (4.5, 20)}

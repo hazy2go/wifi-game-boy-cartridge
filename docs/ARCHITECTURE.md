@@ -116,7 +116,7 @@ With RESP and len > 0, the ESP's buffer carries the body right after the header:
 ## Which ROMs get the mailbox
 
 Only ROMs that ask for it. A ROM needs both:
-- the 8 bytes `WIFICART` at ROM address 0x0150;
+- the 8 bytes `WIFICART` anywhere in bank 0 (0x0000-0x3FFF). The test ROMs put them at 0x0150. GBDK-2020's crt0 owns 0x0150, so the GBDK library (`gb/gbdk/lib`) carries them as const data instead;
 - an MBC5 header with 128 KB of RAM (0x0149 = 0x04), so that RAM bank 15 exists.
 
 Every other game keeps all 16 banks as ordinary save RAM, so bank 15 of a normal 128 KB save is never overwritten.
@@ -129,4 +129,7 @@ The ESP32-C3 has native USB (Serial/JTAG), and esptool can put it into download 
 
 - Fork of `shilga/rp2350-gameboy-cartridge-firmware` (Rust/Embassy, GPL-3) at `hazy2go/rp2350-gameboy-cartridge-firmware`, branch `wifi`. It has the SPI master for the ESP link (`src/esp_link.rs`) and serves the mailbox (MBC5 cart-RAM bank 15, see `sim/system/README.md`) to WIFICART ROMs. It builds and passes the host tests; not run on hardware yet.
 - New ESP32-C3 firmware: SPI slave mailbox, WiFi, power policy (`firmware/esp32c3/components/power_mgr`, written and simulated), OTA. The rest is not written yet.
-- Game Boy side: test ROMs in RGBDS (`sim/system/rom`: `wifitest.asm` gate ROM, `btcdemo.asm` WiFi scan + password + live BTC chart); later a GBDK-2020 library and demos (Wikipedia, chat, ROM download).
+- Game Boy side:
+  - Test ROMs in RGBDS (`sim/system/rom`): `wifitest.asm` is the gate ROM; `btcdemo.asm` does a WiFi scan, a password, then the live BTC chart.
+  - GBDK-2020 library `gb/gbdk/lib` (`wifi.h`), with a demo run by gate S1.9.
+  - Later: more demos (Wikipedia, chat, ROM download).

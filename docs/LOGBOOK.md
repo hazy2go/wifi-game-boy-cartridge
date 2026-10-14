@@ -860,3 +860,24 @@ Hazy: "Yep!" to step 4. `firmware/esp32c3/app` (ESP-IDF v5.5.1, README there) li
 - ESP boot time to the first SPI transaction (300 ms assumed).
 - The SPI slave at 8 MHz with the 100 us gap.
 - Unadmitted management frames.
+
+## 2026-10-14 21:42 Gap closed: power audits at the app's 1.4 mA park; step 5: GBDK-2020 library
+Hazy: "go on ... also will u close the gap?"
+
+**Audits A1-A7 with PARK at 1.4 mA** (`audit.py` now passes `park_a`, default 1.4 mA = the app's light-sleep park, override `PARK_A`). Before, pyref and cosim fell back to their 1 mA default.
+- Re-run at 1 mA on this Mac first: ALL PASS. It matches the committed `audit_fw445.log` up to 4th-digit differences (A1 power-up 27.45 vs 27.47 ms), probably from different ngspice/numba versions. The venv needed numba too, which the sim/power README does not list.
+- At 1.4 mA: **ALL PASS**, and the A5/A7 summary lines are identical to the 1 mA run. Console minimums: fresh 4.738, tired 4.553, weak 4.544 V; 0 ms below 4.5 V and 0 radio resets in every corner. Calibration budget: 10 / 10 / 5 ms at 50 % TX (`out/audit_park10_rerun.txt`, `out/audit_park14.txt`, `out/audit.txt`).
+- Still not in the audits: A5 uses the frames' real airtime, not the app's 1 Mbit/s admission estimate and TX hold. Those are covered by S1 only.
+
+**Spec change: the WIFICART opt-in may sit anywhere in bank 0** (was 0x0150).
+- GBDK-2020's crt0 owns 0x0150. Built with 4.5.0, the demo ROM has the library's const string at 0x02E5.
+- Scanning 16 KB once at ROM load is cheap. Changed in ARCHITECTURE.md, sysim.c and croco-fw2 `rom_info.rs` (fork PR #2, builds). The RGBDS ROMs keep theirs at 0x0150, and S1.7 still passes: it clears the one copy.
+
+**GBDK library** `gb/gbdk/lib/wifi.{h,c}`:
+- blocking `wifi_request`, or `wifi_submit` + `wifi_poll` per frame; response, length and live rail/reservoir bytes;
+- `wifi_open()` continues from the mailbox SEQ, so a Game Boy soft reset cannot repeat a SEQ the cart would ignore;
+- ROM header via `lcc -Wm-yt0x1B -Wm-ya16`: checked 0x147 = 0x1B, 0x149 = 0x04.
+
+Demo `gb/gbdk/demo/wifi_demo.c` (PING, TIME, GET, POWER) and new gate check **S1.9**, which runs it in sysim on the fresh and the weak console. sysim now also writes the raw tile map, because GBDK's font starts at tile 0 = space.
+- First run FAILED: my demo indented answers by one space, so the 20-column POWER line wrapped. Fixed in the demo.
+- S1 now ALL PASS (S1.1-S1.9). gbdk_weak: console min 4.591 V, 0 resets, 21/21 frames admitted.

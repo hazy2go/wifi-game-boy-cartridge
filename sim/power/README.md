@@ -4,7 +4,7 @@
 
 ```
 brew install ngspice
-python3 -m venv .venv && .venv/bin/pip install numpy matplotlib
+python3 -m venv .venv && .venv/bin/pip install numpy matplotlib numba
 .venv/bin/python run_sim.py
 ```
 

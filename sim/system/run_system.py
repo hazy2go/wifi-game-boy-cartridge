@@ -99,6 +99,23 @@ r = subprocess.run(f'cc -std=c11 -Wall -Wextra -Werror -I{gw} -o test_gbwifi tes
 for l in r.stdout.splitlines():
     log(f'   | {l}')
 check('S1.8 gbwifi', r.returncode == 0, 'scan lines <= 19 columns, connect parsing, airtime, power/time/BTC text')
+
+log('\n## S1.9 GBDK-2020 library (gb/gbdk): demo ROM on the fresh and weak consoles')
+sh(f'make -s GBDK={os.environ.get("GBDK", os.path.expanduser("~/opt/gbdk"))}', os.path.join(ROOT, 'gb', 'gbdk'))
+GBDK_EXPECT = ['GBDK WIFI DEMO', 'PING:','PONG', 'TIME:', re.compile(r'2026-10-14 15:\d\d:\d\d'), 'GET /hello:',
+               'Hello from WiFi!', 'POWER:', re.compile(r'RAIL 4\.\d\dV RES \d\.\d\dV'), 'DONE']
+for name, r, secs in (('gbdk_fresh', 0.7, 10), ('gbdk_weak', 2.0, 20)):
+    sh(f'./sysim ../../gb/gbdk/build/wifi_demo.gb {name} {r} {secs} out', HERE)
+    tiles = open(os.path.join(OUT, f'{name}_tiles.bin'), 'rb').read()
+    # GBDK's console font starts at tile 0 = ' '
+    shown = [s for s in (''.join(chr(t + 32) if t < 96 else '?' for t in tiles[k * 20:k * 20 + 20]).rstrip() for k in range(18)) if s]
+    res = json.load(open(os.path.join(OUT, f'{name}_result.json')))
+    ok = len(shown) >= len(GBDK_EXPECT) and all((e.fullmatch(x) if hasattr(e, 'fullmatch') else e == x) for e, x in zip(GBDK_EXPECT, shown))
+    for l in shown:
+        log(f'   | {l}')
+    check(f'S1.9 {name}', ok and res['radio_resets'] == 0 and res['time_below_4v5_ms'] == 0 and res['frames_admitted'] == res['tx_frames'],
+          f"screen {'as expected' if ok else shown}; console min {res['console_min_v']:.3f} V, resets {res['radio_resets']}, "
+          f"{res['tx_frames']} frames all admitted")
 log(f"\nRESULT: {'ALL PASS' if not fails else str(len(fails)) + ' FAIL: ' + ', '.join(fails)}")
 open(os.path.join(OUT, 'report.txt'), 'w').write('\n'.join(lines) + '\n')
 sys.exit(1 if fails else 0)

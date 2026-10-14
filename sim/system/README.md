@@ -31,7 +31,7 @@ event logs, `report.txt`.
 | A100-A1FF | response, 0-terminated |
 
 The ROM enables cart RAM (0x0A to 0000), selects RAM bank 15 (4000) and polls ACK/STATUS once per frame.
-Only ROMs that opt in get the mailbox: `WIFICART` at 0x0150, MBC5, 128 KB RAM (0x0149 = 0x04). The ROM must
+Only ROMs that opt in get the mailbox: `WIFICART` anywhere in bank 0, MBC5, 128 KB RAM (0x0149 = 0x04). The ROM must
 write the payload first, then a **new** SEQ value (increment it), because the cartridge spots requests by polling
 SEQ for a change: Game Boy RAM writes reach memory by DMA, and no CPU sees them. The cartridge clears A000-A00F
 before the game starts. The croco-fw2 side is in the fork (`src/esp_link.rs`).
@@ -40,6 +40,7 @@ before the game starts. The croco-fw2 side is in the fork (`src/esp_link.rs`).
 - S1.6: the fresh scenario with bit errors (BER 1e-4) on MOSI and MISO must still show every line correctly.
 - S1.7: the same ROM without `WIFICART` must get no mailbox (no SPI transactions).
 - S1.8: host test of `components/gbwifi`: the screen text and TX sizing the app ships.
+- S1.9: the GBDK-2020 library's demo ROM (`gb/gbdk`, built with `make`) on the fresh and weak consoles. sysim also writes `<scenario>_tiles.bin` (the raw tile map), because GBDK's font starts at tile 0 = space.
 
 App behaviour modelled since step 4 (LOGBOOK): TX admission with the app's 1 Mbit/s worst-case airtime; modem-sleep while a frame waits for admission (`tx_hold`); PARK = light sleep at 1.4 mA, during which the SPI slave does not answer; the slave buffer rebuilt only after a transaction.
 - `el_vectors.c` writes `out/esp_link_vectors.txt`, a scripted run of the reference master against the shipped
