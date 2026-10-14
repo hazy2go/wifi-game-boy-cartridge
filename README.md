@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| Status (2026-10-14) | Layout complete, all pre-order gates pass. **Not ordered or built yet.** Next: JLC order files and review. |
+| Status (2026-10-14) | Layout complete, all gates pass, JLC order files ready (`hw/rev-b/fab/ORDER.md`). **Not ordered yet:** waiting for one measurement on an ESP32-C3 dev board (RF calibration time). |
 | Board | 6 layers, 0.8 mm, fully assembled by JLCPCB (nothing to hand-solder), fits the standard shell |
 | Radio | ESP32-C3-MINI-1U (u.FL + stick-on antenna), on the RP2350's SPI bus; both flashable over the one USB-C (CH334P hub) |
 | Power | power mux (prefers USB) -> 150 mA limit -> precision input-voltage regulator (holds the console at >= 4.588 V) -> ~1 mF reservoir -> power-good -> buck-boost. The radio firmware admits every TX frame against the reservoir's energy |
