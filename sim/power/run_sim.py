@@ -27,7 +27,7 @@ GB_CAP = 100e-6        # bulk capacitance on the console rail (assumption)
 MODEM_SLEEP_A = 0.025  # ESP32-C3 modem-sleep average with DTIM listen (assumption, see README)
 V_THROTTLE = 4.0  # firmware stops starting TX bursts below this reservoir voltage
 V_PSAVE = 3.5     # firmware drops to modem-sleep below this
-GB_WATCH_V = 4.55  # firmware backs the radio off when the cart rail is below this
+GB_WATCH_V = 4.45  # firmware backs the radio off when the cart rail is below this
 DPM_GAIN = 2.0     # A/V foldback slope of the input-voltage loop
 GB_MIN_OK = 4.5        # 74xx/LR35902 5V logic: treat < 4.5V as unsafe
 

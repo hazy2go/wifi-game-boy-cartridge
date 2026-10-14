@@ -8,7 +8,7 @@ import pyref, run_sim as R
 CHOSEN = dict(ilim=0.150, vdpm=4.588, psave=True, rsw=0.3, gain=15, gbwatch=True, vsup=0.0, cres=0.99e-3, resr=0.0083)
 FW = dict(CHOSEN, tx=0.350); FW.pop('psave')
 DPM = (4.542, 4.588, 4.634)
-PAIRS = [(4.55, 4.60), (4.52, 4.535), (4.51, 4.53), (4.50, 4.52)]
+PAIRS = [(4.55, 4.60), (4.50, 4.52), (4.45, 4.48), (4.40, 4.43)]
 for sleep_v, resume_v in PAIRS:
     worst_unsafe, worst_rst, tx = 0, 0, {}
     for cons in R.CONSOLES:

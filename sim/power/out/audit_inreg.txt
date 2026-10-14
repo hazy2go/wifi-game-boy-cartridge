@@ -67,26 +67,26 @@ PASS  A8.4 R=3.0 C=220u Cc x0.9: min 4.5084 V, limit 4.5000 V, margin +8.4 mV
 PASS  A8.4 R=3.0 C=220u Cc x1.1: min 4.5084 V, limit 4.5000 V, margin +8.4 mV
 
 ## A8.5 burst after idle (wind-up)
-PASS  A8.5 R=1.6 C=47u Cc x0.9: min 4.5376 V, limit 4.5000 V, margin +37.6 mV
-PASS  A8.5 R=1.6 C=47u Cc x1.1: min 4.5332 V, limit 4.5000 V, margin +33.2 mV
-PASS  A8.5 R=1.6 C=220u Cc x0.9: min 4.5390 V, limit 4.5000 V, margin +39.0 mV
-PASS  A8.5 R=1.6 C=220u Cc x1.1: min 4.5346 V, limit 4.5000 V, margin +34.6 mV
-PASS  A8.5 R=1.8 C=47u Cc x0.9: min 4.5290 V, limit 4.5000 V, margin +29.0 mV
-PASS  A8.5 R=1.8 C=47u Cc x1.1: min 4.5242 V, limit 4.5000 V, margin +24.2 mV
-PASS  A8.5 R=1.8 C=220u Cc x0.9: min 4.5309 V, limit 4.5000 V, margin +30.9 mV
-PASS  A8.5 R=1.8 C=220u Cc x1.1: min 4.5262 V, limit 4.5000 V, margin +26.2 mV
-PASS  A8.5 R=2.0 C=47u Cc x0.9: min 4.5217 V, limit 4.5000 V, margin +21.7 mV
-PASS  A8.5 R=2.0 C=47u Cc x1.1: min 4.5167 V, limit 4.5000 V, margin +16.7 mV
-PASS  A8.5 R=2.0 C=220u Cc x0.9: min 4.5242 V, limit 4.5000 V, margin +24.2 mV
-PASS  A8.5 R=2.0 C=220u Cc x1.1: min 4.5192 V, limit 4.5000 V, margin +19.2 mV
-PASS  A8.5 R=2.2 C=47u Cc x0.9: min 4.5153 V, limit 4.5000 V, margin +15.3 mV
-PASS  A8.5 R=2.2 C=47u Cc x1.1: min 4.5102 V, limit 4.5000 V, margin +10.2 mV
-PASS  A8.5 R=2.2 C=220u Cc x0.9: min 4.5187 V, limit 4.5000 V, margin +18.7 mV
-PASS  A8.5 R=2.2 C=220u Cc x1.1: min 4.5135 V, limit 4.5000 V, margin +13.5 mV
-INFO  A8.5 R=2.4: reservoir only 3.02 V before the burst (console too weak to fill it), case not applicable
-INFO  A8.5 R=2.4: reservoir only 3.02 V before the burst (console too weak to fill it), case not applicable
-INFO  A8.5 R=2.4: reservoir only 3.03 V before the burst (console too weak to fill it), case not applicable
-INFO  A8.5 R=2.4: reservoir only 3.03 V before the burst (console too weak to fill it), case not applicable
+PASS  A8.5 R=1.6 C=47u Cc x0.9: min 4.5428 V, limit 4.5000 V, margin +42.8 mV
+PASS  A8.5 R=1.6 C=47u Cc x1.1: min 4.5385 V, limit 4.5000 V, margin +38.5 mV
+PASS  A8.5 R=1.6 C=220u Cc x0.9: min 4.5436 V, limit 4.5000 V, margin +43.6 mV
+PASS  A8.5 R=1.6 C=220u Cc x1.1: min 4.5394 V, limit 4.5000 V, margin +39.4 mV
+PASS  A8.5 R=1.8 C=47u Cc x0.9: min 4.5345 V, limit 4.5000 V, margin +34.5 mV
+PASS  A8.5 R=1.8 C=47u Cc x1.1: min 4.5300 V, limit 4.5000 V, margin +30.0 mV
+PASS  A8.5 R=1.8 C=220u Cc x0.9: min 4.5357 V, limit 4.5000 V, margin +35.7 mV
+PASS  A8.5 R=1.8 C=220u Cc x1.1: min 4.5312 V, limit 4.5000 V, margin +31.2 mV
+PASS  A8.5 R=2.0 C=47u Cc x0.9: min 4.5275 V, limit 4.5000 V, margin +27.5 mV
+PASS  A8.5 R=2.0 C=47u Cc x1.1: min 4.5228 V, limit 4.5000 V, margin +22.8 mV
+PASS  A8.5 R=2.0 C=220u Cc x0.9: min 4.5293 V, limit 4.5000 V, margin +29.3 mV
+PASS  A8.5 R=2.0 C=220u Cc x1.1: min 4.5245 V, limit 4.5000 V, margin +24.5 mV
+PASS  A8.5 R=2.2 C=47u Cc x0.9: min 4.5214 V, limit 4.5000 V, margin +21.4 mV
+PASS  A8.5 R=2.2 C=47u Cc x1.1: min 4.5165 V, limit 4.5000 V, margin +16.5 mV
+PASS  A8.5 R=2.2 C=220u Cc x0.9: min 4.5238 V, limit 4.5000 V, margin +23.8 mV
+PASS  A8.5 R=2.2 C=220u Cc x1.1: min 4.5188 V, limit 4.5000 V, margin +18.8 mV
+INFO  A8.5 R=2.4: reservoir only 2.42 V before the burst (console too weak to fill it), case not applicable
+INFO  A8.5 R=2.4: reservoir only 2.42 V before the burst (console too weak to fill it), case not applicable
+INFO  A8.5 R=2.4: reservoir only 2.42 V before the burst (console too weak to fill it), case not applicable
+INFO  A8.5 R=2.4: reservoir only 2.42 V before the burst (console too weak to fill it), case not applicable
 
 ## A8.7 time-domain ring test
 PASS  A8.7 R=1.4 C=47u Cc x0.9 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
