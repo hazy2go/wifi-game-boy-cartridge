@@ -1,0 +1,18 @@
+RGBDS WIFI EXAMPLE
+PING:
+PONG
+GET /hello:
+Hello from WiFi!
+POWER:
+RAIL 4.59V RES 3.49V
+DONE
+
+
+
+
+
+
+
+
+
+

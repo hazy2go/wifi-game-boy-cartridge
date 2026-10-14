@@ -246,7 +246,26 @@ static void esp_finish(void)
         snprintf(r, sizeof op_resp, "2026-10-14 15:%02d:%02d", (s / 60) % 60, s % 60);
         break;
     }
-    case 3: snprintf(r, sizeof op_resp, strstr(op_req, "/hello") ? "Hello from WiFi!" : "ok"); break;
+    case 3:
+        if (!strncmp(op_req, "http://example.com/", 19) || !strncmp(op_req, "https://example.com/", 20)) {
+            snprintf(r, sizeof op_resp, strstr(op_req, "/hello") ? "Hello from WiFi!" : "ok");   /* gate fixtures */
+        } else if (strpbrk(op_req, "'\\`$\n\r")) {
+            op_failed = 1; snprintf(r, sizeof op_resp, "ERR BAD URL");              /* never reaches the shell */
+        } else {                                  /* host_net.py fetch: GBW_FIXTURES file, live, or GBW_OFFLINE=1 */
+            char arg[300], buf[1024];
+            snprintf(arg, sizeof arg, "fetch '%s'", op_req);
+            host(arg, buf, sizeof buf);
+            int st = atoi(buf);
+            char *body = strchr(buf, '\n');
+            if (st == 200 && body) {
+                snprintf(r, sizeof op_resp, "%s", body + 1);
+                gbw_sanitize(r);                  /* shipped code */
+            } else {
+                op_failed = 1;
+                snprintf(r, sizeof op_resp, st > 0 ? "ERR HTTP %d" : "ERR NO CONNECTION", st);
+            }
+        }
+        break;
     case 4: gbw_fmt_power(r, sizeof op_resp, (float)vgb, (float)vt); break;   /* ESP ADC1 via R118/R119, R116/R117 */
     case 5: {                                  /* shipped formatter (components/gbwifi) */
         char buf[2048]; host("scan", buf, sizeof buf);

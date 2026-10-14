@@ -156,6 +156,15 @@ complete = len(shown) >= len(EXPECT) and all((e.fullmatch(x) if hasattr(e, 'full
 check('S1.11 weak_plus_fastboot', complete and res['radio_resets'] == 0 and res['time_below_4v5_ms'] == 0,
       f"screen {'complete' if complete else shown}; resets {res['radio_resets']}, {res['tx_frames']} frames, drops {res['tx_drops']}, "
       f"parks {res['pm_parks']}, console min {res['console_min_v']:.3f} V")
+
+log('\n## S1.12 developer kit: RGBDS library example and GBDK template through run_rom.py (docs/ROM_DEV.md)')
+sh('make -s', os.path.join(ROOT, 'gb', 'rgbds', 'example'))
+for name, cmd in (('rgbds example (weak)', f'{sys.executable} run_rom.py ../../gb/rgbds/example/build/example.gb --console weak '
+                   f'--seconds 8 --expect ../../gb/rgbds/example/expect.txt --out out/kit_rgbds'),
+                  ('gbdk template (weak)', 'sh ../../gb/gbdk/template/test.sh --out ../../../sim/system/out/kit_template')):
+    r = subprocess.run(cmd, cwd=HERE, shell=True, capture_output=True, text=True)
+    check(f'S1.12 {name}', r.returncode == 0, (r.stdout.strip().splitlines() or ['no output'])[-1] if r.returncode == 0
+          else ' | '.join(l for l in r.stdout.splitlines() if l.startswith('FAIL')) or r.stderr.strip()[-200:])
 log(f"\nRESULT: {'ALL PASS' if not fails else str(len(fails)) + ' FAIL: ' + ', '.join(fails)}")
 open(os.path.join(OUT, 'report.txt'), 'w').write('\n'.join(lines) + '\n')
 sys.exit(1 if fails else 0)

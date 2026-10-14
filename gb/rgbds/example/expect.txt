@@ -1,0 +1,8 @@
+RGBDS WIFI EXAMPLE
+PING:
+PONG
+GET /hello:
+Hello from WiFi!
+POWER:
+/RAIL 4\.\d\dV RES \d\.\d\dV/
+DONE

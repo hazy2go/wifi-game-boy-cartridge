@@ -126,9 +126,7 @@ static int cmd_get(const char *url, char *r)
         snprintf(r, EL_MAX_RESP + 1, st < 0 ? "ERR NO CONNECTION" : "ERR HTTP %d", st);
         return 3;
     }
-    for (char *p = r; *p; p++) /* the Game Boy font is ASCII 32-127 plus line breaks */
-        if ((*p < 32 || *p > 126) && *p != '\n')
-            *p = '?';
+    gbw_sanitize(r); /* the Game Boy font is ASCII 32-126 plus line breaks */
     return 2;
 }
 

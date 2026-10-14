@@ -944,3 +944,17 @@ The gate checks are stronger as well:
 - Unadmitted management frames: the sim counts 5 per join, all with the reservoir in RUN.
 - The calibration-checksum hole (above).
 - Whether Croco's own save button works.
+
+## 2026-10-14 22:37 ROM developer kit for future agents (Hazy: "create a framework, library, documentation, so future agents know how to use the cartridge so they can build roms on it")
+- **Guide: `docs/ROM_DEV.md`.** Opt-in rules, the mailbox, every command with its exact answer and error texts (taken from cmds.c and esp_link.c), timing and power behaviour (latencies read from the sim logs: fresh ~0.4 s to the first answer and ~0.1 s per GET; weak ~0.2 s per GET), testing, getting ROMs onto the SD card, and adding a command. A project skill `.claude/skills/wifi-cart-rom` points agents at it; CLAUDE.md and README link it.
+- **Libraries:**
+  - GBDK `gb/gbdk/lib` gained wrappers (ping/time/get/power/scan/connect) and line helpers.
+  - New RGBDS library `gb/rgbds/wifi.{inc,asm}` (WifiOpen/Submit/Poll/Request, adds WIFICART), example in `gb/rgbds/example`.
+- **Template** `gb/gbdk/template`: a URL text viewer using the non-blocking pattern, with `test.sh`.
+  - Its first run FAILED: GBDK's printf has no field widths (`%-20s` printed literally), so the rows were never cleared. Fixed with manual padding, and noted in the code.
+- **Runner** `sim/system/run_rom.py`: any ROM on the simulated cart.
+  - Console choice, button script, fixtures or offline, expectations (exact or /regex/), auto-detected font (ASCII or GBDK).
+  - Outputs: screenshots, screen text, log, verdict. Exit 1 on a failed expectation or a broken power rule.
+  - A wrong expectation was checked to fail.
+- **GET in the sim** now goes through `host_net.py fetch` (fixtures / live / offline) and the shipped `gbw_sanitize` (also used by the app now). The example.com fixtures for the gate are unchanged. URLs with shell metacharacters are refused: they come from the ROM and reach popen.
+- **Gate S1.12:** the RGBDS example and the GBDK template on the weak console through run_rom.py. **S1 ALL PASS** (S1.1-S1.12).
