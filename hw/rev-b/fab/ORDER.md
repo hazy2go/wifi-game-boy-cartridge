@@ -3,7 +3,7 @@
 **Not ordered yet.** Hold points (LOGBOOK 18:20-19:05):
 1. ESP32-C3 partial-calibration time on a dev board (A7: <= 5 ms at 50 % TX duty, else firmware falls back to stored calibration data).
 2. FPC antenna over copper / inside a shell / in a console (RSSI).
-3. **The real console 5 V** on the consoles to support (cheap multimeter on the link port while a game runs). The power stage keeps the console >= 4.588 V (R126 27.0k); in simulation WiFi works down to ~4.8 V on a 1.2 ohm console (slower) and ~4.75 V on a 0.7 ohm one, and stays off (console safe) below that. A lower floor (26.7k) was tried and rejected: burst-after-idle dips below 4.5 V (audit A8.5).
+3. **OPTIONAL: the real console 5 V.** The DMG power-board schematics put it at about 4.9-5.5 V, typically 5.1-5.2 V (LOGBOOK 2026-10-14), so measuring is not required. To confirm, use a multimeter on the link port while a game runs, or the XIAO ADC through a 2:1 divider. The power stage keeps the console >= 4.588 V (R126 27.0k); in simulation WiFi works down to ~4.8 V on a 1.2 ohm console (slower) and ~4.75 V on a 0.7 ohm one, and stays off (console safe) below that. A lower floor (26.7k) was tried and rejected: burst-after-idle dips below 4.5 V (audit A8.5).
 
 ## Files (this folder)
 | file | upload as |
