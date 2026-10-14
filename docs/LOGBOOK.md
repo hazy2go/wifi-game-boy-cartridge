@@ -490,3 +490,18 @@ Checks: every symbol pin of U103/U104 has a pad and every pad a pin. `netlist_ch
 - **Parity: PASS** (1 = baseline). ERC PASS. DRC: the only new items are courtyard overlaps / pad shorts between staged parts and one pre-existing Croco U1/VBUS-via clearance that KiCad now reports on pad 4 instead of pad 6. Unconnected: 193 new = everything still to be routed.
 
 Next: placement on the top side, then routing.
+
+## 2026-10-14 09:08 Placement feasibility: option 2 does not fit as planned
+
+`hw/rev-b/tools/free_space.py` (KiCad Python) maps the top side on a 0.1 mm grid. Blocked: outside the outline (0.3 mm inset), the shell-rib bands and connector zone, every top courtyard of a Croco part, and **every existing F.Cu pad, track and via plus 0.25 mm**. The 04:57 area budget (Croco ~1,370 of ~2,650 mm2) only counted courtyards, not Croco's top-layer routing, which covers much of the "empty" area.
+
+| | free top area | largest free rectangle |
+|---|---|---|
+| Croco as is (option 2: keep the coin cell) | **535 mm2** | **11.1 x 2.4 mm** |
+| coin-cell holder BT1 removed | 753 mm2 | 3.2 x 16.2 mm (Croco routes F.Cu tracks diagonally under the holder) |
+| needed by the new parts (courtyards) | **593 mm2** | **13.7 x 13.0 mm** for the WiFi module alone |
+
+![keep BT1](img/free_space_keep_bt1.png) ![without BT1](img/free_space_without_bt1.png)
+
+So option 2 is not "re-place some peripheral parts": it means ripping up and re-routing most of Croco's top-layer wiring (everything except the RP2350/HyperRAM/flash core) to open up a 14 x 13 mm hole plus ~450 mm2 more. Removing the coin-cell holder frees a 14 x 20 mm region once ~26 F.Cu track segments under it are re-routed, which is a contained job.
+Checked for a smaller backup cell: JLC has no stock of the soldered rechargeable cells (MS621FE, ML414H, ML614S) or small SMD supercaps in its parts API today. Decision needed from Hazy; see the message of this time.
