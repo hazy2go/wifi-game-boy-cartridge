@@ -125,4 +125,23 @@ PASS  S1.11 weak_plus_fastboot: screen complete; resets 0, 129 frames, drops 0, 
 PASS  S1.12 rgbds example (weak): PASS
 PASS  S1.12 gbdk template (weak): PASS
 
+## S1.13 thermal: U102 TPS2553 (SOT-23, RthJA 182.6 C/W, TJ <= 125 C) and Q101 SiA975DJ (RthJA 110 C/W steady, TJ max 150 C)
+  Tj = 60 C ambient + worst rolling 1 s average power x steady-state RthJA (conservative: the real time constant is longer);
+  hot-plug pulse: worst 1 s energy into the die alone (~0.5 mJ/K, no spreading), an upper bound for the short peak
+PASS  S1.13 fresh thermal: TPS2553 peak 0.73 W, 1 s 11.6 mW -> Tj 62 C (pulse bound 83 C); Q101 peak 0.01 W, 1 s 1.2 mW -> Tj 60 C
+PASS  S1.13 tired thermal: TPS2553 peak 0.73 W, 1 s 10.8 mW -> Tj 62 C (pulse bound 82 C); Q101 peak 0.01 W, 1 s 1.2 mW -> Tj 60 C
+PASS  S1.13 weak thermal: TPS2553 peak 0.71 W, 1 s 0.2 mW -> Tj 60 C (pulse bound 60 C); Q101 peak 0.57 W, 1 s 49.0 mW -> Tj 65 C
+PASS  S1.13 weak_plus thermal: TPS2553 peak 0.71 W, 1 s 0.1 mW -> Tj 60 C (pulse bound 60 C); Q101 peak 0.59 W, 1 s 11.1 mW -> Tj 61 C
+PASS  S1.13 weak_plus_fastboot thermal: TPS2553 peak 0.71 W, 1 s 0.1 mW -> Tj 60 C (pulse bound 60 C); Q101 peak 0.59 W, 1 s 11.0 mW -> Tj 61 C
+PASS  S1.13 usb_like thermal: TPS2553 peak 0.78 W, 1 s 13.5 mW -> Tj 62 C (pulse bound 87 C); Q101 peak 0.01 W, 1 s 1.0 mW -> Tj 60 C
+
+## S1.14 sanitizers: randomised inputs to every parser of untrusted data, and the full system under ASan/UBSan
+PASS  S1.14 fuzz (esp_link, MSS clamp, klines, connect, scan, sanitize): fuzz_c: 300000 iterations, no sanitizer findings
+PASS  S1.14 asan_weak under ASan/UBSan: no findings
+PASS  S1.14 asan_gbdk under ASan/UBSan: no findings
+
+## S1.15 soak: gb/gbdk/soak loops PING/TIME/GET/POWER (SEQ wraps every 256), 5 simulated minutes per console
+PASS  S1.15 soak fresh: OK 7154 ERR 0 TO 0, resets 0, drops 0, console min 4.783 V
+PASS  S1.15 soak weak: OK 4522 ERR 0 TO 0, resets 0, drops 0, console min 4.591 V
+
 RESULT: ALL PASS

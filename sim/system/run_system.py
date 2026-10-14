@@ -165,6 +165,45 @@ for name, cmd in (('rgbds example (weak)', f'{sys.executable} run_rom.py ../../g
     r = subprocess.run(cmd, cwd=HERE, shell=True, capture_output=True, text=True)
     check(f'S1.12 {name}', r.returncode == 0, (r.stdout.strip().splitlines() or ['no output'])[-1] if r.returncode == 0
           else ' | '.join(l for l in r.stdout.splitlines() if l.startswith('FAIL')) or r.stderr.strip()[-200:])
+
+log('\n## S1.13 thermal: U102 TPS2553 (SOT-23, RthJA 182.6 C/W, TJ <= 125 C) and Q101 SiA975DJ (RthJA 110 C/W steady, TJ max 150 C)')
+log('  Tj = 60 C ambient + worst rolling 1 s average power x steady-state RthJA (conservative: the real time constant is longer);')
+log('  hot-plug pulse: worst 1 s energy into the die alone (~0.5 mJ/K, no spreading), an upper bound for the short peak')
+sh(f'cc -O2 -std=c11 {LAYOUT} -DVSRC=5.25 -Wall -Wextra -Werror -Wno-unused-parameter -I{pm} -I{el} -I{gw} '
+   f'-o sysim_usb sysim.c {pm}/power_mgr.c {el}/esp_link.c {gw}/gbwifi.c -lm', HERE)
+sh('./sysim_usb rom/wifitest.gb usb_like 0.2 12 out', HERE)
+for name in ('fresh', 'tired', 'weak', 'weak_plus', 'weak_plus_fastboot', 'usb_like'):
+    res = json.load(open(os.path.join(OUT, f'{name}_result.json')))
+    tj_t = 60 + res['p_tps_max1s_w'] * 182.6
+    tj_q = 60 + res['p_q101_max1s_w'] * 110
+    pulse = res['p_tps_max1s_w'] / 0.5e-3          # J in the worst 1 s window / die heat capacity -> K
+    check(f'S1.13 {name} thermal', tj_t < 125 and tj_q < 125 and 60 + pulse < 125,
+          f"TPS2553 peak {res['p_tps_peak_w']:.2f} W, 1 s {res['p_tps_max1s_w'] * 1e3:.1f} mW -> Tj {tj_t:.0f} C "
+          f"(pulse bound {60 + pulse:.0f} C); Q101 peak {res['p_q101_peak_w']:.2f} W, 1 s {res['p_q101_max1s_w'] * 1e3:.1f} mW -> Tj {tj_q:.0f} C")
+
+log('\n## S1.14 sanitizers: randomised inputs to every parser of untrusted data, and the full system under ASan/UBSan')
+cc_san = 'clang -std=c11 -g -O1 -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer'
+sh(f'{cc_san} -I{el} -I{gw} -o fuzz/fuzz_c fuzz/fuzz_c.c {el}/esp_link.c {gw}/gbwifi.c -lm', HERE)
+r = subprocess.run('./fuzz/fuzz_c 300000 12345', cwd=HERE, shell=True, capture_output=True, text=True)
+check('S1.14 fuzz (esp_link, MSS clamp, klines, connect, scan, sanitize)', r.returncode == 0,
+      r.stdout.strip() or r.stderr.strip()[-300:])
+sh(f'{cc_san} {LAYOUT} -w -I{pm} -I{el} -I{gw} -o sysim_asan sysim.c {pm}/power_mgr.c {el}/esp_link.c {gw}/gbwifi.c -lm', HERE)
+for name, rom, ohm, secs in (('asan_weak', 'rom/wifitest.gb', 2.0, 20), ('asan_gbdk', '../../gb/gbdk/build/wifi_demo.gb', 0.7, 10)):
+    r = subprocess.run(f'./sysim_asan {rom} {name} {ohm} {secs} out', cwd=HERE, shell=True, capture_output=True, text=True)
+    bad = [l for l in (r.stdout + r.stderr).splitlines() if 'runtime error' in l or 'ERROR: AddressSanitizer' in l]
+    check(f'S1.14 {name} under ASan/UBSan', r.returncode == 0 and not bad, bad[0] if bad else 'no findings')
+
+log('\n## S1.15 soak: gb/gbdk/soak loops PING/TIME/GET/POWER (SEQ wraps every 256), 5 simulated minutes per console')
+sh(f'make -s GBDK={os.environ.get("GBDK", os.path.expanduser("~/opt/gbdk"))}', os.path.join(ROOT, 'gb', 'gbdk', 'soak'))
+for con in ('fresh', 'weak'):
+    out = os.path.join(OUT, f'soak_{con}')
+    r = subprocess.run(f'{sys.executable} run_rom.py ../../gb/gbdk/soak/build/soak.gb --console {con} --seconds 300 --out {out}',
+                       cwd=HERE, shell=True, capture_output=True, text=True)
+    v = json.load(open(os.path.join(out, 'verdict.json')))
+    m = re.search(r'OK (\d+) ERR (\d+) TO (\d+)', ' '.join(v['screen']))
+    ok = r.returncode == 0 and m and int(m.group(1)) > 1000 and m.group(2) == '0' and m.group(3) == '0'
+    check(f'S1.15 soak {con}', bool(ok), (m.group(0) if m else 'no counters') +
+          f", resets {v['radio_resets']}, drops {v['tx_drops']}, console min {v['console_min_v']:.3f} V")
 log(f"\nRESULT: {'ALL PASS' if not fails else str(len(fails)) + ' FAIL: ' + ', '.join(fails)}")
 open(os.path.join(OUT, 'report.txt'), 'w').write('\n'.join(lines) + '\n')
 sys.exit(1 if fails else 0)
