@@ -91,4 +91,28 @@ PASS  S1.7 no opt-in: wifi_rom 0, 0 SPI transactions (bank 15 stays plain save R
    | PASS: 0 failures
 PASS  S1.8 gbwifi: scan lines <= 19 columns, connect parsing, airtime, power/time/BTC text
 
+## S1.9 GBDK-2020 library (gb/gbdk): demo ROM on the fresh and weak consoles
+   | GBDK WIFI DEMO
+   | PING:
+   | PONG
+   | TIME:
+   | 2026-10-14 15:00:00
+   | GET /hello:
+   | Hello from WiFi!
+   | POWER:
+   | RAIL 4.84V RES 4.82V
+   | DONE
+PASS  S1.9 gbdk_fresh: screen as expected; console min 4.784 V, resets 0, 21 frames all admitted
+   | GBDK WIFI DEMO
+   | PING:
+   | PONG
+   | TIME:
+   | 2026-10-14 15:00:00
+   | GET /hello:
+   | Hello from WiFi!
+   | POWER:
+   | RAIL 4.59V RES 3.47V
+   | DONE
+PASS  S1.9 gbdk_weak: screen as expected; console min 4.591 V, resets 0, 21 frames all admitted
+
 RESULT: ALL PASS

@@ -50,7 +50,7 @@ Simulation (all passing):
      - 802.11b rates off. Use a small MSS (about 300 bytes) or count the guaranteed input current in admission. Note: `CONFIG_LWIP_TCP_MSS` only goes down to 536, so 300 bytes needs another way (LOGBOOK 2026-10-14 20:13).
      - Every TX frame goes through `pm_admit_tx`.
      - Cart-rail watch at 4.45 / 4.48 V.
-5. **Game Boy side.** Test ROMs in RGBDS: `sim/system/rom/wifitest.asm` and `btcdemo.asm`. Later: a GBDK-2020 library plus demos.
+5. **Game Boy side.** Test ROMs in RGBDS: `sim/system/rom/wifitest.asm` and `btcdemo.asm`. **GBDK-2020 library done:** `gb/gbdk` (README there, `make` with GBDK 4.5.0 at `~/opt/gbdk`), with its demo in gate S1.9. More demos to come. The opt-in is `WIFICART` anywhere in bank 0.
 6. `legacy/` holds the original ESP8266 cartridge's code, PCB and shell. It is kept for reference only; don't build on it.
 
 ## Tool notes

@@ -5,7 +5,7 @@
  *     -> RP2350 firmware model: polls the mailbox every 1 ms and talks to the ESP with the SPI link protocol
  *        (docs/ARCHITECTURE.md), byte for byte, through the reference master in esp_link.c (CS = GPIO46,
  *        SCK/MOSI through U106, MISO through U105 which only drives while CS is low). Only for ROMs that opt in
- *        ("WIFICART" at 0x0150 + MBC5 with 128 KB RAM).
+ *        ("WIFICART" in bank 0 + MBC5 with 128 KB RAM).
  *     -> ESP32-C3 firmware model: the SHIPPED SPI-slave protocol half (firmware/esp32c3/components/esp_link),
  *        command handlers, WiFi traffic as TX/RX frames, every TX frame admitted by the SHIPPED power manager
  *        (firmware/esp32c3/components/power_mgr/power_mgr.c)
@@ -405,9 +405,11 @@ int main(int argc, char **argv)
     snprintf(path, sizeof path, "%s/%s_log.txt", argv[5], argv[2]);
     slog = fopen(path, "w");
     vgb = VSRC - RSRC * GB_LOAD;               /* console on, cartridge empty: hot-plug at t = 0 */
-    wifi_rom = rom_size > 0x158 && !memcmp(rom + 0x150, "WIFICART", 8) && rom[0x147] >= 0x19 && rom[0x147] <= 0x1E &&
-               rom[0x149] == 0x04;
-    fprintf(slog, "%8.3f  cart: %s\n", t_now, wifi_rom ? "WiFi ROM (WIFICART, MBC5, 128 KB RAM): mailbox on bank 15"
+    int optin = 0;                             /* "WIFICART" anywhere in bank 0 (GBDK's crt0 owns 0x0150) */
+    for (size_t i = 0; i + 8 <= rom_size && i + 8 <= 0x4000 && !optin; i++)
+        optin = !memcmp(rom + i, "WIFICART", 8);
+    wifi_rom = optin && rom_size > 0x150 && rom[0x147] >= 0x19 && rom[0x147] <= 0x1E && rom[0x149] == 0x04;
+    fprintf(slog, "%8.3f  cart: %s\n", t_now, wifi_rom ? "WiFi ROM (WIFICART in bank 0, MBC5, 128 KB RAM): mailbox on bank 15"
                                                       : "no WIFICART opt-in: bank 15 is plain save RAM");
     el_slave_init(&esl);
     el_slave_build_tx(&esl, esp_tx);
@@ -470,6 +472,11 @@ int main(int argc, char **argv)
         }
         fputc('\n', p);
     }
+    fclose(p);
+    snprintf(path, sizeof path, "%s/%s_tiles.bin", argv[5], argv[2]);   /* raw 20x18 tile indexes (any font) */
+    p = fopen(path, "wb");
+    for (int row = 0; row < 18; row++)
+        fwrite(gb.vram + 0x1800 + row * 32, 1, 20, p);
     fclose(p);
     snprintf(path, sizeof path, "%s/%s_result.json", argv[5], argv[2]);
     p = fopen(path, "w");

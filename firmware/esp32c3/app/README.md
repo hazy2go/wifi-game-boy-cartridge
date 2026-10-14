@@ -28,7 +28,7 @@ idf.py -p /dev/cu.usbmodemXXXX flash monitor      # through Croco's USB-C (CH334
   - A frame is dropped after 200 ms or when the pm leaves RUN; TCP retransmits it.
 - **Not covered by admission:** management and EAPOL frames, which the WiFi library sends itself. Scans are passive (no probe requests), and scan/connect only start while the pm is in RUN.
 - **PARK = auto light-sleep, still associated.** The SPI slave holds an APB lock that blocks light sleep, so the link frees it during PARK; the master repeats meanwhile.
-  - Simulated with 1.4 mA and a silent link: S1 passes.
+  - Simulated with 1.4 mA and a silent link: S1 passes, and the sim/power audits A1-A7 pass at 1.4 mA too.
   - A modem-sleep park (25 mA) was simulated too and **rejected**: 117 radio resets on weak_plus (LOGBOOK).
 - On USB, the cart rail is not watched (`gbw_rail_for_pm`): the mux feeds the radio from VBUS, and the cart rail may be 0 V.
 

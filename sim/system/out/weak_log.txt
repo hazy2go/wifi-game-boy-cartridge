@@ -1,4 +1,4 @@
-   0.000  cart: WiFi ROM (WIFICART, MBC5, 128 KB RAM): mailbox on bank 15
+   0.000  cart: WiFi ROM (WIFICART in bank 0, MBC5, 128 KB RAM): mailbox on bank 15
    0.000  ROM: state 0
    0.035  ROM: request seq 1 cmd 1 ""
    0.051  ROM: state 1

@@ -1,4 +1,4 @@
-   0.000  cart: WiFi ROM (WIFICART, MBC5, 128 KB RAM): mailbox on bank 15
+   0.000  cart: WiFi ROM (WIFICART in bank 0, MBC5, 128 KB RAM): mailbox on bank 15
    0.000  ROM: state 0
    0.028  ESP: boot, reservoir 4.24 V
    0.028  ESP: power state 0 -> 1 (res 4.24 V, rail 4.783 V)
