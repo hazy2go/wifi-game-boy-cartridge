@@ -755,3 +755,18 @@ Hazy asked "are you sure it's the right antenna?". ESP32-C3-MINI-1U datasheet v2
 - **Kept: firmware cart-rail watch 4.55/4.60 -> 4.45/4.48 V** (`power_mgr.c`). The regulator already does the per-console limiting; the watch is now a backstop below the hardware floor's low corner (4.542 V) minus the uncalibrated ADC error (+-44 mV), so tolerance or ADC offset can no longer keep WiFi asleep on a console the regulator is serving. A1-A7 ALL PASS (`sim/power/out/audit_fw445.log`), S1 ALL PASS, `fw_watch_sweep.py`: identical safety for all pairs (0 ms below 4.5 V, 0 resets).
 - Console-voltage sweep with the final design (`sim/system/out/console_voltage_sweep.txt`, set-point corners 4.542/4.588/4.634 V x console 5.0-4.7 V x 0.7/1.2/2.0 ohm): WiFi works down to ~4.8 V on a 1.2 ohm console (8.5 s waiting at nominal) and ~4.75 V on a 0.7 ohm console; below that it stays off, console never below 4.5 V from the cart.
 - Hold point 3 in ORDER.md stays: measure the real console 5 V (multimeter on the link port).
+
+## 2026-10-14: DMG 5V from the original power-board schematics (no measurement)
+
+Hazy prefers not to measure, and web search turned up no published measurement of the DMG's 5V rail. Instead we used Gekkio's
+gb-schematics (CC BY 4.0) for the DMG power converter boards DC-CONV-DMG-AB, DC-CONV-DMG-C and DC-CONV2-DMG-D, exporting their netlists with kicad-cli.
+
+- **Topology:** a self-oscillating (blocking) flyback with Q1 2SD1664 and transformer T1. The +5V output is regulated by a shunt feedback path:
+  VOUT+ goes to the cathode of zener D4 (4.7 V). The zener's anode drives the base of Q2, with R4 to GND and C3 across it. Q2's collector pulls Q1's base, which stops the drive.
+  So Vout settles at Vz(D4) + Vbe(Q2).
+- **Revisions:** AB uses R4 = 180 ohm, which puts about 3.3 mA through the zener at the threshold. C and D use R4 = 330 ohm, about 1.8 mA. Otherwise the feedback is the same.
+- **Estimate:** a 4.7 V small-signal zener is ±5% at its 5 mA test current. At 2 to 3 mA its soft knee gives roughly 4.3 to 4.8 V, and Vbe(Q2) at onset is about 0.6 to 0.7 V.
+  That puts **Vout at about 4.9 to 5.5 V, typically about 5.1 to 5.2 V**, minus a few tens of mV of cable and switch drop to the cart pin.
+  The design assumption of 5.0 V sits at or below the typical value.
+- **Consequence:** the board is safe everywhere in that range. Real-WiFi availability holds down to about 4.75 to 4.8 V (see the console_voltage_sweep), so only a unit at the very bottom of the spread could be marginal. The fix would then be one resistor (R126), not a respin.
+- The hold point "measure the real console 5V" is downgraded to optional. When the XIAO ESP32C3 dev board arrives, it can read the cart 5V through a 2:1 divider on its ADC, with no multimeter needed.
