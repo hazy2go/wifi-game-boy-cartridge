@@ -17,6 +17,9 @@ import pcbnew
 
 RES, CLEAR, MAX_R = 0.05, 0.2, 3.0   # 0.2: raster quantisation (0.05) must not eat the 0.15 rule
 VIA_D, VIA_H = 0.5, 0.2
+import os
+if os.environ.get('FR_VIA'):   # e.g. FR_VIA=0.35/0.15 (needs the board's via minimums)
+    VIA_D, VIA_H = map(float, os.environ['FR_VIA'].split('/'))
 POWER = {'VCC', 'VBUS', '+5V', '+3V3', 'VRES', 'VLIM', '/Radio/VMUX', '/Radio/+3V3_RF', 'GND'}
 LAYERS = (pcbnew.In2_Cu, pcbnew.In3_Cu)
 ALL = (pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.In3_Cu, pcbnew.B_Cu)   # signal layers (In1/In4 planes get antipads)
