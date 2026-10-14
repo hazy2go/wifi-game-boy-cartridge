@@ -50,6 +50,12 @@ App behaviour modelled (LOGBOOK, audit entry):
 - PARK = light sleep at 1.4 mA with a silent SPI slave. The slave buffer is rebuilt only after a transaction.
 - Optional ADC gain errors (`ADC_RES_GAIN`, `ADC_RAIL_GAIN`).
 
+Later checks:
+- S1.13: thermal. TPS2553 and Q101 junction-temperature estimates from the plant's per-part power.
+- S1.14: sanitizers. Fuzzing of every untrusted-input parser, and the system under ASan/UBSan.
+- S1.15: a 5-minute soak per console (`gb/gbdk/soak`).
+- Peanut-GB carries one local fix: the APU read-mask index (see the comment at peanut_gb.h:875).
+
 Checks added by the audit: S1.10 (ADC reads the reservoir 2.5 % high), S1.11 (weak_plus with a fast boot). S1.7 also covers a WIFICART ROM with only 32 KB RAM. weak_plus at the default boot assumption is INFO only: it boot-loops (the boot needs 28 mJ, the reservoir holds 6.75 mJ).
 - `el_vectors.c` writes `out/esp_link_vectors.txt`, a scripted run of the reference master against the shipped
   slave (ESP boot, corrupted body, corrupted request, ESP restart mid-job, RADIO TIMEOUT, NO RADIO POWER, SEQ

@@ -23,3 +23,5 @@ sim/system/sysim_fastboot
 sim/system/sysim_usb
 sim/system/fuzz/fuzz_c
 sim/system/sysim_asan
+sim/system/*.dSYM/
+sim/system/fuzz/*.dSYM/
