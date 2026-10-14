@@ -881,3 +881,66 @@ Hazy: "go on ... also will u close the gap?"
 Demo `gb/gbdk/demo/wifi_demo.c` (PING, TIME, GET, POWER) and new gate check **S1.9**, which runs it in sysim on the fresh and the weak console. sysim now also writes the raw tile map, because GBDK's font starts at tile 0 = space.
 - First run FAILED: my demo indented answers by one space, so the 20-column POWER line wrapped. Fixed in the demo.
 - S1 now ALL PASS (S1.1-S1.9). gbdk_weak: console min 4.591 V, 0 resets, 21/21 frames admitted.
+
+## 2026-10-14 22:30 End-to-end audit (Hazy: "before that, do a full end to end audit, run also simulations and emulations")
+Three independent reviewers worked from fresh context, read-only: the SPI link (C + Rust), the ESP app checked against the ESP-IDF 5.5.1 source, and the sim's fidelity to the shipped code. I checked their main claims in the sources myself before fixing.
+
+**Runs:**
+- sim/power A1-A7: ALL PASS (1.4 mA park).
+- **A8: ALL PASS** (115 checks). The vendor models were fetched with `sim/models/fetch_models.py`.
+- Gate S1: ALL PASS after the fixes below. BTC demo D1-D5: PASS.
+- Rust host tests: pass on the regenerated transcript. All builds are clean: cart firmware, ESP app, both XIAO apps.
+- **KiCad gate: not run.** The KiCad 10.0.6 cask install needs sudo; Hazy has to run it.
+- **QEMU (Espressif qemu-riscv32 9.0):** the bootloader, the custom partition table, the OTA slot and the fast-boot settings all check out (user code reached at 41 ms of emulated time, was 292 ms). The app itself cannot run in QEMU: ESP-IDF's WiFi driver links the ADC2 hardware self-calibration constructor (`wifi_init.c:491` adc2_cal_include). QEMU has no ADC, so it hangs before app_main. A hello-world without WiFi runs fine. So the app's runtime logic is emulated by sysim, which compiles the shared C components.
+- My mistake: three QEMU processes stayed alive after the time limit, about 90 % CPU each for 15 minutes (Hazy: "my mac hella slow"). They are killed now, and QEMU runs now end with an explicit kill.
+
+**Verified defects, fixed:**
+1. **RP2350, critical: `esp_link_task` could never wake.** NVIC enables are per core. `embassy_rp::init` enables TIMER0_IRQ_0 and IO_IRQ_BANK0 on core0 only (time_driver.rs, gpio.rs at rev 05a6f7a), and core0 then runs the MBC loop with interrupts off. So no Timer on core1 ever fired.
+   - The upstream save button (a GPIO wait on core1) follows the same pattern. Whether it works on a real Croco is unverified.
+   - Fix: enable both interrupts on core1 before its executor starts.
+2. **Protocol: after an RP2350 restart the ESP still held the old job.** A new session's seq 1 could get the previous answer, or be ignored for 5 s. The reviewer reproduced both with the real esp_link.c.
+   - Fix: a session byte (master header byte 7, random per boot); the ESP drops all job state when it changes.
+   - New vector scenario: a restart with an unacked answer; the new session gets its own answer. Spec updated.
+3. **The WiFi password reached the SD card:** the CONNECT payload sits in bank 15, and all 16 banks are saved. Fix: the master clears A000-A1FF at start and the request area after every answer.
+4. **Correction, ESP DHCP: my MTU-340 trick broke DHCP after the first IP.** `dhcp_start` refuses an MTU below 576 (lwip dhcp.c:893). The step-4 entry said "a DHCP message still fits", which missed that check. Fix: MTU stays 1500 and the MSS is clamped instead, by rewriting the MSS option of incoming SYN-ACKs to 300 with an RFC 1624 checksum update (`gbw_clamp_mss`, host-tested in S1.8; a mutation of the checksum formula is caught).
+5. **ESP: PARK could not light-sleep.** The command task polled every 2 ms, and tickless idle needs at least 3 idle ticks. Fix: it waits on a notification from the link task.
+6. **ESP: `spi_slave_free` in PARK** deleted queues the ISR could still use. Fix: `spi_slave_disable` / `spi_slave_enable`.
+7. **ESP: no reconnect after a WiFi drop.** Fix: reconnect with 5-60 s backoff, only in RUN, to the stored channel. A job that needs the network waits for the autoconnect within its budget.
+8. **ESP: admission blocked lwIP's tcpip thread for up to 200 ms.** Fix: the netif hook queues a copy; `tx_task` sends it once admitted and drops it only at 2 s age.
+9. **ESP: the job deadline was not enforced** (3 s + 7.5 s waits, against the master's 12 s). Fix: one 8 s budget per job (the spec value). TIME does not wait for a new sync once the clock is set, and SNTP has no start-up delay.
+10. **ESP: `boot_ms` was 100** (the pm default), while the audits use the calibration time (5 ms). BOOT cannot sleep. Fix: `GBW_BOOT_MS` = 5 in app and sim. See finding B.
+11. Smaller fixes:
+    - A failed ADC read now keeps the last value (it used to give 0 V and a spurious PARK). A missing ADC calibration eFuse now falls back instead of aborting, and so does a failed WiFi start.
+    - The klines are parsed without cJSON (no ~60-100 KB heap tree).
+    - Mode changes are locked. OTA rollback is on (image marked valid after 5 s).
+    - The console `wifi` command now reconnects.
+    - RP2350: a plain 1 ms Timer (a Ticker would burst after an SD save); MBC5 RAM starts at bank 0, an upstream bug (a first select of bank 1 stayed on bank 0).
+
+**The sim was optimistic. Now it models what ships** (sysim.c, sim/system/README.md):
+- TX queue semantics, unadmitted join frames, the autoconnect in RUN, one job at a time, passive scan;
+- the ESP boot (300 ms at 25 mA, assumed) before the pm starts;
+- BOOT = `GBW_BOOT_MS`;
+- ADC gain errors.
+
+The gate checks are stronger as well:
+- S1.4 reports drops and unadmitted frames;
+- S1.7 also tests a WIFICART ROM with only 32 KB RAM (the header checksum is fixed, because the emulator checks it);
+- weak_plus completion is a check;
+- new S1.10 (ADC reads 2.5 % high) and S1.11 (fast boot).
+
+**What the more faithful sim found in the app design (S1 runs during the fixes):**
+- **A. "Wait 50 ms, then drop"** gave a weak_plus that never joins: DHCP gets dropped in PARK. That is why the TX queue (fix 8) was chosen.
+- **B. boot_ms 100:** 51 radio resets on the weak console (fix 10).
+- **C. Boot energy, open, needs a measurement.**
+  - On weak_plus (2.5 ohm) the ESP cannot finish booting at 300 ms / 25 mA: 28 mJ needed, against ~6.75 mJ in the reservoir above power-good, with ~5 mA of input left. It brown-outs and reboots every ~0.5 s (107 resets in 60 s). The radio is off and the console stays safe (min 4.588 V).
+  - The audits and the old sim drew 0 mA before the pm started, so they could not see this.
+  - Sweep: it works at <= 100 ms / 20 mA or 60 ms / 25 mA (129/129 frames, 0 drops, 144 parks).
+  - App: fast boot set (no app hash check on power-on, quiet bootloader).
+  - Gate: weak_plus at 300 ms is INFO, and S1.11 (100 ms at 20 mA) is required.
+  - **XIAO hold point added:** the boot time (a7_cal prints it) and the boot current.
+
+**Still open, not fixable without hardware:**
+- A7, the boot energy, the park current, the SPI slave at 8 MHz with the 100 us gap.
+- Unadmitted management frames: the sim counts 5 per join, all with the reservoir in RUN.
+- The calibration-checksum hole (above).
+- Whether Croco's own save button works.

@@ -20,3 +20,12 @@ CONFIG_FREERTOS_USE_TICKLESS_IDLE=y
 CONFIG_MBEDTLS_CERTIFICATE_BUNDLE=y
 CONFIG_ESP_HTTP_CLIENT_ENABLE_HTTPS=y
 CONFIG_LWIP_IPV6=n
+# TIME answers within the 8 s job deadline: no random SNTP start delay (default up to 5 s)
+CONFIG_LWIP_SNTP_STARTUP_DELAY=n
+# OTA: a new image that does not reach "link up" is rolled back at the next boot
+CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y
+# Boot energy: on a weak console the reservoir holds ~6.75 mJ above power-good and the ESP must reach app_main within
+# it (S1 sweep 2026-10-14: <= ~100 ms at 20 mA works on a 2.5 ohm console, 300 ms at 25 mA boot-loops). So: no app
+# hash check on power-on (OTA rollback still guards bad images) and a quiet bootloader. Measure on the XIAO (a7_cal).
+CONFIG_BOOTLOADER_SKIP_VALIDATE_ON_POWER_ON=y
+CONFIG_BOOTLOADER_LOG_LEVEL_WARN=y

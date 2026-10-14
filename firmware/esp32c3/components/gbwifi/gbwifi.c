@@ -124,3 +124,92 @@ size_t gbw_fmt_btc(char *out, size_t cap, const double *closes, int n, int utc_h
     out[at] = 0;
     return at;
 }
+
+static uint16_t csum_add(uint16_t a, uint16_t b) /* ones' complement add */
+{
+    uint32_t s = (uint32_t)a + b;
+    return (uint16_t)((s & 0xFFFF) + (s >> 16));
+}
+
+int gbw_clamp_mss(uint8_t *f, size_t len, uint16_t mss)
+{
+    if (len < 14 + 20 + 20 || f[12] != 0x08 || f[13] != 0x00) /* Ethernet II, IPv4 */
+        return 0;
+    uint8_t *ip = f + 14;
+    size_t ihl = (size_t)(ip[0] & 0x0F) * 4;
+    if ((ip[0] >> 4) != 4 || ihl < 20 || ip[9] != 6 || 14 + ihl + 20 > len)
+        return 0;
+    if ((ip[6] & 0x1F) || ip[7]) /* fragment */
+        return 0;
+    uint8_t *tcp = ip + ihl;
+    size_t doff = (size_t)(tcp[12] >> 4) * 4;
+    if (!(tcp[13] & 0x02) || doff < 20 || 14 + ihl + doff > len) /* SYN only */
+        return 0;
+    for (size_t i = 20; i + 1 < doff;) {
+        uint8_t kind = tcp[i];
+        if (kind == 0)
+            break;
+        if (kind == 1) {
+            i++;
+            continue;
+        }
+        uint8_t olen = tcp[i + 1];
+        if (olen < 2 || i + olen > doff)
+            break;
+        if (kind == 2 && olen == 4) {
+            uint16_t old = (uint16_t)(tcp[i + 2] << 8 | tcp[i + 3]);
+            if (old <= mss)
+                return 0;
+            tcp[i + 2] = (uint8_t)(mss >> 8);
+            tcp[i + 3] = (uint8_t)mss;
+            /* RFC 1624 eqn 3: HC' = ~(~HC + ~m + m') */
+            uint16_t hc = (uint16_t)(tcp[16] << 8 | tcp[17]);
+            uint16_t c = csum_add(csum_add((uint16_t)~hc, (uint16_t)~old), mss);
+            c = (uint16_t)~c;
+            tcp[16] = (uint8_t)(c >> 8);
+            tcp[17] = (uint8_t)c;
+            return 1;
+        }
+        i += olen;
+    }
+    return 0;
+}
+
+int gbw_parse_klines(const char *j, double *closes, int max, double *close_ms)
+{
+    int n = 0, depth = 0, field = 0;
+    const char *p = j;
+    while (*p && n < max) {
+        char c = *p;
+        if (c == '[') {
+            depth++;
+            field = 0;
+            p++;
+        } else if (c == ']') {
+            depth--;
+            p++;
+        } else if (c == ',') {
+            if (depth == 2)
+                field++;
+            p++;
+        } else if (depth == 2 && (c == '"' || c == '-' || (c >= '0' && c <= '9'))) {
+            const char *v = c == '"' ? p + 1 : p;
+            char *e;
+            double x = strtod(v, &e);
+            if (e == v)
+                return n; /* not a number where one belongs */
+            if (field == 4)
+                closes[n] = x;
+            if (field == 6) {
+                *close_ms = x;
+                n++; /* close_time comes after close: the kline is complete */
+            }
+            p = e;
+            if (c == '"' && *p == '"')
+                p++;
+        } else {
+            p++;
+        }
+    }
+    return n;
+}

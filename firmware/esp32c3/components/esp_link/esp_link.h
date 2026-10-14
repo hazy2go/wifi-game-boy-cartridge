@@ -13,6 +13,7 @@
 #include <stdint.h>
 
 #define EL_VERSION 1
+#define EL_MB_CLEAR 0x200            /* mailbox bytes the master clears at start: header, request, response */
 #define EL_HDR 12
 #define EL_MAX_REQ 240
 #define EL_MAX_RESP 255
@@ -47,6 +48,7 @@ typedef struct {
     char job_data[EL_MAX_REQ + 1];
     bool accepted;
     uint8_t accepted_seq;
+    uint8_t session;  /* master's session byte (0 = none seen yet); a new one drops all job state */
     /* response waiting to be fetched */
     bool resp;
     uint8_t resp_seq, resp_status, resp_len;
@@ -75,12 +77,14 @@ typedef struct {
     bool fetch_due;
     uint8_t fetch_len;
     bool ever_valid;
+    uint8_t session;  /* random per master boot, never 0 */
     uint32_t t_pending_ms, t_valid_ms, t_accept_ms, t_req_ms;
     uint32_t xfers, bad_hdr, bad_body, resent;
 } el_master_t;
 
-/* mb = the 0x2000-byte mailbox bank. Clears the mailbox header; call before the Game Boy runs. */
-void el_master_init(el_master_t *m, uint8_t *mb, uint32_t now_ms);
+/* mb = the 0x2000-byte mailbox bank. Clears A000-A1FF; call before the Game Boy runs. session: random, != 0, new
+ * on every master boot (the ESP may stay powered through an RP2350 restart and must drop its old job). */
+void el_master_init(el_master_t *m, uint8_t *mb, uint32_t now_ms, uint8_t session);
 /* Builds the next transaction into tx (EL_MAX_XFER bytes); returns its length (multiple of 4). */
 size_t el_master_next(el_master_t *m, uint32_t now_ms, uint8_t *mb, uint8_t *tx);
 /* The transaction finished: rx holds the n bytes the ESP sent. */

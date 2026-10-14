@@ -22,11 +22,14 @@ static float s_k_vcc = 1.0f, s_k_res = 1.0f;   /* per-board one-point calibratio
 static volatile float s_v_res, s_v_rail;
 static volatile bool s_usb, s_fault;
 
-static float read_v(adc_channel_t ch, float k)
+/* a failed read keeps the last good value: a spurious 0 V would mean a spurious PARK */
+static float read_v(adc_channel_t ch, float k, float last)
 {
     int raw = 0, mv = 0;
-    if (adc_oneshot_read(s_adc, ch, &raw) != ESP_OK || adc_cali_raw_to_voltage(s_cali, raw, &mv) != ESP_OK)
-        return 0;
+    if (adc_oneshot_read(s_adc, ch, &raw) != ESP_OK)
+        return last;
+    if (!s_cali || adc_cali_raw_to_voltage(s_cali, raw, &mv) != ESP_OK)
+        mv = raw * 1300 / 4095; /* no eFuse calibration: nominal 6 dB range, uncalibrated */
     return mv / 1000.0f / ADC_DIV_K * k;
 }
 
@@ -67,7 +70,10 @@ void power_init(void)
     ESP_ERROR_CHECK(adc_oneshot_config_channel(s_adc, ADC_CHANNEL_0, &ccfg));
     ESP_ERROR_CHECK(adc_oneshot_config_channel(s_adc, ADC_CHANNEL_1, &ccfg));
     adc_cali_curve_fitting_config_t cal = {.unit_id = ADC_UNIT_1, .atten = ADC_ATTEN_DB_6, .bitwidth = ADC_BITWIDTH_DEFAULT};
-    ESP_ERROR_CHECK(adc_cali_create_scheme_curve_fitting(&cal, &s_cali));
+    if (adc_cali_create_scheme_curve_fitting(&cal, &s_cali) != ESP_OK) {
+        s_cali = NULL; /* chip without ADC calibration eFuses: raw conversion (calibrate with `cal`) */
+        ESP_LOGW(TAG, "no ADC curve-fitting calibration, using the nominal range");
+    }
 
     gpio_config_t in = {.pin_bit_mask = (1ULL << PIN_USB_PWR_ST) | (1ULL << PIN_LIM_FAULT), .mode = GPIO_MODE_INPUT};
     ESP_ERROR_CHECK(gpio_config(&in)); /* both have 100k pull-ups to +3V3_RF on the board */
@@ -78,6 +84,7 @@ void power_init(void)
 
     pm_config_t cfg;
     pm_default_config(&cfg);
+    cfg.boot_ms = GBW_BOOT_MS; /* the default (100) is not what the audits assume */
     pm_init(&gbw_pm, &cfg);
     ESP_LOGI(TAG, "ADC cal k_vcc %.4f k_res %.4f", s_k_vcc, s_k_res);
 }
@@ -99,8 +106,8 @@ void power_task(void *arg)
         vTaskDelayUntil(&last, pdMS_TO_TICKS(ticks));
         s_usb = gpio_get_level(PIN_USB_PWR_ST);
         s_fault = !gpio_get_level(PIN_LIM_FAULT);
-        s_v_res = read_v(ADC_CHANNEL_0, s_k_res);
-        s_v_rail = read_v(ADC_CHANNEL_1, s_k_vcc);
+        s_v_res = read_v(ADC_CHANNEL_0, s_k_res, s_v_res);
+        s_v_rail = read_v(ADC_CHANNEL_1, s_k_vcc, s_v_rail);
 
         xSemaphoreTake(gbw_pm_mtx, portMAX_DELAY);
         for (int i = 0; i < ticks; i++)

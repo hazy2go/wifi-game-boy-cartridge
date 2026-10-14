@@ -1,49 +1,53 @@
-   0.000  cart: WiFi ROM (WIFICART, MBC5, 128 KB RAM): mailbox on bank 15
+   0.000  cart: WiFi ROM (WIFICART in bank 0, MBC5, 128 KB RAM): mailbox on bank 15
    0.000  ROM: state 0
    0.028  ESP: boot, reservoir 4.24 V
-   0.028  ESP: power state 0 -> 1 (res 4.24 V, rail 4.783 V)
-   0.033  ESP: power state 1 -> 2 (res 4.00 V, rail 4.783 V)
    0.035  ROM: request seq 1 cmd 5 ""
    0.051  ROM: state 1
+   0.328  ESP: power state 0 -> 1 (res 4.87 V, rail 4.874 V)
+   0.333  ESP: connecting (stored credentials)
+   0.333  ESP: power state 1 -> 2 (res 4.69 V, rail 4.783 V)
    0.336  ESP: job seq 1 cmd 5 ""
-   1.662  ESP: response seq 1 status 2 "1 <redacted>  -- W3
+   0.445  ESP: connected
+   1.782  ESP: response seq 1 status 2 "1 <redacted>  -- W2
 2 <redacted>  -- W2
 3 <redacted>  -- W2
 4 <redacted>  -- W2
 "
-   1.663  ESP->ROM: seq 1 status 2 "1 <redacted>  -- W3
+   1.783  ESP->ROM: seq 1 status 2 "1 <redacted>  -- W2
 2 <redacted>  -- W2
 3 <redacted>  -- W2
 4 <redacted>  -- W2
 "
-   1.725  ROM: state 2
-   2.813  ROM: state 3
-  13.361  ROM: state 4
-  13.379  ROM: request seq 2 cmd 6 "1|gameboy123"
-  13.380  ESP: job seq 2 cmd 6 "1|gameboy123"
-  13.463  ESP: response seq 2 status 2 "OK 192.168.40.115"
-  13.464  ESP->ROM: seq 2 status 2 "OK 192.168.40.115"
-  13.479  ROM: request seq 3 cmd 7 ""
-  13.480  ESP: job seq 3 cmd 7 ""
-  13.495  ROM: state 5
-  13.773  ESP: response seq 3 status 2 "$83,670  +0.53%
-H 83,922  L 83,082
-12:20 UTC  15M BARS
-+20.:406NLLKBIH@59;=@=94)++("%$ !%')-)+0.+/69755<@?:;@B?1*),'19>F?732223433:HNRUWROPUSQPEEFC>BD??=<@><>GZ\Q>;<9-0/.2469==97;<JUL"
-  13.774  ESP->ROM: seq 3 status 2 "$83,670  +0.53%
-H 83,922  L 83,082
-12:20 UTC  15M BARS
-+20.:406NLLKBIH@59;=@=94)"
-  14.165  ROM: state 6
-  16.208  ROM: request seq 4 cmd 7 ""
-  16.209  ESP: job seq 4 cmd 7 ""
-  16.224  ROM: state 5
-  16.502  ESP: response seq 4 status 2 "$83,670  +0.53%
-H 83,922  L 83,082
-12:20 UTC  15M BARS
-+20.:406NLLKBIH@59;=@=94)++("%$ !%')-)+0.+/69755<@?:;@B?1*),'19>F?732223433:HNRUWROPUSQPEEFC>BD??=<@><>GZ\Q>;<9-0/.2469==97;<JUL"
-  16.503  ESP->ROM: seq 4 status 2 "$83,670  +0.53%
-H 83,922  L 83,082
-12:20 UTC  15M BARS
-+20.:406NLLKBIH@59;=@=94)"
-  16.911  ROM: state 6
+   1.842  ROM: state 2
+   2.930  ROM: state 3
+  13.478  ROM: state 4
+  13.496  ROM: request seq 2 cmd 6 "1|gameboy123"
+  13.497  ESP: job seq 2 cmd 6 "1|gameboy123"
+  13.498  ESP: connecting (stored credentials)
+  13.581  ESP: response seq 2 status 2 "OK 192.168.40.115"
+  13.582  ESP->ROM: seq 2 status 2 "OK 192.168.40.115"
+  13.597  ROM: request seq 3 cmd 7 ""
+  13.598  ESP: job seq 3 cmd 7 ""
+  13.610  ESP: connected
+  13.612  ROM: state 5
+  13.891  ESP: response seq 3 status 2 "$82,409  -1.10%
+H 83,922  L 82,407
+13:20 UTC  15M BARS
+FEMUTURPUQLHKKMNKIEABB?=@=<=@@BC@CDCBFIJHGIMOLKLNOKD@BBAHKNQKHGFFFGGFHMTVXZZVVXZXWUOQQNLPOMMKMMLKNU_\SLKLHDEDEFGIKLLIJKLX\Q2/'  "
+  13.892  ESP->ROM: seq 3 status 2 "$82,409  -1.10%
+H 83,922  L 82,407
+13:20 UTC  15M BARS
+FEMUTURPUQLHKKMNKIEABB?=@"
+  14.433  ROM: state 6
+  16.476  ROM: request seq 4 cmd 7 ""
+  16.477  ESP: job seq 4 cmd 7 ""
+  16.492  ROM: state 5
+  16.770  ESP: response seq 4 status 2 "$82,409  -1.10%
+H 83,922  L 82,407
+13:20 UTC  15M BARS
+FEMUTURPUQLHKKMNKIEABB?=@=<=@@BC@CDCBFIJHGIMOLKLNOKD@BBAHKNQKHGFFFGGFHMTVXZZVVXZXWUOQQNLPOMMKMMLKNU_\SLKLHDEDEFGIKLLIJKLX\Q2/'  "
+  16.771  ESP->ROM: seq 4 status 2 "$82,409  -1.10%
+H 83,922  L 82,407
+13:20 UTC  15M BARS
+FEMUTURPUQLHKKMNKIEABB?=@"
+  17.329  ROM: state 6

@@ -45,15 +45,18 @@ radio_state_t radio_state(void);
 void radio_boot(void);            /* pm entered BOOT: start WiFi if calibration data allows it */
 void radio_apply_mode(pm_state_t s); /* power save per pm state and TX hold */
 bool radio_tx_hold(void);         /* a frame is waiting for admission */
+uint32_t radio_tx_drops(void);    /* frames dropped after TX_MAX_AGE in the admission queue */
 bool radio_connected(void);
 int radio_scan(gbw_ap_t *aps, int max);           /* blocking; waits for PM_RUN */
-int radio_connect(const char *ssid, const char *pass, char *ip, int ip_len, int timeout_ms);
-void radio_autoconnect(void);     /* stored credentials, once the pm is in RUN */
+int radio_connect(const char *ssid, const char *pass, uint8_t channel, char *ip, int ip_len, int timeout_ms);
+void radio_autoconnect(void);     /* stored credentials, once the pm is in RUN (later drops: reconnect with backoff) */
 bool radio_wait_run(int timeout_ms);
-void radio_store_creds(const char *ssid, const char *pass);
+bool radio_wait_connected(int timeout_ms); /* if credentials are stored: wait for the IP */
+void radio_store_creds(const char *ssid, const char *pass, uint8_t channel);
 
 /* ---------------------------------------------------------------- cmds.c */
 void cmds_task(void *arg);        /* takes jobs from the link and answers them */
+void cmds_notify(void);           /* link: a new job was accepted */
 
 /* ---------------------------------------------------------------- console.c */
 void console_task(void *arg);     /* USB Serial/JTAG: status, wifi, cal, fullcal, ota */

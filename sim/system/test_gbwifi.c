@@ -11,7 +11,7 @@ static int fails;
 int main(void)
 {
     /* airtime: 1 Mbit/s, 192 us preamble, 36 bytes of MAC/LLC/FCS */
-    CHECK(fabsf(gbw_airtime_worst_s(GBW_MTU) - (192e-6f + (340 + 36) * 8e-6f)) < 1e-7f, "airtime MTU");
+    CHECK(GBW_MTU == 340 && fabsf(gbw_airtime_worst_s(GBW_MTU) - (192e-6f + (340 + 36) * 8e-6f)) < 1e-7f, "airtime MTU");
     CHECK(gbw_airtime_worst_s(GBW_MTU) < 3.3e-3f, "MTU frame %.3f ms (A5 covered 4.5 ms)", gbw_airtime_worst_s(GBW_MTU) * 1e3);
     CHECK(gbw_rail_for_pm(true, 0.0f) == 5.0f && gbw_rail_for_pm(false, 4.6f) == 4.6f, "rail for pm");
 
@@ -69,6 +69,49 @@ int main(void)
     CHECK(lo == 0 && hi == 63, "chart range %d..%d", lo, hi);
     CHECK(strstr(out, "09:45 UTC  15M BARS\n") != NULL, "btc time line");
     CHECK(!strncmp(out, "$82,932  ", 9), "btc price %.12s", out); /* last close 83000 + 900 sin(9.5) */
+
+    /* MSS clamp: a real SYN-ACK (Ethernet II / IPv4 / TCP, MSS 1460 + SACK-permitted + window scale) */
+    {
+        uint8_t f[14 + 20 + 32] = {0};
+        f[12] = 0x08; f[13] = 0x00;
+        uint8_t *ip = f + 14, *t = f + 34;
+        ip[0] = 0x45; ip[3] = 52; ip[8] = 64; ip[9] = 6;
+        ip[12] = 93; ip[13] = 184; ip[14] = 216; ip[15] = 34;           /* src */
+        ip[16] = 192; ip[17] = 168; ip[18] = 1; ip[19] = 50;            /* dst */
+        t[0] = 0x01; t[1] = 0xBB; t[2] = 0xC0; t[3] = 0x01;             /* 443 -> 49153 */
+        t[4] = 0x12; t[5] = 0x34; t[6] = 0x56; t[7] = 0x78; t[11] = 1;   /* seq, ack */
+        t[12] = 8 << 4; t[13] = 0x12; t[14] = 0xFF; t[15] = 0xFF;      /* doff 32, SYN+ACK */
+        uint8_t opts[12] = {2, 4, 0x05, 0xB4, 4, 2, 1, 3, 3, 7, 0, 0};
+        memcpy(t + 20, opts, 12);
+        /* full TCP checksum over the pseudo header */
+        #define TCPSUM(out) do { uint32_t sum = 0; \
+            for (int i = 12; i < 20; i += 2) sum += (uint32_t)(ip[i] << 8 | ip[i + 1]); \
+            sum += 6 + 32; \
+            for (int i = 0; i < 32; i += 2) if (i != 16) sum += (uint32_t)(t[i] << 8 | t[i + 1]); \
+            while (sum >> 16) sum = (sum & 0xFFFF) + (sum >> 16); \
+            out = (uint16_t)~sum; } while (0)
+        uint16_t c0; TCPSUM(c0); t[16] = (uint8_t)(c0 >> 8); t[17] = (uint8_t)c0;
+        CHECK(gbw_clamp_mss(f, sizeof f, 300) == 1, "clamp SYN-ACK");
+        CHECK((t[22] << 8 | t[23]) == 300, "MSS now %d", t[22] << 8 | t[23]);
+        uint16_t c1; TCPSUM(c1);
+        CHECK((t[16] << 8 | t[17]) == c1, "incremental checksum %04x, full recompute %04x", t[16] << 8 | t[17], c1);
+        CHECK(gbw_clamp_mss(f, sizeof f, 300) == 0, "already clamped");
+        t[13] = 0x10; /* plain ACK */
+        CHECK(gbw_clamp_mss(f, sizeof f, 200) == 0, "non-SYN untouched");
+        t[13] = 0x12; ip[9] = 17;
+        CHECK(gbw_clamp_mss(f, sizeof f, 200) == 0, "non-TCP untouched");
+    }
+
+    /* klines (Binance format), no JSON tree */
+    {
+        const char *j = "[[1760400000000,\"83000.10\",\"83100.00\",\"82900.00\",\"83050.50\",\"12.3\",1760400899999,\"1.0\",10,\"1\",\"1\",\"0\"],"
+                        "[1760400900000,\"83050.50\",\"83200.00\",\"83000.00\",\"83150.25\",\"9.1\",1760401799999,\"1.0\",8,\"1\",\"1\",\"0\"]]";
+        double cl[4], ms = 0;
+        int n = gbw_parse_klines(j, cl, 4, &ms);
+        CHECK(n == 2 && cl[0] == 83050.50 && cl[1] == 83150.25 && ms == 1760401799999.0, "klines n %d %.2f %.2f %.0f", n, cl[0], cl[1], ms);
+        CHECK(gbw_parse_klines("{\"code\":-1121,\"msg\":\"Invalid symbol.\"}", cl, 4, &ms) == 0, "error JSON");
+        CHECK(gbw_parse_klines(j, cl, 1, &ms) == 1, "max respected");
+    }
 
     printf("%s: %d failures\n", fails ? "FAIL" : "PASS", fails);
     return fails ? 1 : 0;
