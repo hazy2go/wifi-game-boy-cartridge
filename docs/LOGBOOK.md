@@ -819,3 +819,44 @@ Hazy: "start on step 1". ESP-IDF v5.5.1 installed at `~/esp/esp-idf-v5.5.1` (esp
 - BTC demo (`run_demo.py`): D1-D5 PASS.
 - `el_vectors.c` transcript (18,308 transactions: ESP boot, corrupted body, corrupted request, ESP restart mid-job, RADIO TIMEOUT, NO RADIO POWER, SEQ wrap to 0, 240-byte request, 255-byte response): the Rust master reproduces every MOSI byte, all 27 mailbox checks and the same counters (5138 / 1 / 503). Mutation check: with the resend interval changed from 10 to 11 ms, the test fails at ms 15.
 - **Not checked:** anything on real hardware. That covers the ESP32-C3 SPI-slave driver latency (the 100 us gap and the 300 ms boot are assumptions), SPI mode 0 on the C3 slave, and the RP2350 transfer at 8 MHz through U105/U106.
+
+## 2026-10-14 21:29 Step 4: ESP32-C3 app written (builds, not on hardware); two policy findings from S1
+Hazy: "Yep!" to step 4. `firmware/esp32c3/app` (ESP-IDF v5.5.1, README there) links `power_mgr` and `esp_link` unchanged (only CMakeLists.txt added to their folders) and the new plain-C `components/gbwifi`. `gbwifi` holds the screen text of every command, the TX airtime estimate and the MTU. `sysim.c` now uses it too, so S1 and the BTC demo run the shipped text and the shipped TX sizing. `host_net.py btc` returns raw closes, and the resampling is in that C code now.
+
+**How the hard rules are enforced (source checked in ESP-IDF v5.5.1):**
+- **MSS 300:** `CONFIG_LWIP_TCP_MSS` cannot go below 536, but lwIP sends min(TCP_MSS, netif MTU - 40) (`tcp_eff_send_mss_netif`, `TCP_CALCULATE_EFF_SEND_MSS` = 1). The STA netif MTU is set to 340, so segments are 300 bytes. A DHCP message (304 + 28 bytes) still fits without fragmenting.
+- **Every TX frame through pm_admit_tx:** `esp_netif_set_driver_config` replaces the WiFi netif's transmit functions with admitting ones right after `esp_netif_create_default_wifi_sta` (the defaults are installed when the netif is attached, `wifi_driver_start`).
+  - **Not covered:** management and EAPOL frames from the WiFi library. So scans are passive (no probes) and scan/connect start only in PM_RUN.
+- **Admission sizes frames at 1 Mbit/s** (`gbw_airtime_worst_s`: 192 us + bytes x 8 us), because #19164 shows 11b rates even when disabled.
+  - Assuming 6 Mbit/s would let a 340-byte frame admitted at about 3.1 V really take 3.2 ms, ending near 1.2 V, below power-good: a brown-out.
+- **11b off, no A-MPDU TX** (`CONFIG_ESP_WIFI_AMPDU_TX_ENABLED=n`, checked in the generated sdkconfig).
+- **Full calibration only on USB:** ESP-IDF falls back to a full calibration when NVS has no data (`esp_phy_load_cal_and_init`). So WiFi starts only with stored data or on USB_PWR_ST (IO5).
+  - In the cart slot it starts only in BOOT; retries outside BOOT happen on USB only.
+  - `ota` and `fullcal` are USB-only: a new PHY library can invalidate the stored data.
+- **Cart-rail watch 4.45/4.48 V:** unchanged in power_mgr. On USB the rail input is replaced by 5.0 V (`gbw_rail_for_pm`), because the radio runs from VBUS and the cart rail may be 0 V. Without this, the radio could never send on USB alone.
+
+**Finding 1, the weak console starved:** with the 1 Mbit/s estimate in sysim, **S1.1 weak (2.0 ohm) FAILED: 0 frames sent in 20 s**.
+- The reservoir hovers at the 3.5 V SLEEP line, and there no worst-case frame fits: a 0.3 ms OFDM frame is estimated at 1.9 ms, and 3.5 V only allows 1.2 ms.
+- weak_plus still passed, because it falls through 3.0 V, parks and refills to 4.2 V.
+- **Fix in the app, power_mgr unchanged:** while a frame waits for admission, the radio holds in modem-sleep (25 mA instead of 84 mA RX), so the reservoir rises until the frame fits. Modelled in sysim (`tx_hold`).
+- Result: weak sends 141/141 frames (2.1 s refused in total), and S1 is ALL PASS. The hold only lowers the draw, so console safety is untouched (console minimum unchanged at 4.591 V).
+
+**Finding 2, PARK must be light sleep:**
+- Tried a modem-sleep park (`-DPARK_A=0.025`): **weak_plus had 117 radio resets** (the reservoir fell through 2.0 V). **Rejected.**
+- PARK is auto light-sleep, still associated: 1.4 mA, the logbook 05:29 research figure for DTIM1. The `spi_slave` driver holds an `ESP_PM_APB_FREQ_MAX` lock, and `esp_pm` light-sleeps only without locks, so the link frees the SPI slave in PARK. sysim models that too: PARK_A 1.4 mA, and the slave does not answer in PARK.
+- Result: S1 ALL PASS, weak_plus completes with 145 parks.
+
+**Also in this step:**
+- sysim rebuilds the slave buffer only after a transaction, as the app can (a queued DMA buffer is never touched). ARCHITECTURE.md wording corrected to match.
+- New gate check **S1.8**: host test of gbwifi (scan lines <= 19 columns and ASCII only, connect parsing, airtime, power/time/BTC text). My first test expectation for the BTC price was wrong (the last test close is 82,932, not 83k): the test was fixed, not the code.
+- App size 0x1051d0 (1.02 MB). The stock two-OTA table (1 MB slots) would not fit, so there is a custom table with two 1.9 MB slots.
+- App review fixes before commit: a scan buffer overflow (16 records into an 8-entry array); a WiFi start that could have happened outside BOOT in the cart slot; a pause/resume race in the link task.
+
+**Checks:** S1 ALL PASS with layout parasitics (S1.1-S1.8). BTC demo D1-D5 PASS on live Binance data, with the screen matching the closes file (last 83,670.01, H 83,922, L 83,082). The app builds with no warnings.
+
+**Open (needs hardware or a re-run):**
+- A7 calibration time, which sets `boot_ms`.
+- The PARK current (1.4 mA assumed). sim/power audit A5 still uses 1 mA for park; it was not re-run with 1.4 mA.
+- ESP boot time to the first SPI transaction (300 ms assumed).
+- The SPI slave at 8 MHz with the 100 us gap.
+- Unadmitted management frames.

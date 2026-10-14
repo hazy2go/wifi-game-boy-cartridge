@@ -33,6 +33,7 @@
 #include "third_party/Peanut-GB/peanut_gb.h"
 #include "power_mgr.h"
 #include "esp_link.h"
+#include "gbwifi.h"
 
 /* ------------------------------------------------------------------ parameters (with sources) */
 static double RSRC;                      /* console source resistance: 0.7 fresh / 1.2 tired / 2.0 weak (run_sim.py) */
@@ -59,7 +60,10 @@ static double RSRC;                      /* console source resistance: 0.7 fresh
 #define RX_A 0.084                       /* ESP32-C3 RX at 3.3 V */
 #define TX_A 0.350                       /* ESP32-C3-MINI-1U TX peak (datasheet audit) */
 #define MODEM_A 0.025
-#define PARK_A 0.001
+#ifndef PARK_A
+#define PARK_A 0.0014                    /* auto light-sleep, DTIM1, still associated (LOGBOOK 05:29 research: 1.4 mA).
+                                            -DPARK_A=0.025 (modem-sleep park) gives radio resets on weak_plus: rejected */
+#endif
 #define CAL_MS 5                         /* partial RF calibration budget (A7 requirement) */
 #define PG_ON 4.2
 #define PG_OFF 2.0
@@ -148,6 +152,7 @@ static double step_wait_until, op_deadline;
 static int op_active, op_cmd, op_failed;
 static char op_req[240], op_resp[256];
 static int op_seq;
+static int tx_hold;                      /* app: a frame waits for admission -> radio in modem-sleep so the reservoir can rise */
 static double esp_app_at;                /* SPI slave live from this time (after ESP_BOOT_MS) */
 static el_slave_t esl;
 static uint8_t esp_tx[EL_MAX_XFER];      /* the buffer the slave has queued for the next transaction */
@@ -165,7 +170,7 @@ static double radio_current(void)
     case PM_BOOT: return RX_A;
     case PM_PARK: return PARK_A;
     case PM_SLEEP: return t_now < tx_until ? TX_A : MODEM_A;
-    default: return t_now < tx_until ? TX_A : RX_A;
+    default: return t_now < tx_until ? TX_A : tx_hold ? MODEM_A : RX_A;
     }
 }
 
@@ -208,8 +213,6 @@ static int host(const char *arg, char *out, size_t n)
     pclose(p);
     return (int)k;
 }
-static void commas(long v, char *o) { char t[32]; snprintf(t, sizeof t, "%ld", v); int L = strlen(t), j = 0;
-    for (int i = 0; i < L; i++) { if (i && (L - i) % 3 == 0) o[j++] = ','; o[j++] = t[i]; } o[j] = 0; }
 static int scan_count;
 
 static void esp_finish(void)
@@ -225,39 +228,43 @@ static void esp_finish(void)
         break;
     }
     case 3: snprintf(r, sizeof op_resp, strstr(op_req, "/hello") ? "Hello from WiFi!" : "ok"); break;
-    case 4: snprintf(r, sizeof op_resp, "RAIL %.2fV RES %.2fV", vgb, vt); break;   /* ESP ADC1 via R118/R119, R116/R117 */
-    case 5: {                                  /* the ESP formats display-ready lines for the 20-column screen */
-        char buf[2048]; host("scan", buf, sizeof buf); r[0] = 0; scan_count = 0;
+    case 4: gbw_fmt_power(r, sizeof op_resp, (float)vgb, (float)vt); break;   /* ESP ADC1 via R118/R119, R116/R117 */
+    case 5: {                                  /* shipped formatter (components/gbwifi) */
+        char buf[2048]; host("scan", buf, sizeof buf);
+        gbw_ap_t aps[16]; int n = 0;
         char *sv = NULL;   /* strtok_r: the input script parser owns strtok */
-        for (char *ln = strtok_r(buf, "\n", &sv); ln && scan_count < 8; ln = strtok_r(NULL, "\n", &sv)) {
+        for (char *ln = strtok_r(buf, "\n", &sv); ln && n < 16; ln = strtok_r(NULL, "\n", &sv)) {
             char name[64], ch[8], band[8], sec[8]; int rssi;
             if (sscanf(ln, "%63[^|]|%7[^|]|%7[^|]|%7[^|]|%d", name, ch, band, sec, &rssi) != 5) continue;
-            char line[40], rs[8];
-            if (rssi) snprintf(rs, sizeof rs, "%d", rssi); else snprintf(rs, sizeof rs, "--");
-            snprintf(line, sizeof line, "%d %s CH%-3s %3s %s\n", ++scan_count, band, ch, rs, sec);
-            strncat(r, line, sizeof op_resp - strlen(r) - 1);
+            if (strcmp(band, "2G")) continue;     /* the ESP32-C3 is 2.4 GHz only */
+            snprintf(aps[n].ssid, sizeof aps[n].ssid, "%s", name);
+            aps[n].rssi = (int8_t)rssi; aps[n].channel = (uint8_t)atoi(ch);
+            aps[n].auth = !strcmp(sec, "OPEN") ? GBW_AUTH_OPEN : !strcmp(sec, "WPA3") ? GBW_AUTH_WPA3 : !strcmp(sec, "WPA2") ? GBW_AUTH_WPA2 : GBW_AUTH_WPA;
+            n++;
         }
-        if (!scan_count) snprintf(r, sizeof op_resp, "NO NETWORKS");
+        gbw_fmt_scan(r, sizeof op_resp, aps, n);
+        scan_count = n < GBW_SCAN_MAX ? n : GBW_SCAN_MAX;
         break;
     }
     case 6: {
-        const char *bar = strchr(op_req, '|');
-        if (!bar || strlen(bar + 1) < 8) { op_failed = 1; snprintf(r, sizeof op_resp, "WPA2 KEY < 8 CHARS"); break; }
+        int idx; const char *pass;
+        int e = gbw_parse_connect(op_req, scan_count, &idx, &pass);
+        if (e == -2) { op_failed = 1; snprintf(r, sizeof op_resp, "WPA2 KEY < 8 CHARS"); break; }
+        if (e) { op_failed = 1; snprintf(r, sizeof op_resp, "BAD NETWORK"); break; }
         char ip[64]; host("ip", ip, sizeof ip); ip[strcspn(ip, "\n")] = 0;
         snprintf(r, sizeof op_resp, "OK %s", ip);
         wifi_assoc = 1;
         break;
     }
-    case 7: {
-        char buf[2048]; host("btc", buf, sizeof buf);
+    case 7: {                                  /* host gives raw closes; shipped formatter resamples */
+        char buf[4096]; host("btc", buf, sizeof buf);
         if (!strncmp(buf, "ERR", 3)) { op_failed = 1; buf[strcspn(buf, "\n")] = 0; snprintf(r, sizeof op_resp, "%.30s", buf); break; }
-        double price, chg, hi, lo; char hm[8]; int off = 0;
-        if (sscanf(buf, "%lf|%lf|%lf|%lf|%7[^|]|%n", &price, &chg, &hi, &lo, hm, &off) < 5 || !off) { op_failed = 1; snprintf(r, sizeof op_resp, "BAD DATA"); break; }
-        char p[24], h[24], l[24]; commas((long)(price + 0.5), p); commas((long)(hi + 0.5), h); commas((long)(lo + 0.5), l);
-        int n = snprintf(r, sizeof op_resp, "$%s  %+.2f%%\nH %s  L %s\n%.2s:%.2s UTC  15M BARS\n", p, chg, h, l, hm, hm + 2);
-        char *q = buf + off;
-        for (int c = 0; c < 128 && n < (int)sizeof op_resp - 1; c++) { int v = (int)strtol(q, &q, 10); r[n++] = (char)(0x20 + (v < 0 ? 0 : v > 63 ? 63 : v)); }
-        r[n] = 0;
+        int hh, mm, off = 0;
+        if (sscanf(buf, "%2d%2d|%n", &hh, &mm, &off) < 2 || !off) { op_failed = 1; snprintf(r, sizeof op_resp, "BAD DATA"); break; }
+        double closes[200]; int n = 0; char *q = buf + off, *e;
+        while (n < 200) { double v = strtod(q, &e); if (e == q) break; closes[n++] = v; q = e; }
+        if (n < 2) { op_failed = 1; snprintf(r, sizeof op_resp, "BAD DATA"); break; }
+        gbw_fmt_btc(r, sizeof op_resp, closes, n, hh, mm);
         break;
     }
     default: snprintf(r, sizeof op_resp, "ERR");
@@ -273,7 +280,7 @@ static void esp_tick_1ms(void)
     if (!powered) {
         if (esp_up)
             fprintf(slog, "%8.3f  ESP: supply lost (power-good off) -> reset\n", t_now);
-        esp_up = 0; wifi_assoc = 0; op_active = 0;
+        esp_up = 0; wifi_assoc = 0; op_active = 0; tx_hold = 0;
         el_slave_init(&esl);                  /* RAM lost: job, response, accepted seq */
         el_slave_build_tx(&esl, esp_tx);
         return;
@@ -307,21 +314,27 @@ static void esp_tick_1ms(void)
     }
     if (!op_active)
         goto out;
-    if (t_now > op_deadline) { op_failed = 1; esp_finish(); goto out; }
-    if (cur_step >= nsteps) { esp_finish(); goto out; }
+    if (t_now > op_deadline) { op_failed = 1; tx_hold = 0; esp_finish(); goto out; }
+    if (cur_step >= nsteps) { tx_hold = 0; esp_finish(); goto out; }
     if (t_now < step_wait_until || t_now < tx_until)
         goto out;
     step_t *s = &steps[cur_step];
-    if (s->tx_s > 0 && !(pm_state(&pm) == PM_RUN && pm_admit_tx(&pm, (float)s->tx_s, (float)(TX_A * 3.3 / ETA)))) {
+    /* the app only knows the frame length: it admits with the 1 Mbit/s worst case (gbwifi). The frame's IP length
+       is recovered from its OFDM 6 Mbit/s airtime and capped at the MTU. */
+    double ip_len = fmin(GBW_MTU, fmax(0.0, (s->tx_s - 20e-6) * 6e6 / 8 - 36));
+    if (s->tx_s > 0 && !(pm_state(&pm) == PM_RUN && pm_admit_tx(&pm, gbw_airtime_worst_s((size_t)ip_len), GBW_TX_W))) {
         tx_refused_ms++;                      /* not allowed now: retry next ms */
+        tx_hold = 1;
         goto out;
     }
+    tx_hold = 0;
     tx_frames++;
     tx_until = t_now + s->tx_s;
     step_wait_until = tx_until + s->wait_s;
     cur_step++;
-out:
-    el_slave_build_tx(&esl, esp_tx);          /* re-queue between transactions with the current state */
+out:;
+    /* no rebuild here: the app re-queues its SPI buffer only after a transaction (a queued DMA buffer must not be
+       touched), so new state shows up one transaction later, as on the hardware */
 }
 
 /* ------------------------------------------------------------------ RP2350 firmware model (mailbox <-> SPI) */
@@ -353,7 +366,7 @@ static void rp2350_tick_1ms(void)
     for (int k = 0; k < 2; k++) {                  /* a poll, then at most one fetch in the same tick */
         uint8_t mosi[EL_MAX_XFER], miso[EL_MAX_XFER];
         size_t n = el_master_next(&elm, now, MB, mosi);
-        int esp_live = esp_up && t_now >= esp_app_at;
+        int esp_live = esp_up && t_now >= esp_app_at && pm_state(&pm) != PM_PARK;   /* light sleep: SPI slave off */
         if (esp_live)
             memcpy(miso, esp_tx, n);
         else

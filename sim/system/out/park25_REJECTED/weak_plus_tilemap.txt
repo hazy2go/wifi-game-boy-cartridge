@@ -1,0 +1,18 @@
+WIFI CART TEST      
+PING:               
+ERR                 
+TIME (NTP):         
+ERR                 
+GET /hello:         
+ERR                 
+POWER:              
+ERR                 
+BURST FAIL          
+POWER:              
+ERR                 
+DONE                
+                    
+                    
+                    
+                    
+                    

@@ -6,10 +6,10 @@ TIME (NTP):
 GET /hello:         
 Hello from WiFi!    
 POWER:              
-RAIL 4.59V RES 3.49V
+RAIL 4.59V RES 3.47V
 BURST 20/20 OK      
 POWER:              
-RAIL 4.59V RES 3.45V
+RAIL 4.59V RES 3.50V
 DONE                
                     
                     

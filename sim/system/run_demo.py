@@ -41,7 +41,8 @@ sh('rgbasm -Werror -o btcdemo.o btcdemo.asm && rgblink -o btcdemo.gb -n btcdemo.
    '&& rgbfix -v -p 0xFF -m MBC5+RAM+BATTERY -r 0x04 -t BTCDEMO btcdemo.gb', os.path.join(HERE, 'rom'))
 pm = os.path.join(ROOT, 'firmware', 'esp32c3', 'components', 'power_mgr')
 el = os.path.join(ROOT, 'firmware', 'esp32c3', 'components', 'esp_link')
-sh(f"cc -O2 -std=c11 {os.environ.get('SIM_LAYOUT', '')} -Wall -Wextra -Werror -Wno-unused-parameter -I{pm} -I{el} -o sysim sysim.c {pm}/power_mgr.c {el}/esp_link.c -lm", HERE)
+gw = os.path.join(ROOT, 'firmware', 'esp32c3', 'components', 'gbwifi')
+sh(f"cc -O2 -std=c11 {os.environ.get('SIM_LAYOUT', '')} -Wall -Wextra -Werror -Wno-unused-parameter -I{pm} -I{el} -I{gw} -o sysim sysim.c {pm}/power_mgr.c {el}/esp_link.c {gw}/gbwifi.c -lm", HERE)
 script = ['W2', 'F60', 'A', 'W3', 'F20'] + keyboard_moves(PASSWORD) + ['F20', 'P', 'F5', 'S', 'W6', 'F120', 'A', 'W5', 'W6', 'F60']
 for f in os.listdir(OUT):
     if f.startswith('demo_') and f.endswith(('.pgm', '.png')):

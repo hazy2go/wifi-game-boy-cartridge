@@ -6,19 +6,15 @@
    0.035  ROM: request seq 1 cmd 5 ""
    0.051  ROM: state 1
    0.336  ESP: job seq 1 cmd 5 ""
-   1.662  ESP: response seq 1 status 2 "1 5G CH60  -39 WPA2
-2 5G CH60  -39 WPA2
-3 2G CH6    -- WPA3
-4 2G CH6    -- WPA2
-5 2G CH6    -- WPA2
-6 5G CH40   -- WPA2
-7 5G CH40   -- WPA2
-8 2G CH1    -- WPA2
+   1.662  ESP: response seq 1 status 2 "1 <redacted>  -- W3
+2 <redacted>  -- W2
+3 <redacted>  -- W2
+4 <redacted>  -- W2
 "
-   1.662  ESP->ROM: seq 1 status 2 "1 5G CH60  -39 WPA2
-2 5G CH60  -39 WPA2
-3 2G CH6    -- WPA3
-4 2G CH6    -- WPA2
+   1.663  ESP->ROM: seq 1 status 2 "1 <redacted>  -- W3
+2 <redacted>  -- W2
+3 <redacted>  -- W2
+4 <redacted>  -- W2
 "
    1.725  ROM: state 2
    2.813  ROM: state 3
@@ -26,28 +22,28 @@
   13.379  ROM: request seq 2 cmd 6 "1|gameboy123"
   13.380  ESP: job seq 2 cmd 6 "1|gameboy123"
   13.463  ESP: response seq 2 status 2 "OK 192.168.40.115"
-  13.463  ESP->ROM: seq 2 status 2 "OK 192.168.40.115"
+  13.464  ESP->ROM: seq 2 status 2 "OK 192.168.40.115"
   13.479  ROM: request seq 3 cmd 7 ""
   13.480  ESP: job seq 3 cmd 7 ""
   13.495  ROM: state 5
-  13.773  ESP: response seq 3 status 2 "$83,429  +0.08%
+  13.773  ESP: response seq 3 status 2 "$83,670  +0.53%
 H 83,922  L 83,082
-11:38 UTC  15M BARS
-5145+20.:406MLLKBIH@59;=@=94)++("%$ !%')-)+0.+/69755<@?:;@B?2*),'19>F?7322234339HNRUWROPUSQPEEFC>BD??=<@><>GZ\Q>;<9-0/.2469==97:"
-  13.773  ESP->ROM: seq 3 status 2 "$83,429  +0.08%
+12:20 UTC  15M BARS
++20.:406NLLKBIH@59;=@=94)++("%$ !%')-)+0.+/69755<@?:;@B?1*),'19>F?732223433:HNRUWROPUSQPEEFC>BD??=<@><>GZ\Q>;<9-0/.2469==97;<JUL"
+  13.774  ESP->ROM: seq 3 status 2 "$83,670  +0.53%
 H 83,922  L 83,082
-11:38 UTC  15M BARS
-5145+20.:406MLLKBIH@59;=@"
+12:20 UTC  15M BARS
++20.:406NLLKBIH@59;=@=94)"
   14.165  ROM: state 6
   16.208  ROM: request seq 4 cmd 7 ""
   16.209  ESP: job seq 4 cmd 7 ""
   16.224  ROM: state 5
-  16.502  ESP: response seq 4 status 2 "$83,429  +0.08%
+  16.502  ESP: response seq 4 status 2 "$83,670  +0.53%
 H 83,922  L 83,082
-11:38 UTC  15M BARS
-5145+20.:406MLLKBIH@59;=@=94)++("%$ !%')-)+0.+/69755<@?:;@B?2*),'19>F?7322234339HNRUWROPUSQPEEFC>BD??=<@><>GZ\Q>;<9-0/.2469==97:"
-  16.502  ESP->ROM: seq 4 status 2 "$83,429  +0.08%
+12:20 UTC  15M BARS
++20.:406NLLKBIH@59;=@=94)++("%$ !%')-)+0.+/69755<@?:;@B?1*),'19>F?732223433:HNRUWROPUSQPEEFC>BD??=<@><>GZ\Q>;<9-0/.2469==97;<JUL"
+  16.503  ESP->ROM: seq 4 status 2 "$83,670  +0.53%
 H 83,922  L 83,082
-11:38 UTC  15M BARS
-5145+20.:406MLLKBIH@59;=@"
+12:20 UTC  15M BARS
++20.:406NLLKBIH@59;=@=94)"
   16.911  ROM: state 6

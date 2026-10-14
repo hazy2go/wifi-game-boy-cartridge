@@ -1,0 +1,22 @@
+CONFIG_IDF_TARGET="esp32c3"
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+# Flashing and the console go over the native USB (through the CH334P hub on the cart)
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_160=y
+# 1 ms FreeRTOS tick: the power manager runs every 1 ms
+CONFIG_FREERTOS_HZ=1000
+# RF calibration: partial with NVS data; a full calibration only ever happens on USB (main.c refuses WiFi otherwise)
+CONFIG_ESP_PHY_CALIBRATION_AND_DATA_STORAGE=y
+CONFIG_ESP_PHY_RF_CAL_PARTIAL=y
+# A5: frames <= ~2.5 ms, so no A-MPDU / A-MSDU aggregation on TX
+CONFIG_ESP_WIFI_AMPDU_TX_ENABLED=n
+CONFIG_ESP_WIFI_AMSDU_TX_ENABLED=n
+# PARK = auto light-sleep (only possible while the SPI slave is freed: it holds an APB lock)
+CONFIG_PM_ENABLE=y
+CONFIG_FREERTOS_USE_TICKLESS_IDLE=y
+# HTTPS for GET / BTC / OTA
+CONFIG_MBEDTLS_CERTIFICATE_BUNDLE=y
+CONFIG_ESP_HTTP_CLIENT_ENABLE_HTTPS=y
+CONFIG_LWIP_IPV6=n
