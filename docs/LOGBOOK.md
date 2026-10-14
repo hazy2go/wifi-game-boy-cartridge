@@ -780,3 +780,12 @@ Hazy: "start on step 1". ESP-IDF v5.5.1 installed at `~/esp/esp-idf-v5.5.1` (esp
 - **`rf_logger`** joins an AP (menuconfig), logs RSSI every 200 ms and runs a 5 s TCP upload per cycle. 11b data rates are off, as on the cart. **`rf_host.py`** is the TCP sink and tags every line with the position you type (free / copper2mm / in_console), then summarises per position.
 - Checks: both apps build with no warnings. `rf_host.py` was tested against a fake serial port (pty) plus a local TCP upload. That test found and fixed a column bug in the ERR filter.
 - **Finding for step 4:** the ESP-IDF Kconfig only allows `CONFIG_LWIP_TCP_MSS` from 536 to 1460 (`lwip/Kconfig`). So the about-300-byte MSS from A5 cannot be set there. It needs per-socket MSS clamping, or the admission rule has to count the guaranteed input current (the other option A5 left open). Still open.
+## 2026-10-14 20:35 Back silkscreen: RemAI credit replaces the OSHW and Croco logos (Hazy's request)
+- Removed the OSHW logo and Croco's crab logo from the back. Croco's text credit stays: "based on Croco Cartridge V2.1 by shilga".
+- Added the RemAI avatar and "co-created with" / "RemAI" in their place (B.SilkS, mirrored to read from the back).
+  - Line art: Codex image generation from `assets/rem-avatar.jpg`, kept in `hw/rev-b/art/remai_lineart.png`.
+  - Traced with potrace by `tools/silk_logo.py`: 11.6 mm tall, strokes grown 0.03 mm per side so the thin lines reach JLC's ~0.15 mm silk minimum.
+  - The text is written by `tools/silk_credit.py`.
+- Gate: ERC/DRC/unconnected/parity PASS, 0 new.
+- Gerbers re-exported: only `B_Silkscreen.gbo` changed. The other 12 layers and both drill files are identical apart from dates. Zip rebuilt.
+- BOM and CPL are unchanged (the logos were board-only graphics).

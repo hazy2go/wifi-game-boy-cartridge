@@ -2,7 +2,7 @@
 
 A WiFi cartridge for the original Game Boy and the Game Boy Color that **can't brown out the console**.
 An RP2350 serves the whole cartridge bus, and an ESP32-C3 radio sits behind a power stage. That stage limits what the cart takes from the console to a steady 150 mA and never pulls the console's 5 V rail below 4.588 V.
-Fully assembled by JLCPCB, nothing to hand-solder.
+Fully assembled by JLCPCB, nothing to hand-solder. Designed by Hazy, co-created with RemAI.
 
 ![Rev B board, 3D render](docs/img/board_iso.png)
 
@@ -52,6 +52,7 @@ Demo ROM in that simulation: WiFi scan (real networks seen by the host), passwor
 
 ## Credits
 
+- Designed by [hazy2go](https://github.com/hazy2go), co-created with RemAI (the avatar on the back of the board).
 - Forked from [Staacks/wifi-game-boy-cartridge](https://github.com/Staacks/wifi-game-boy-cartridge) (there.oughta.be). The original ESP8266 cartridge was the idea and the starting point.
 - The cartridge core is [Croco Cartridge V2.1](https://github.com/shilga/rp-gameboy-cartridge-hw) by shilga. Firmware base: [rp2350-gameboy-cartridge-firmware](https://github.com/shilga/rp2350-gameboy-cartridge-firmware).
 - The emulator in the simulation is [Peanut-GB](https://github.com/deltabeard/Peanut-GB). The DMG power-supply analysis uses [Gekkio's gb-schematics](https://github.com/Gekkio/gb-schematics).
