@@ -78,8 +78,19 @@ def units_of(sym):
     return sorted(us) or [1]
 
 
+_NS = uuid.UUID('5f3a9c2e-7b1d-4e6a-9c0f-1a2b3c4d5e60')
+_n = [0]
+
+
 def U():
-    return Str(str(uuid.uuid4()))
+    """Deterministic UUIDs: regenerating the sheet gives an identical file when nothing changed."""
+    _n[0] += 1
+    return Str(str(uuid.uuid5(_NS, f'item/{_n[0]}')))
+
+
+def SU(ref, unit):
+    """Symbol UUID from reference + unit, stable across regenerations: the PCB links footprints to it."""
+    return Str(str(uuid.uuid5(_NS, f'symbol/{ref}/{unit}')))
 
 
 def prop(name, value, x, y, hide=False, angle=0):
@@ -128,7 +139,7 @@ def main(netlist_path, out_path, root_uuid, sheet_uuid, project):
             gy = row_top[i // per_row] + 12.7 + ext[i][1]   # top pin 12.7 mm below the row top (lib y is up)
             sx, sy = round(gx / 2.54) * 2.54, round(gy / 2.54) * 2.54
             inst = ['symbol', ['lib_id', Str(lib_id)], ['at', round(sx, 2), round(sy, 2), 0], ['unit', unit],
-                    ['exclude_from_sim', 'no'], ['in_bom', 'yes'], ['on_board', 'yes'], ['dnp', 'no'], ['uuid', U()],
+                    ['exclude_from_sim', 'no'], ['in_bom', 'yes'], ['on_board', 'yes'], ['dnp', 'no'], ['uuid', SU(part['ref'], unit)],
                     prop('Reference', part['ref'], sx, sy - 12, False),
                     prop('Value', part['value'], sx, sy + 12, False),
                     prop('Footprint', part.get('footprint', ''), sx, sy, True),

@@ -658,9 +658,9 @@
   {
    "ref": "U106",
    "symbol": "74xGxx:74LVC3G34",
-   "value": "SN74LVC3G34DCUR",
-   "footprint": "Package_SO:VSSOP-8_2.3x2mm_P0.5mm",
-   "lcsc": "C130024",
+   "value": "SN74LVC3G34DCTR",
+   "footprint": "Package_SO:SSOP-8_2.95x2.8mm_P0.65mm",
+   "lcsc": "C139356",
    "pins": {
     "1": "SPI_CLK",
     "2": "ESP_CS",
@@ -671,7 +671,7 @@
     "7": "ESP_SCK_BUF",
     "8": "+3V3_RF"
    },
-   "why": "Inbound SCK/MOSI/CS buffer powered from the radio rail: Ioff blocks the RP2350 from back-powering an unpowered ESP through its IO clamps (ESP VIH max = VDD+0.3 V) (SCES366L p1, p8)",
+   "why": "Inbound SCK/MOSI/CS buffer powered from the radio rail: Ioff blocks the RP2350 from back-powering an unpowered ESP through its IO clamps (ESP VIH max = VDD+0.3 V) (SCES366L p1, p8) | DCT (SM8, 0.65 mm pitch) instead of DCU (VSSOP 0.5 mm): the DCU land pattern leaves 0.15 mm between pads, under the board 0.2 mm clearance; same pinout table for both packages (SCES113 Pin Functions), C139356 1427 in stock",
    "datasheet": "https://www.ti.com/lit/ds/symlink/sn74lvc3g34.pdf"
   },
   {
