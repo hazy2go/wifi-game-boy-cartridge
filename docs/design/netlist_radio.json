@@ -55,7 +55,7 @@
   }
  ],
  "external_sources": {
-  "VRES": "output of Hazy's VLIM->VRES input-voltage regulator (TLV431 + back-to-back PMOS), not in this netlist"
+  "VRES": "regulator output (Q101 drain 2, a passive pass element, so the checker cannot see a driver); PWR_FLAG on the radio sheet"
  },
  "interface_nets": {
   "VLIM": "TPS2553 output -> input of the precision input-voltage regulator (Q101 drain 1)",
