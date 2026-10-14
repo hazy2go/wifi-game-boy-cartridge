@@ -7,7 +7,7 @@
            first, max 8.
   ip       this Mac's IPv4 address on its WiFi interface (the address the cart would get from the same AP).
   btc      live BTC/USDT from Binance (15 min candles, last 24 h; CoinGecko as fallback). Output:
-           "PRICE|CHANGE_PCT|HIGH|LOW|UTC_HHMM|P0 P1 ... P127" with the closes resampled to 128 columns.
+           "UTC_HHMM|C0 C1 ... Cn" with the raw closes, oldest first.
 Network failures print "ERR <reason>" so the ROM shows an explicit error, never made-up data.
 Set BTC_FIXTURE=file.json (a list of closes) to replay a recorded series offline."""
 import json, os, re, subprocess, sys, time, urllib.request
@@ -60,14 +60,8 @@ def btc():
                 closes = [p[1] for p in d]; t_last = d[-1][0] / 1000
             except Exception as e:
                 print(f'ERR {type(e).__name__}'); return
-    lo, hi = min(closes), max(closes)
-    cols = []
-    for c in range(128):                      # linear resample to one value per pixel column
-        x = c * (len(closes) - 1) / 127; i = int(x); f = x - i
-        v = closes[i] if i + 1 >= len(closes) else closes[i] * (1 - f) + closes[i + 1] * f
-        cols.append(round((v - lo) / (hi - lo) * 63) if hi > lo else 32)
-    chg = (closes[-1] / closes[0] - 1) * 100
-    print(f"{closes[-1]:.0f}|{chg:+.2f}|{hi:.0f}|{lo:.0f}|{time.strftime('%H%M', time.gmtime())}|" + ' '.join(map(str, cols)))
+    # raw closes: the ESP's formatter (firmware/esp32c3/components/gbwifi) does the resampling and the text
+    print(f"{time.strftime('%H%M', time.gmtime())}|" + ' '.join(f'{c:.2f}' for c in closes))
     json.dump(closes, open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out', 'btc_closes.json'), 'w'))
 
 

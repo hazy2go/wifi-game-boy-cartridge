@@ -41,7 +41,7 @@ Simulation (all passing):
    - There is no IRQ line, so poll the ESP about every 1 ms or once per frame.
    - Serve the mailbox: MBC5 cart-RAM **bank 15**. The protocol table is in `sim/system/README.md`. There is no CPU-visible write sniff (correction, LOGBOOK): the firmware polls SEQ for a change. Only `WIFICART` ROMs get the mailbox.
 3. **SPI frame format: done (protocol v1).** Spec in `ARCHITECTURE.md`; reference C in `firmware/esp32c3/components/esp_link` (the ESP ships the slave half); `sysim.c` runs it byte for byte; `sim/system/el_vectors.c` writes the transcript the Rust master is tested against. **If you change the protocol, change the C reference, regenerate the vectors, copy them to croco-fw2 `tests-host/tests/`, and re-run S1.**
-4. **ESP32-C3 app (ESP-IDF):**
+4. **ESP32-C3 app (ESP-IDF):** **Status 2026-10-14: written in `firmware/esp32c3/app` (README there), builds, not on hardware.** The open items are in its README and LOGBOOK. The text and TX sizing the app shows the Game Boy are in `components/gbwifi`, which sysim also runs: **change them there, then re-run S1.**
    - SPI-slave mailbox: link `firmware/esp32c3/components/esp_link` unchanged (the slave half). Rebuild the TX buffer only between transactions (after each one and on the 1 ms tick). Commands 01 to 07 as in the mailbox table.
    - WiFi in STA mode only, NVS credentials, OTA.
    - Link the existing `firmware/esp32c3/components/power_mgr`: plain C, already co-simulated. **Ship that code unchanged, or re-run the `sim/power` audits after any change.**

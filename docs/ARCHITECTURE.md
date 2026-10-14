@@ -59,7 +59,7 @@ Defined 2026-10-14 (LOGBOOK). Reference code: `firmware/esp32c3/components/esp_l
 
 **Wire:** SPI mode 0, MSB first, 8 MHz, CS = GPIO46 (active low). There is no IRQ or handshake line, so the protocol is built for that:
 - **State, not messages.** Every transaction starts with both sides exchanging a 12-byte header. The ESP's header always describes its current state, so a lost or garbled transaction costs nothing: the next poll reads the state again.
-- The ESP prepares its transmit buffer *before* the master clocks: after every transaction and on its own 1 ms tick, never during one. Its header therefore shows the state from just before the transaction, so a request sent in this transaction shows up in the next one.
+- The ESP prepares its transmit buffer *before* the master clocks, right after every transaction (a buffer already queued for DMA is never touched). Its header therefore shows the state from the end of the previous transaction: a request sent now shows up in the next header, and a response the ESP finishes now shows up one transaction after that.
 - The master keeps CS high for **at least 100 us** between ESP transactions, so the slave driver can queue the next buffer. A transaction that hits an unprepared slave fails the magic or CRC check and is simply repeated.
 - Every transaction is a multiple of 4 bytes (ESP SPI-slave DMA). Bodies are zero-padded.
 - CRC: CRC-16/CCITT-FALSE (poly 0x1021, init 0xFFFF, no reflection, check value 0x29B1 for "123456789"), stored big-endian.

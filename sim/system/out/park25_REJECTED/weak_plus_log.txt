@@ -1,0 +1,609 @@
+   0.000  cart: WiFi ROM (WIFICART, MBC5, 128 KB RAM): mailbox on bank 15
+   0.000  ROM: state 0
+   0.035  ROM: request seq 1 cmd 1 ""
+   0.051  ROM: state 1
+   0.891  ESP: boot, reservoir 4.20 V
+   0.891  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   0.896  ESP: power state 1 -> 2 (res 3.10 V, rail 4.588 V)
+   0.897  ESP: power state 2 -> 4 (res 3.00 V, rail 4.588 V)
+   0.928  ESP: supply lost (power-good off) -> reset
+   1.396  ESP: boot, reservoir 4.20 V
+   1.396  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   1.401  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   1.402  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   1.433  ESP: supply lost (power-good off) -> reset
+   1.901  ESP: boot, reservoir 4.20 V
+   1.901  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   1.906  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   1.907  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   1.938  ESP: supply lost (power-good off) -> reset
+   2.406  ESP: boot, reservoir 4.20 V
+   2.406  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   2.411  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   2.412  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   2.443  ESP: supply lost (power-good off) -> reset
+   2.911  ESP: boot, reservoir 4.20 V
+   2.911  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   2.916  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   2.917  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   2.948  ESP: supply lost (power-good off) -> reset
+   3.416  ESP: boot, reservoir 4.20 V
+   3.416  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   3.421  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   3.422  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   3.453  ESP: supply lost (power-good off) -> reset
+   3.921  ESP: boot, reservoir 4.20 V
+   3.921  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   3.926  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   3.927  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   3.958  ESP: supply lost (power-good off) -> reset
+   4.426  ESP: boot, reservoir 4.20 V
+   4.426  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   4.431  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   4.432  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   4.463  ESP: supply lost (power-good off) -> reset
+   4.931  ESP: boot, reservoir 4.20 V
+   4.931  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   4.936  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   4.937  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   4.968  ESP: supply lost (power-good off) -> reset
+   5.035  ESP->ROM: seq 1 status 3 "NO RADIO POWER"
+   5.041  ROM: request seq 2 cmd 2 ""
+   5.057  ROM: state 2
+   5.436  ESP: boot, reservoir 4.20 V
+   5.436  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   5.441  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   5.442  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   5.473  ESP: supply lost (power-good off) -> reset
+   5.941  ESP: boot, reservoir 4.20 V
+   5.941  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   5.946  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   5.947  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   5.978  ESP: supply lost (power-good off) -> reset
+   6.446  ESP: boot, reservoir 4.20 V
+   6.446  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   6.451  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   6.452  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   6.483  ESP: supply lost (power-good off) -> reset
+   6.951  ESP: boot, reservoir 4.20 V
+   6.951  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   6.956  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   6.957  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   6.988  ESP: supply lost (power-good off) -> reset
+   7.456  ESP: boot, reservoir 4.20 V
+   7.456  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   7.461  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   7.462  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   7.493  ESP: supply lost (power-good off) -> reset
+   7.961  ESP: boot, reservoir 4.20 V
+   7.961  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   7.966  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   7.967  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   7.998  ESP: supply lost (power-good off) -> reset
+   8.466  ESP: boot, reservoir 4.20 V
+   8.466  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   8.471  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   8.472  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   8.503  ESP: supply lost (power-good off) -> reset
+   8.971  ESP: boot, reservoir 4.20 V
+   8.971  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   8.976  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   8.977  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   9.008  ESP: supply lost (power-good off) -> reset
+   9.476  ESP: boot, reservoir 4.20 V
+   9.476  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   9.481  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   9.482  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+   9.513  ESP: supply lost (power-good off) -> reset
+   9.981  ESP: boot, reservoir 4.20 V
+   9.981  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+   9.986  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+   9.987  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  10.018  ESP: supply lost (power-good off) -> reset
+  10.041  ESP->ROM: seq 2 status 3 "NO RADIO POWER"
+  10.047  ROM: request seq 3 cmd 3 "http://example.com/hello"
+  10.063  ROM: state 3
+  10.486  ESP: boot, reservoir 4.20 V
+  10.486  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  10.491  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  10.492  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  10.523  ESP: supply lost (power-good off) -> reset
+  10.991  ESP: boot, reservoir 4.20 V
+  10.991  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  10.996  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  10.997  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  11.028  ESP: supply lost (power-good off) -> reset
+  11.496  ESP: boot, reservoir 4.20 V
+  11.496  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  11.501  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  11.502  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  11.533  ESP: supply lost (power-good off) -> reset
+  12.001  ESP: boot, reservoir 4.20 V
+  12.001  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  12.006  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  12.007  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  12.038  ESP: supply lost (power-good off) -> reset
+  12.506  ESP: boot, reservoir 4.20 V
+  12.506  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  12.511  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  12.512  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  12.543  ESP: supply lost (power-good off) -> reset
+  13.011  ESP: boot, reservoir 4.20 V
+  13.011  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  13.016  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  13.017  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  13.048  ESP: supply lost (power-good off) -> reset
+  13.516  ESP: boot, reservoir 4.20 V
+  13.516  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  13.521  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  13.522  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  13.553  ESP: supply lost (power-good off) -> reset
+  14.021  ESP: boot, reservoir 4.20 V
+  14.021  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  14.026  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  14.027  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  14.058  ESP: supply lost (power-good off) -> reset
+  14.526  ESP: boot, reservoir 4.20 V
+  14.526  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  14.531  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  14.532  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  14.563  ESP: supply lost (power-good off) -> reset
+  15.031  ESP: boot, reservoir 4.20 V
+  15.031  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  15.036  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  15.037  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  15.047  ESP->ROM: seq 3 status 3 "NO RADIO POWER"
+  15.053  ROM: request seq 4 cmd 4 ""
+  15.068  ESP: supply lost (power-good off) -> reset
+  15.069  ROM: state 4
+  15.536  ESP: boot, reservoir 4.20 V
+  15.536  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  15.541  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  15.542  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  15.573  ESP: supply lost (power-good off) -> reset
+  16.041  ESP: boot, reservoir 4.20 V
+  16.041  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  16.046  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  16.047  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  16.078  ESP: supply lost (power-good off) -> reset
+  16.546  ESP: boot, reservoir 4.20 V
+  16.546  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  16.551  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  16.552  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  16.583  ESP: supply lost (power-good off) -> reset
+  17.051  ESP: boot, reservoir 4.20 V
+  17.051  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  17.056  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  17.057  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  17.088  ESP: supply lost (power-good off) -> reset
+  17.556  ESP: boot, reservoir 4.20 V
+  17.556  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  17.561  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  17.562  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  17.593  ESP: supply lost (power-good off) -> reset
+  18.061  ESP: boot, reservoir 4.20 V
+  18.061  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  18.066  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  18.067  ESP: power state 2 -> 4 (res 3.00 V, rail 4.588 V)
+  18.098  ESP: supply lost (power-good off) -> reset
+  18.566  ESP: boot, reservoir 4.20 V
+  18.566  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  18.571  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  18.572  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  18.603  ESP: supply lost (power-good off) -> reset
+  19.071  ESP: boot, reservoir 4.20 V
+  19.071  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  19.076  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  19.077  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  19.108  ESP: supply lost (power-good off) -> reset
+  19.576  ESP: boot, reservoir 4.20 V
+  19.576  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  19.581  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  19.582  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  19.613  ESP: supply lost (power-good off) -> reset
+  20.053  ESP->ROM: seq 4 status 3 "NO RADIO POWER"
+  20.059  ROM: request seq 5 cmd 3 "http://example.com/burst"
+  20.075  ROM: state 5
+  20.081  ESP: boot, reservoir 4.20 V
+  20.081  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  20.086  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  20.087  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  20.118  ESP: supply lost (power-good off) -> reset
+  20.586  ESP: boot, reservoir 4.20 V
+  20.586  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  20.591  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  20.592  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  20.623  ESP: supply lost (power-good off) -> reset
+  21.091  ESP: boot, reservoir 4.20 V
+  21.091  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  21.096  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  21.097  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  21.128  ESP: supply lost (power-good off) -> reset
+  21.596  ESP: boot, reservoir 4.20 V
+  21.596  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  21.601  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  21.602  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  21.633  ESP: supply lost (power-good off) -> reset
+  22.101  ESP: boot, reservoir 4.20 V
+  22.101  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  22.106  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  22.107  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  22.138  ESP: supply lost (power-good off) -> reset
+  22.606  ESP: boot, reservoir 4.20 V
+  22.606  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  22.611  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  22.612  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  22.643  ESP: supply lost (power-good off) -> reset
+  23.111  ESP: boot, reservoir 4.20 V
+  23.111  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  23.116  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  23.117  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  23.148  ESP: supply lost (power-good off) -> reset
+  23.616  ESP: boot, reservoir 4.20 V
+  23.616  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  23.621  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  23.622  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  23.653  ESP: supply lost (power-good off) -> reset
+  24.121  ESP: boot, reservoir 4.20 V
+  24.121  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  24.126  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  24.127  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  24.158  ESP: supply lost (power-good off) -> reset
+  24.626  ESP: boot, reservoir 4.20 V
+  24.626  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  24.631  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  24.632  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  24.663  ESP: supply lost (power-good off) -> reset
+  25.059  ESP->ROM: seq 5 status 3 "NO RADIO POWER"
+  25.065  ROM: request seq 6 cmd 4 ""
+  25.081  ROM: state 6
+  25.131  ESP: boot, reservoir 4.20 V
+  25.131  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  25.136  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  25.137  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  25.168  ESP: supply lost (power-good off) -> reset
+  25.636  ESP: boot, reservoir 4.20 V
+  25.636  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  25.641  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  25.642  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  25.673  ESP: supply lost (power-good off) -> reset
+  26.141  ESP: boot, reservoir 4.20 V
+  26.141  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  26.146  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  26.147  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  26.178  ESP: supply lost (power-good off) -> reset
+  26.646  ESP: boot, reservoir 4.20 V
+  26.646  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  26.651  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  26.652  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  26.683  ESP: supply lost (power-good off) -> reset
+  27.151  ESP: boot, reservoir 4.20 V
+  27.151  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  27.156  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  27.157  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  27.188  ESP: supply lost (power-good off) -> reset
+  27.656  ESP: boot, reservoir 4.20 V
+  27.656  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  27.661  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  27.662  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  27.693  ESP: supply lost (power-good off) -> reset
+  28.161  ESP: boot, reservoir 4.20 V
+  28.161  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  28.166  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  28.167  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  28.198  ESP: supply lost (power-good off) -> reset
+  28.666  ESP: boot, reservoir 4.20 V
+  28.666  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  28.671  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  28.672  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  28.703  ESP: supply lost (power-good off) -> reset
+  29.171  ESP: boot, reservoir 4.20 V
+  29.171  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  29.176  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  29.177  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  29.208  ESP: supply lost (power-good off) -> reset
+  29.676  ESP: boot, reservoir 4.20 V
+  29.676  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  29.681  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  29.682  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  29.713  ESP: supply lost (power-good off) -> reset
+  30.065  ESP->ROM: seq 6 status 3 "NO RADIO POWER"
+  30.181  ESP: boot, reservoir 4.20 V
+  30.181  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  30.186  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  30.187  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  30.218  ESP: supply lost (power-good off) -> reset
+  30.686  ESP: boot, reservoir 4.20 V
+  30.686  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  30.691  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  30.692  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  30.723  ESP: supply lost (power-good off) -> reset
+  31.191  ESP: boot, reservoir 4.20 V
+  31.191  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  31.196  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  31.197  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  31.228  ESP: supply lost (power-good off) -> reset
+  31.696  ESP: boot, reservoir 4.20 V
+  31.696  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  31.701  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  31.702  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  31.733  ESP: supply lost (power-good off) -> reset
+  32.201  ESP: boot, reservoir 4.20 V
+  32.201  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  32.206  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  32.207  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  32.238  ESP: supply lost (power-good off) -> reset
+  32.706  ESP: boot, reservoir 4.20 V
+  32.706  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  32.711  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  32.712  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  32.743  ESP: supply lost (power-good off) -> reset
+  33.211  ESP: boot, reservoir 4.20 V
+  33.211  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  33.216  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  33.217  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  33.248  ESP: supply lost (power-good off) -> reset
+  33.716  ESP: boot, reservoir 4.20 V
+  33.716  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  33.721  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  33.722  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  33.753  ESP: supply lost (power-good off) -> reset
+  34.221  ESP: boot, reservoir 4.20 V
+  34.221  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  34.226  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  34.227  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  34.258  ESP: supply lost (power-good off) -> reset
+  34.726  ESP: boot, reservoir 4.20 V
+  34.726  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  34.731  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  34.732  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  34.763  ESP: supply lost (power-good off) -> reset
+  35.231  ESP: boot, reservoir 4.20 V
+  35.231  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  35.236  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  35.237  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  35.268  ESP: supply lost (power-good off) -> reset
+  35.736  ESP: boot, reservoir 4.20 V
+  35.736  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  35.741  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  35.742  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  35.773  ESP: supply lost (power-good off) -> reset
+  36.241  ESP: boot, reservoir 4.20 V
+  36.241  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  36.246  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  36.247  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  36.278  ESP: supply lost (power-good off) -> reset
+  36.746  ESP: boot, reservoir 4.20 V
+  36.746  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  36.751  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  36.752  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  36.783  ESP: supply lost (power-good off) -> reset
+  37.251  ESP: boot, reservoir 4.20 V
+  37.251  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  37.256  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  37.257  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  37.288  ESP: supply lost (power-good off) -> reset
+  37.756  ESP: boot, reservoir 4.20 V
+  37.756  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  37.761  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  37.762  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  37.793  ESP: supply lost (power-good off) -> reset
+  38.261  ESP: boot, reservoir 4.20 V
+  38.261  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  38.266  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  38.267  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  38.298  ESP: supply lost (power-good off) -> reset
+  38.766  ESP: boot, reservoir 4.20 V
+  38.766  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  38.771  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  38.772  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  38.803  ESP: supply lost (power-good off) -> reset
+  39.271  ESP: boot, reservoir 4.20 V
+  39.271  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  39.276  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  39.277  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  39.308  ESP: supply lost (power-good off) -> reset
+  39.776  ESP: boot, reservoir 4.20 V
+  39.776  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  39.781  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  39.782  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  39.813  ESP: supply lost (power-good off) -> reset
+  40.281  ESP: boot, reservoir 4.20 V
+  40.281  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  40.286  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  40.287  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  40.318  ESP: supply lost (power-good off) -> reset
+  40.786  ESP: boot, reservoir 4.20 V
+  40.786  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  40.791  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  40.792  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  40.823  ESP: supply lost (power-good off) -> reset
+  41.291  ESP: boot, reservoir 4.20 V
+  41.291  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  41.296  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  41.297  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  41.328  ESP: supply lost (power-good off) -> reset
+  41.796  ESP: boot, reservoir 4.20 V
+  41.796  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  41.801  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  41.802  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  41.833  ESP: supply lost (power-good off) -> reset
+  42.301  ESP: boot, reservoir 4.20 V
+  42.301  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  42.306  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  42.307  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  42.338  ESP: supply lost (power-good off) -> reset
+  42.806  ESP: boot, reservoir 4.20 V
+  42.806  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  42.811  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  42.812  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  42.843  ESP: supply lost (power-good off) -> reset
+  43.311  ESP: boot, reservoir 4.20 V
+  43.311  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  43.316  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  43.317  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  43.348  ESP: supply lost (power-good off) -> reset
+  43.816  ESP: boot, reservoir 4.20 V
+  43.816  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  43.821  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  43.822  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  43.853  ESP: supply lost (power-good off) -> reset
+  44.321  ESP: boot, reservoir 4.20 V
+  44.321  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  44.326  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  44.327  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  44.358  ESP: supply lost (power-good off) -> reset
+  44.826  ESP: boot, reservoir 4.20 V
+  44.826  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  44.831  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  44.832  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  44.863  ESP: supply lost (power-good off) -> reset
+  45.331  ESP: boot, reservoir 4.20 V
+  45.331  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  45.336  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  45.337  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  45.368  ESP: supply lost (power-good off) -> reset
+  45.836  ESP: boot, reservoir 4.20 V
+  45.836  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  45.841  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  45.842  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  45.873  ESP: supply lost (power-good off) -> reset
+  46.341  ESP: boot, reservoir 4.20 V
+  46.341  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  46.346  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  46.347  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  46.378  ESP: supply lost (power-good off) -> reset
+  46.846  ESP: boot, reservoir 4.20 V
+  46.846  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  46.851  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  46.852  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  46.883  ESP: supply lost (power-good off) -> reset
+  47.351  ESP: boot, reservoir 4.20 V
+  47.351  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  47.356  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  47.357  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  47.388  ESP: supply lost (power-good off) -> reset
+  47.856  ESP: boot, reservoir 4.20 V
+  47.856  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  47.861  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  47.862  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  47.893  ESP: supply lost (power-good off) -> reset
+  48.361  ESP: boot, reservoir 4.20 V
+  48.361  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  48.366  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  48.367  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  48.398  ESP: supply lost (power-good off) -> reset
+  48.866  ESP: boot, reservoir 4.20 V
+  48.866  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  48.871  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  48.872  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  48.903  ESP: supply lost (power-good off) -> reset
+  49.371  ESP: boot, reservoir 4.20 V
+  49.371  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  49.376  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  49.377  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  49.408  ESP: supply lost (power-good off) -> reset
+  49.876  ESP: boot, reservoir 4.20 V
+  49.876  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  49.881  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  49.882  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  49.913  ESP: supply lost (power-good off) -> reset
+  50.381  ESP: boot, reservoir 4.20 V
+  50.381  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  50.386  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  50.387  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  50.418  ESP: supply lost (power-good off) -> reset
+  50.886  ESP: boot, reservoir 4.20 V
+  50.886  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  50.891  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  50.892  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  50.923  ESP: supply lost (power-good off) -> reset
+  51.391  ESP: boot, reservoir 4.20 V
+  51.391  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  51.396  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  51.397  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  51.428  ESP: supply lost (power-good off) -> reset
+  51.896  ESP: boot, reservoir 4.20 V
+  51.896  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  51.901  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  51.902  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  51.933  ESP: supply lost (power-good off) -> reset
+  52.401  ESP: boot, reservoir 4.20 V
+  52.401  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  52.406  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  52.407  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  52.438  ESP: supply lost (power-good off) -> reset
+  52.906  ESP: boot, reservoir 4.20 V
+  52.906  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  52.911  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  52.912  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  52.943  ESP: supply lost (power-good off) -> reset
+  53.411  ESP: boot, reservoir 4.20 V
+  53.411  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  53.416  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  53.417  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  53.448  ESP: supply lost (power-good off) -> reset
+  53.916  ESP: boot, reservoir 4.20 V
+  53.916  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  53.921  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  53.922  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  53.953  ESP: supply lost (power-good off) -> reset
+  54.421  ESP: boot, reservoir 4.20 V
+  54.421  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  54.426  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  54.427  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  54.458  ESP: supply lost (power-good off) -> reset
+  54.926  ESP: boot, reservoir 4.20 V
+  54.926  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  54.931  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  54.932  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  54.963  ESP: supply lost (power-good off) -> reset
+  55.431  ESP: boot, reservoir 4.20 V
+  55.431  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  55.436  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  55.437  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  55.468  ESP: supply lost (power-good off) -> reset
+  55.936  ESP: boot, reservoir 4.20 V
+  55.936  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  55.941  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  55.942  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  55.973  ESP: supply lost (power-good off) -> reset
+  56.441  ESP: boot, reservoir 4.20 V
+  56.441  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  56.446  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  56.447  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  56.478  ESP: supply lost (power-good off) -> reset
+  56.946  ESP: boot, reservoir 4.20 V
+  56.946  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  56.951  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  56.952  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  56.983  ESP: supply lost (power-good off) -> reset
+  57.451  ESP: boot, reservoir 4.20 V
+  57.451  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  57.456  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  57.457  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  57.488  ESP: supply lost (power-good off) -> reset
+  57.956  ESP: boot, reservoir 4.20 V
+  57.956  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  57.961  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  57.962  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  57.993  ESP: supply lost (power-good off) -> reset
+  58.461  ESP: boot, reservoir 4.20 V
+  58.461  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  58.466  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  58.467  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  58.498  ESP: supply lost (power-good off) -> reset
+  58.966  ESP: boot, reservoir 4.20 V
+  58.966  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  58.971  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  58.972  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  59.003  ESP: supply lost (power-good off) -> reset
+  59.471  ESP: boot, reservoir 4.20 V
+  59.471  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  59.476  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  59.477  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)
+  59.508  ESP: supply lost (power-good off) -> reset
+  59.976  ESP: boot, reservoir 4.20 V
+  59.976  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
+  59.981  ESP: power state 1 -> 2 (res 3.09 V, rail 4.588 V)
+  59.982  ESP: power state 2 -> 4 (res 2.99 V, rail 4.588 V)

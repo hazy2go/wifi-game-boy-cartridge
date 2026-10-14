@@ -39,6 +39,9 @@ before the game starts. The croco-fw2 side is in the fork (`src/esp_link.rs`).
 ## SPI link checks
 - S1.6: the fresh scenario with bit errors (BER 1e-4) on MOSI and MISO must still show every line correctly.
 - S1.7: the same ROM without `WIFICART` must get no mailbox (no SPI transactions).
+- S1.8: host test of `components/gbwifi`: the screen text and TX sizing the app ships.
+
+App behaviour modelled since step 4 (LOGBOOK): TX admission with the app's 1 Mbit/s worst-case airtime; modem-sleep while a frame waits for admission (`tx_hold`); PARK = light sleep at 1.4 mA, during which the SPI slave does not answer; the slave buffer rebuilt only after a transaction.
 - `el_vectors.c` writes `out/esp_link_vectors.txt`, a scripted run of the reference master against the shipped
   slave (ESP boot, corrupted body, corrupted request, ESP restart mid-job, RADIO TIMEOUT, NO RADIO POWER, SEQ
   wrap). The Rust master's host test (croco-fw2 `tests-host/`) replays it byte for byte. Build:

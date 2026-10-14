@@ -16,3 +16,4 @@ sim/system/rom/*.o
 sim/system/sysim_ber
 sim/system/el_vectors
 sim/system/out/nooptin.gb
+sim/system/test_gbwifi
