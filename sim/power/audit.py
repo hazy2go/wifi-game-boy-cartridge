@@ -18,7 +18,7 @@ OUT = R.OUT
 # Behavioural here (limit = min(ilim, gain*(Vgb - vdpm))); the transistor-level loop is audited in audit_inreg.py (A8).
 # gain 15 A/V: A8 load regulation is ~9 mV over 0-150 mA. rsw 0.3 ohm: TPS2553 85 mOhm + SiA975DJ pair 2x 110 mOhm max at
 # Vgs -1.8 V. vsup 0: the hardware has no cart-rail supervisor (the 4.45 V one in earlier runs was never in the netlist).
-CHOSEN = dict(ilim=0.150, vdpm=4.588, psave=True, rsw=0.3, gain=15, gbwatch=True, vsup=0.0, cres=0.99e-3, resr=0.0083)
+CHOSEN = dict(ilim=0.150, vdpm=4.588, psave=True, rsw=0.3, gain=15, gbwatch=True, vsup=0.0, cres=float(os.environ.get("CRES", 0.99e-3)), resr=float(os.environ.get("RESR", 0.0083)))
 DPM = (4.542, 4.588, 4.634)   # TLV431B 0.5 % + 0.1 % divider, A8.1
 lines, fails = [], []
 
@@ -101,7 +101,7 @@ log('corners: ilim 129/150/174 mA (TPS2553 Eq.1 min/nom/max at 180k), DPM 4.542/
 log('         buck-boost eta 0.80/0.92, switch path 0.2/0.6 ohm, ESP32-C3-MINI-1U TX 350 mA.')
 log('traffic: busy 2ms/10ms, OFDM 2.5ms/6ms, stress 2ms/4ms, small-MTU 1Mbps fallback 4.5ms/20ms.')
 log('RF calibration at WiFi start: ASSUMED 5 ms at 50 % TX (partial calibration, NVS data). Not measured; see A7.')
-FW = dict(CHOSEN, tx=0.350)
+FW = dict(CHOSEN, tx=0.350, fw_cres=float(os.environ.get('FW_CRES', 0.0)))
 for k in ('psave',):
     FW.pop(k, None)
 TRAFFIC = {'busy': (2, 10), 'ofdm': (2.5, 6), 'stress': (2, 4), 'mtu1M': (4.5, 20)}

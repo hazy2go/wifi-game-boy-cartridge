@@ -14572,7 +14572,7 @@
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
-		(on_board yes)
+		(on_board no)
 		(dnp yes)
 		(uuid "2066b7df-cb03-464b-84f0-f2bec9ba62b2")
 		(property "Reference" "J3"
@@ -17686,9 +17686,9 @@
 		(at 363.22 119.38 270)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
+		(in_bom no)
+		(on_board no)
+		(dnp yes)
 		(uuid "7ea396c2-8493-416e-9d7f-79d4eedbd195")
 		(property "Reference" "R11"
 			(at 363.22 114.1222 90)

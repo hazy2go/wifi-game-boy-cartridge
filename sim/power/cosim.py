@@ -87,11 +87,11 @@ def plant_slice(st, seg_t, seg_i, nseg, powered, dt, n, rsrc, ilim, vdpm, gain, 
 
 def run(cons_r, burst_ms, period_ms, *, ilim=0.150, vdpm=4.5, gain=5, rsw=0.285, vsup=4.45, cres=0.99e-3,
         resr=0.0083, eta=0.88, gb_load=0.100, logic_load=0.060, gb_cap=100e-6, rx=0.084, tx=0.350,
-        modem_a=0.025, park_a=0.001, cal_ms=100, cal_duty=0.5, v_pg_off=2.0, dt=2e-6, lib=None, **cfg_over):
+        modem_a=0.025, park_a=0.001, cal_ms=100, cal_duty=0.5, v_pg_off=2.0, dt=2e-6, lib=None, fw_cres=0.0, **cfg_over):
     lib = lib or build()
     cfg = Cfg()
     lib.pm_default_config(ctypes.byref(cfg))
-    cfg.c_res = cres
+    cfg.c_res = fw_cres or cres   # what the firmware is configured with (nominal), may differ from the part
     cfg.boot_ms = int(cal_ms)
     for k, v in cfg_over.items():
         setattr(cfg, k, v)

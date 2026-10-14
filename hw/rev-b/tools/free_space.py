@@ -44,7 +44,7 @@ def main(pcb, movable=(), png=None):
     mark_box(x0, CONNECTOR_Y, x0 + w, y0 + h)
     for fp in b.GetFootprints():
         ref = fp.GetReference()
-        if is_new(ref) or ref in movable:
+        if ref in movable or not bb.Contains(fp.GetPosition()):    # staged (off-board) new parts don't block
             continue
         if fp.GetLayer() == pcbnew.F_Cu:
             cy = fp.GetCourtyard(pcbnew.F_CrtYd)

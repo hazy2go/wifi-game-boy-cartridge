@@ -42,6 +42,16 @@
    "from": "+BATT",
    "to": "GND",
    "why": "MCP79510 VBAT without a backup supply must be tied to VSS (Microchip DS20002300D p9 and section 5.x)"
+  },
+  {
+   "ref": "J3",
+   "action": "dnp",
+   "why": "Debug-UART header removed: DEBUG_UART_TX (RP2350 GPIO46) becomes the ESP chip select, the header would leave a stub on CS (netlist note); also frees ~8 x 8 mm at the top edge"
+  },
+  {
+   "ref": "R11",
+   "action": "dnp",
+   "why": "Series resistor to the removed J3, same reason"
   }
  ],
  "external_sources": {
@@ -52,9 +62,9 @@
   "VRES": "regulator output (Q101 drain 2) -> reservoir, comparator, TPS63802"
  },
  "notes": [
-  "DEBUG_UART_TX (RP2350 GPIO46) becomes the ESP chip select; Croco's R11 + J3 debug header should be removed (they would leave a stub on CS).",
   "Refs U101-U108, R101-R125, C101-C122, L101, Y101 do not clash with Croco (U1-U7, R1-R17, C1-C28, L1, Y1-Y2).",
-  "Precision input-voltage regulator VLIM -> VRES added 2026-10-14 (U109, Q101-Q102, R126-R132, C123-C124, D101-D104), values from sim/power/inreg.py DESIGN, audit A8 all pass."
+  "Precision input-voltage regulator VLIM -> VRES added 2026-10-14 (U109, Q101-Q102, R126-R132, C123-C124, D101-D104), values from sim/power/inreg.py DESIGN, audit A8 all pass.",
+  "DEBUG_UART_TX (RP2350 GPIO46) becomes the ESP chip select; Croco's R11 + J3 debug header are DNP / off board (croco_edits)."
  ],
  "parts": [
   {

@@ -1,0 +1,64 @@
+# Power-path simulation audit
+
+## A1 ngspice vs independent pyref (chosen design, ideal gating)
+cons  profile               GBmin sp/py   TX% sp/py  up ms sp/py  resmin sp/py drops sp/py
+fresh traffic_2ms_20pct    4.783/4.783  98.9/98.9   22.0/22.0    3.99/3.99      0/0
+PASS  A1 fresh/traffic_2ms_20pct GBmin: |d|=0.0 mV (limit 20)
+PASS  A1 fresh/traffic_2ms_20pct TX: |d|=0.0 pts (limit 3)
+PASS  A1 fresh/traffic_2ms_20pct up: sp=21.983860099999998 py=22.005999999999997 (limit 2 ms)
+fresh worst_11b_12ms       4.783/4.783  58.0/57.9   22.0/22.0    3.98/3.98      0/0
+PASS  A1 fresh/worst_11b_12ms GBmin: |d|=0.0 mV (limit 20)
+PASS  A1 fresh/worst_11b_12ms TX: |d|=0.1 pts (limit 3)
+PASS  A1 fresh/worst_11b_12ms up: sp=21.983860099999998 py=22.005999999999997 (limit 2 ms)
+fresh stress_50pct         4.783/4.783  62.6/62.3   22.0/22.0    3.98/3.98      0/0
+PASS  A1 fresh/stress_50pct GBmin: |d|=0.0 mV (limit 20)
+PASS  A1 fresh/stress_50pct TX: |d|=0.3 pts (limit 3)
+PASS  A1 fresh/stress_50pct up: sp=21.983860099999998 py=22.005999999999997 (limit 2 ms)
+tired traffic_2ms_20pct    4.628/4.628  98.9/98.9   22.0/22.0    3.99/3.99      0/0
+PASS  A1 tired/traffic_2ms_20pct GBmin: |d|=0.0 mV (limit 20)
+PASS  A1 tired/traffic_2ms_20pct TX: |d|=0.0 pts (limit 3)
+PASS  A1 tired/traffic_2ms_20pct up: sp=21.983860099999998 py=22.005999999999997 (limit 2 ms)
+tired worst_11b_12ms       4.628/4.628  53.4/53.3   22.0/22.0    3.98/3.98      0/0
+PASS  A1 tired/worst_11b_12ms GBmin: |d|=0.0 mV (limit 20)
+PASS  A1 tired/worst_11b_12ms TX: |d|=0.1 pts (limit 3)
+PASS  A1 tired/worst_11b_12ms up: sp=21.983860099999998 py=22.005999999999997 (limit 2 ms)
+tired stress_50pct         4.628/4.628  62.6/62.3   22.0/22.0    3.98/3.98      0/0
+PASS  A1 tired/stress_50pct GBmin: |d|=0.0 mV (limit 20)
+PASS  A1 tired/stress_50pct TX: |d|=0.3 pts (limit 3)
+PASS  A1 tired/stress_50pct up: sp=21.983860099999998 py=22.005999999999997 (limit 2 ms)
+weak  traffic_2ms_20pct    4.590/4.591   0.0/0.0   73.5/73.6    3.48/3.48      0/0
+PASS  A1 weak/traffic_2ms_20pct GBmin: |d|=0.6 mV (limit 20)
+PASS  A1 weak/traffic_2ms_20pct TX: |d|=0.0 pts (limit 3)
+PASS  A1 weak/traffic_2ms_20pct up: sp=73.52755549999999 py=73.562 (limit 2 ms)
+weak  worst_11b_12ms       4.590/4.591   0.0/0.0   73.5/73.6    3.48/3.48      0/0
+PASS  A1 weak/worst_11b_12ms GBmin: |d|=0.6 mV (limit 20)
+PASS  A1 weak/worst_11b_12ms TX: |d|=0.0 pts (limit 3)
+PASS  A1 weak/worst_11b_12ms up: sp=73.52755549999999 py=73.562 (limit 2 ms)
+weak  stress_50pct         4.590/4.591   0.0/0.0   73.5/73.6    3.48/3.48      0/0
+PASS  A1 weak/stress_50pct GBmin: |d|=0.6 mV (limit 20)
+PASS  A1 weak/stress_50pct TX: |d|=0.0 pts (limit 3)
+PASS  A1 weak/stress_50pct up: sp=73.52755549999999 py=73.562 (limit 2 ms)
+
+## A2 timestep convergence (ngspice 20us vs 5us), worst_11b_12ms
+PASS  A2 fresh GBmin: 4.7830 vs 4.7830 (limit 5 mV)
+PASS  A2 fresh TX: 57.98% vs 57.92% (limit 1 pt)
+PASS  A2 tired GBmin: 4.6280 vs 4.6280 (limit 5 mV)
+PASS  A2 tired TX: 53.40% vs 53.35% (limit 1 pt)
+PASS  A2 weak GBmin: 4.5903 vs 4.5909 (limit 5 mV)
+PASS  A2 weak TX: 0.00% vs 0.00% (limit 1 pt)
+
+## A3 analytic console-rail floor
+PASS  A3 fresh: analytic 4.783 V, sim min 4.783 V (limit +-30 mV)
+PASS  A3 tired: analytic 4.628 V, sim min 4.628 V (limit +-30 mV)
+PASS  A3 weak: analytic 4.591 V, sim min 4.591 V (limit +-30 mV)
+
+## A4 energy sanity (pyref, 2 s)
+PASS  A4 fresh: source 3.10 J >= radio 1.06 J
+PASS  A4 tired: source 3.10 J >= radio 1.06 J
+PASS  A4 weak: source 2.05 J >= radio 0.26 J
+
+## A5 firmware state machine (pyref.simulate_fw) x tolerance corners
+corners: ilim 129/150/174 mA (TPS2553 Eq.1 min/nom/max at 180k), DPM 4.542/4.588/4.634 V (TLV431B regulator), logic 40/60/100 mA,
+         buck-boost eta 0.80/0.92, switch path 0.2/0.6 ohm, ESP32-C3-MINI-1U TX 350 mA.
+traffic: busy 2ms/10ms, OFDM 2.5ms/6ms, stress 2ms/4ms, small-MTU 1Mbps fallback 4.5ms/20ms.
+RF calibration at WiFi start: ASSUMED 5 ms at 50 % TX (partial calibration, NVS data). Not measured; see A7.

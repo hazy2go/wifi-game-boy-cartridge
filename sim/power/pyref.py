@@ -166,7 +166,7 @@ OFF, BOOT, RUN, SLEEP, PARK = 0, 1, 2, 3, 4
 def simulate_fw(rsrc, ilim, vdpm, gain, rsw, vsup, cres, resr, burst, period, rx, tx, gbwatch,
                 dt, t_end, adc_dt, gb_load, logic_load, gb_cap, eta, modem_a, park_a,
                 cal_ms, cal_duty, v_frame_floor, v_psave, v_park, v_unpark, gb_watch_v, v_pg_on, v_pg_off,
-                vin_sleep, gb_resume_v):
+                vin_sleep, gb_resume_v, fw_cres=0.0):
     """Radio firmware as a state machine (all decisions from a 1 ms ADC sample, frames never aborted):
       OFF   radio unpowered (reservoir below power-good)
       BOOT  WiFi start incl. RF calibration: cal_ms of TX pulses at cal_duty, uninterruptible
@@ -240,7 +240,7 @@ def simulate_fw(rsrc, ilim, vdpm, gain, rsw, vsup, cres, resr, burst, period, rx
         if req == 1 and bstart != latched_start:
             latched_start = bstart
             # predicted end-of-frame voltage with zero input: E = P*t -> V^2 drop
-            v_end2 = adc_res * adc_res - 2.0 * i_tx_in * burst / cres
+            v_end2 = adc_res * adc_res - 2.0 * i_tx_in * burst / (fw_cres or cres)   # firmware's configured C (nominal), not the part's actual C
             latched_go = 1 if (state == RUN and not gb_low and v_end2 > v_frame_floor * v_frame_floor) else 0
         in_frame = req == 1 and latched_go == 1 and bstart == latched_start
         if state == OFF:
@@ -308,7 +308,7 @@ def run_fw(cons_r, prof, dt=2e-6, **kw):
                       p['resr'], b / 1000, per / 1000, p['rx'], p['tx'], p['gbwatch'], dt, T_END, p['adc_dt'],
                       p['gb_load'], p['logic_load'], p['gb_cap'], p['eta'], p['modem_a'], p['park_a'],
                       p['cal_ms'], p['cal_duty'], p['v_frame_floor'], p['v_psave'], p['v_park'], p['v_unpark'],
-                      p['gb_watch_v'], p['v_pg_on'], p['v_pg_off'], p['vin_sleep'], p['gb_resume_v'])
+                      p['gb_watch_v'], p['v_pg_on'], p['v_pg_off'], p['vin_sleep'], p['gb_resume_v'], p.get('fw_cres', 0.0))
     d = dict(zip(('gb_min', 'unsafe_ms', 'tx', 'up_ms', 'res_min', 'resets', 'parks'), out))
     d['unsafe_ms'] *= 1000
     d['up_ms'] = d['up_ms'] * 1000 if d['up_ms'] >= 0 else None
