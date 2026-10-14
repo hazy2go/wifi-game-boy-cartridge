@@ -33,6 +33,7 @@ Simulation (all passing):
    - A7: time and energy of the partial calibration, measured from the current profile, or from the timing plus the datasheet current if no current probe is available.
    - Antenna: an RSSI and throughput logger.
    - Results go into LOGBOOK, and A7 gets re-run with the measured number.
+   - **Status 2026-10-14: written and building, not run on hardware yet.** `firmware/xiao/` (`a7_cal`, `rf_logger`, `rf_host.py`; how to run: its README). ESP-IDF v5.5.1 is installed at `~/esp/esp-idf-v5.5.1` (`. ~/esp/esp-idf-v5.5.1/export.sh`).
 2. **RP2350 cart firmware.** Fork shilga/rp2350-gameboy-cartridge-firmware (Rust/Embassy, GPL-3) to hazy2go. It is checked out locally at `~/projects/croco-fw2` but not forked yet.
    - Add an SPI master on SPI0: GPIO0 MISO, GPIO2 SCK, GPIO3 MOSI. Chip select is **GPIO46** (it was the debug UART TX; logging moves to defmt-RTT).
    - **Drive GPIO46 high before the first SD or RTC access.** It has no pull-up, and the RP2350 resets with pull-downs.
@@ -46,7 +47,7 @@ Simulation (all passing):
    - Link the existing `firmware/esp32c3/components/power_mgr`: plain C, already co-simulated. **Ship that code unchanged, or re-run the `sim/power` audits after any change.**
    - Hard rules from the audits:
      - Full RF calibration only on USB power; store the result in NVS. The cart slot must never see a full calibration.
-     - 802.11b rates off. Use a small MSS (about 300 bytes) or count the guaranteed input current in admission.
+     - 802.11b rates off. Use a small MSS (about 300 bytes) or count the guaranteed input current in admission. Note: `CONFIG_LWIP_TCP_MSS` only goes down to 536, so 300 bytes needs another way (LOGBOOK 2026-10-14 20:13).
      - Every TX frame goes through `pm_admit_tx`.
      - Cart-rail watch at 4.45 / 4.48 V.
 5. **Game Boy side.** Test ROMs in RGBDS: `sim/system/rom/wifitest.asm` and `btcdemo.asm`. Later: a GBDK-2020 library plus demos.

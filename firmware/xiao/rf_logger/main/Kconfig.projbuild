@@ -1,0 +1,17 @@
+menu "RF logger"
+    config RFLOG_WIFI_SSID
+        string "WiFi SSID"
+        default ""
+    config RFLOG_WIFI_PASSWORD
+        string "WiFi password"
+        default ""
+    config RFLOG_HOST
+        string "IP address of the computer running rf_host.py"
+        default "192.168.1.10"
+    config RFLOG_PORT
+        int "TCP port of rf_host.py"
+        default 5201
+    config RFLOG_TPUT_SECONDS
+        int "Seconds per throughput run"
+        default 5
+endmenu
