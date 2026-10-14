@@ -62,7 +62,7 @@ Threshold: Vth = VREF (1 + R101/R102), VREF = 0.92 / 1.00 / 1.08 V (Table 6.5, p
 
 **Caps:** 1 uF on each input (section 9, p16: "1 uF is sufficient"), C101 (`VBUS`), C102 (`VCC`); C103 1 uF on `VMUX` (>= 0.1 uF for linear soft start, 7.3.2 p11; also the TPS2553 IN cap). Soft start 1.7 ms at 5 V (p7) limits inrush into C103 to ~3 mA.
 
-**ST** (open drain, low when VIN1 is not used, 7.3.3 p11): R115 100k pull-up to `+3V3_RF` -> ESP IO3 (`USB_PWR_ST`). Firmware learns "running from USB" without an extra ADC channel. Pull-up is on the radio rail, so it cannot back-power the ESP.
+**ST** (open drain, low when VIN1 is not used, 7.3.3 p11): R115 100k pull-up to `+3V3_RF` -> ESP IO5 (`USB_PWR_ST`, was IO3). Firmware learns "running from USB" without an extra ADC channel. Pull-up is on the radio rail, so it cannot back-power the ESP.
 
 ## 3. Current limiter U102 TPS2553DBVR (C55266, stock 54,809)
 
@@ -146,11 +146,11 @@ Requirement: radio converter on at VRES >= 4.2 V, off below 2.0 V, accurate to a
 | 5 | IO2 | ESP MISO (FSPIQ) -> U105 | strap, pulled up anyway |
 | 12 | IO0 | ADC_VRES | ADC1_CH0 |
 | 13 | IO1 | ADC_VCC | ADC1_CH1 |
-| 6 | IO3 | USB_PWR_ST | TPS2116 ST |
+| 19 | IO5 | USB_PWR_ST | TPS2116 ST (moved from IO3/pin 6 on 2026-10-14: pin 6 is on the module's bottom edge above the buck-boost block and could not be routed out; IO5 is a plain input here, its MTDI/JTAG role is unused) |
 | 18 | IO4 | LIM_FAULT_N | TPS2553 FAULT |
 | 22 / 23 | IO8 / IO9 | straps | pull-ups |
 | 26 / 27 | IO18 / IO19 | USB D- / D+ | native USB Serial/JTAG |
-| 19, 30, 31 | IO5, RXD0, TXD0 | NC | spare; firmware enables internal pulls (HWDG 1.3.10) |
+| 6, 30, 31 | IO3, RXD0, TXD0 | NC | spare; firmware enables internal pulls (HWDG 1.3.10) |
 
 The IO_MUX SPI pins allow the fastest slave mode; IO6/IO7/IO10 have 5 ns power-up glitches (HWDG Table 6), harmless because they are inputs behind U106.
 
