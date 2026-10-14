@@ -15,7 +15,7 @@ import heapq, json, math, sys
 import numpy as np
 import pcbnew
 
-RES, CLEAR, MAX_R = 0.05, 0.16, 3.0
+RES, CLEAR, MAX_R = 0.05, 0.2, 3.0   # 0.2: raster quantisation (0.05) must not eat the 0.15 rule
 VIA_D, VIA_H = 0.5, 0.2
 POWER = {'VCC', 'VBUS', '+5V', '+3V3', 'VRES', 'VLIM', '/Radio/VMUX', '/Radio/+3V3_RF', 'GND'}
 LAYERS = (pcbnew.In2_Cu, pcbnew.In3_Cu)

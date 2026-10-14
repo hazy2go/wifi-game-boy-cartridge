@@ -468,7 +468,7 @@
     "3": "+3V3_RF",
     "4": "NC",
     "5": "ESP_IO2_MISO",
-    "6": "USB_PWR_ST",
+    "6": "NC",
     "7": "NC",
     "8": "ESP_EN",
     "9": "NC",
@@ -481,7 +481,7 @@
     "16": "ESP_CS",
     "17": "NC",
     "18": "LIM_FAULT_N",
-    "19": "NC",
+    "19": "USB_PWR_ST",
     "20": "ESP_SCK",
     "21": "ESP_MOSI",
     "22": "ESP_IO8",
@@ -517,7 +517,7 @@
     "52": "GND",
     "53": "GND"
    },
-   "why": "Radio. SPI slave on IO_MUX pins (CS=IO10 FSPICS0, SCK=IO6 FSPICLK, MOSI=IO7 FSPID, MISO=IO2 FSPIQ), ADC1 on IO0/IO1, native USB IO18/IO19",
+   "why": "Radio. SPI slave on IO_MUX pins (CS=IO10 FSPICS0, SCK=IO6 FSPICLK, MOSI=IO7 FSPID, MISO=IO2 FSPIQ), ADC1 on IO0/IO1, native USB IO18/IO19 | USB_PWR_ST moved from IO3 (pin 6, bottom edge) to IO5 (pin 19, right edge, free, ADC2_CH0/MTDI, plain input here): pin 6 sits over the buck-boost block and could not be routed out (LOGBOOK 15:2x)",
    "datasheet": "https://www.espressif.com/sites/default/files/documentation/esp32-c3-mini-1_datasheet_en.pdf"
   },
   {

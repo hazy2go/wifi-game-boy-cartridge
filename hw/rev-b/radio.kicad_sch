@@ -10274,15 +10274,8 @@
 		)
 		(uuid "9cef77eb-3502-5264-8335-2353e11d5899")
 	)
-	(label "USB_PWR_ST"
-		(at 396.24 180.34 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.0 1.0)
-			)
-			(justify right)
-		)
+	(no_connect
+		(at 396.24 180.34)
 		(uuid "1fbbca7f-6067-52ab-ba4a-b472bdea2bb5")
 	)
 	(no_connect
@@ -10492,8 +10485,15 @@
 		)
 		(uuid "c0976eb6-9302-5a71-a0fc-b6cd7e7d5742")
 	)
-	(no_connect
-		(at 396.24 213.36)
+	(label "USB_PWR_ST"
+		(at 396.24 213.36 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify right)
+		)
 		(uuid "661657bf-c253-50b6-ab49-258843cac02a")
 	)
 	(label "ESP_SCK"

@@ -50,31 +50,24 @@
  },
  {
   "ref": "R108",
-  "x": 123.47,
-  "y": 91.75,
-  "rot": 0,
-  "why": "buck-boost block (LOGBOOK 14:1x): U103 rotated 180 so VOUT faces the module's 3V3 pin (119.3, 89.9) and VIN faces the reservoir below; L101 between L1/L2 on the left, Cout C110/C111 at VOUT, Cin C109 at VIN, FB/PG resistors on the EN/FB/PG side"
+  "x": 123.5,
+  "y": 91.6,
+  "rot": 180,
+  "why": "buck-boost FB/PG network re-arranged for routability (LOGBOOK 15:2x): PG and FB pads face the U103 pins, both +3V3_RF ends on the right edge joined vertically; R111 (PG -> ESP_EN series) moved out of the block"
  },
  {
   "ref": "R109",
-  "x": 123.47,
-  "y": 92.8,
-  "rot": 0,
-  "why": "buck-boost block (LOGBOOK 14:1x): U103 rotated 180 so VOUT faces the module's 3V3 pin (119.3, 89.9) and VIN faces the reservoir below; L101 between L1/L2 on the left, Cout C110/C111 at VOUT, Cin C109 at VIN, FB/PG resistors on the EN/FB/PG side"
+  "x": 123.5,
+  "y": 92.65,
+  "rot": 180,
+  "why": "buck-boost FB/PG network re-arranged for routability (LOGBOOK 15:2x): PG and FB pads face the U103 pins, both +3V3_RF ends on the right edge joined vertically; R111 (PG -> ESP_EN series) moved out of the block"
  },
  {
   "ref": "R110",
-  "x": 123.47,
-  "y": 93.85,
+  "x": 123.5,
+  "y": 93.7,
   "rot": 0,
-  "why": "buck-boost block (LOGBOOK 14:1x): U103 rotated 180 so VOUT faces the module's 3V3 pin (119.3, 89.9) and VIN faces the reservoir below; L101 between L1/L2 on the left, Cout C110/C111 at VOUT, Cin C109 at VIN, FB/PG resistors on the EN/FB/PG side"
- },
- {
-  "ref": "R111",
-  "x": 123.47,
-  "y": 94.9,
-  "rot": 0,
-  "why": "buck-boost block (LOGBOOK 14:1x): U103 rotated 180 so VOUT faces the module's 3V3 pin (119.3, 89.9) and VIN faces the reservoir below; L101 between L1/L2 on the left, Cout C110/C111 at VOUT, Cin C109 at VIN, FB/PG resistors on the EN/FB/PG side"
+  "why": "buck-boost FB/PG network re-arranged for routability (LOGBOOK 15:2x): PG and FB pads face the U103 pins, both +3V3_RF ends on the right edge joined vertically; R111 (PG -> ESP_EN series) moved out of the block"
  },
  {
   "ref": "C105",
@@ -449,17 +442,17 @@
  },
  {
   "ref": "R119",
-  "x": 128.12,
-  "y": 87.53,
-  "rot": 90,
-  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 1.8 mm"
+  "x": 137.32,
+  "y": 99.93,
+  "rot": 270,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 1.6 mm"
  },
  {
   "ref": "R118",
-  "x": 128.22,
-  "y": 84.43,
-  "rot": 270,
-  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 7.1 mm"
+  "x": 136.22,
+  "y": 99.93,
+  "rot": 90,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 12.5 mm"
  },
  {
   "ref": "R117",
@@ -530,5 +523,12 @@
   "y": 100.51,
   "rot": 90,
   "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 12.8 mm"
+ },
+ {
+  "ref": "R111",
+  "x": 123.02,
+  "y": 95.23,
+  "rot": 270,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 8.8 mm"
  }
 ]
