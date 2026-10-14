@@ -836,7 +836,7 @@
     "2": "REG_K",
     "3": "GND"
    },
-   "why": "Input-voltage regulator error amp: holds VMUX at 1.24 V x 3.7 = 4.588 V +-1 %; sinks current through REG_K to turn the PMOS pair on while VMUX is above the set-point (sim/power/inreg.py DESIGN, audit A8 (LOGBOOK 08:40))",
+   "why": "Input-voltage regulator error amp: holds VMUX at 1.24 V x 3.7 = 4.588 V +-1 % (26.7k / 4.551 V was tried 2026-10-14 19:00 and rejected: burst-after-idle dips to 4.479 V, audit A8.5); sinks current through REG_K to turn the PMOS pair on while VMUX is above the set-point (sim/power/inreg.py DESIGN, audit A8 (LOGBOOK 08:40))",
    "datasheet": "https://www.ti.com/lit/ds/symlink/tlv431.pdf"
   },
   {

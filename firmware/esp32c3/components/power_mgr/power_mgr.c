@@ -9,8 +9,10 @@ void pm_default_config(pm_config_t *cfg)
     cfg->v_psave = 3.5f;
     cfg->v_park = 3.0f;
     cfg->v_unpark = 4.2f;
-    cfg->gb_watch_v = 4.55f;
-    cfg->gb_resume_v = 4.60f;
+    /* Backstop below the hardware floor (R126 27.0k: 4.588 V +-1 %, low corner 4.542 V) minus the uncalibrated
+       ADC error (+-44 mV): the TLV431 regulator does the per-console limiting, this only catches a broken rail. */
+    cfg->gb_watch_v = 4.45f;
+    cfg->gb_resume_v = 4.48f;
     cfg->c_res = 0.99e-3f;
     cfg->boot_ms = 100;
 }

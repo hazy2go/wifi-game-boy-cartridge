@@ -292,7 +292,7 @@ def simulate_fw(rsrc, ilim, vdpm, gain, rsw, vsup, cres, resr, burst, period, rx
 
 
 FW_DEFAULTS = dict(cal_ms=100.0, cal_duty=0.5, v_frame_floor=3.0, v_psave=3.5, v_park=3.0, v_unpark=4.2,
-                   v_pg_on=4.2, v_pg_off=2.0, park_a=0.001, vin_sleep=0.0, adc_dt=1e-3, gb_resume_v=4.60)
+                   v_pg_on=4.2, v_pg_off=2.0, park_a=0.001, vin_sleep=0.0, adc_dt=1e-3, gb_resume_v=4.48)
 
 
 def run_fw(cons_r, prof, dt=2e-6, **kw):

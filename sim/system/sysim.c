@@ -272,6 +272,9 @@ static void esp_tick_1ms(void)
     }
     if (!esp_up) {                            /* power-on reset of the ESP */
         pm_config_t cfg; pm_default_config(&cfg); cfg.c_res = CRES; cfg.boot_ms = CAL_MS;
+#ifdef GB_WATCH
+        cfg.gb_watch_v = GB_WATCH; cfg.gb_resume_v = GB_WATCH + 0.02f;   /* experiment: lower firmware rail watch */
+#endif
         pm_init(&pm, &cfg);
         esp_up = 1;
         fprintf(slog, "%8.3f  ESP: boot, reservoir %.2f V\n", t_now, vt);

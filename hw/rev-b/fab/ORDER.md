@@ -3,7 +3,7 @@
 **Not ordered yet.** Hold points (LOGBOOK 18:20-19:05):
 1. ESP32-C3 partial-calibration time on a dev board (A7: <= 5 ms at 50 % TX duty, else firmware falls back to stored calibration data).
 2. FPC antenna over copper / inside a shell / in a console (RSSI).
-3. **The real console 5 V** on every console model to support (open-circuit and loaded). The sims assumed 5.0 V; at 4.75 V with 1.2 ohm the regulator (set-point 4.588 V, R126) never lets the radio on. If it measures low, change R126 (and the firmware's rail-watch thresholds) before ordering.
+3. **The real console 5 V** on the consoles to support (cheap multimeter on the link port while a game runs). The power stage keeps the console >= 4.588 V (R126 27.0k); in simulation WiFi works down to ~4.8 V on a 1.2 ohm console (slower) and ~4.75 V on a 0.7 ohm one, and stays off (console safe) below that. A lower floor (26.7k) was tried and rejected: burst-after-idle dips below 4.5 V (audit A8.5).
 
 ## Files (this folder)
 | file | upload as |

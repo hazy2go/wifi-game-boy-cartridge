@@ -1,0 +1,133 @@
+# A8 precision input-voltage regulator audit
+design: R1 27000 R2 10000 Rg 680 Rk 680 Cc 0.47n Rc 330000 comp on k, 3-diode gate clamp, power-on hold on, TPS2553 vendor model, EN delay 15 ms; set-point 4.588 V
+
+## A8.1/A8.2 DC set-point and operating-point plausibility
+PASS  A8.2 op R=1.4 vres=0.5: VCC 4.5983 V, I 125.3 mA, Vgs -1.03 V
+PASS  A8.1 set-point R=1.4 vres=0.5: 4.5983 V vs 4.5880 V (+0.22 %)
+PASS  A8.6 TLV431 cathode R=1.4 vres=0.5: Vka 2.462 V (min 1.44 V)
+PASS  A8.2 op R=1.4 vres=3.0: VCC 4.5983 V, I 125.3 mA, Vgs -1.04 V
+PASS  A8.1 set-point R=1.4 vres=3.0: 4.5983 V vs 4.5880 V (+0.22 %)
+PASS  A8.6 TLV431 cathode R=1.4 vres=3.0: Vka 2.455 V (min 1.44 V)
+PASS  A8.2 op R=1.4 vres=4.3: VCC 4.5983 V, I 125.3 mA, Vgs -1.04 V
+PASS  A8.1 set-point R=1.4 vres=4.3: 4.5983 V vs 4.5880 V (+0.22 %)
+PASS  A8.6 TLV431 cathode R=1.4 vres=4.3: Vka 2.448 V (min 1.44 V)
+PASS  A8.2 op R=1.8 vres=0.5: VCC 4.5940 V, I 64.0 mA, Vgs -1.00 V
+PASS  A8.1 set-point R=1.8 vres=0.5: 4.5940 V vs 4.5880 V (+0.13 %)
+PASS  A8.6 TLV431 cathode R=1.8 vres=0.5: Vka 2.552 V (min 1.44 V)
+PASS  A8.2 op R=1.8 vres=3.0: VCC 4.5940 V, I 64.0 mA, Vgs -1.00 V
+PASS  A8.1 set-point R=1.8 vres=3.0: 4.5940 V vs 4.5880 V (+0.13 %)
+PASS  A8.6 TLV431 cathode R=1.8 vres=3.0: Vka 2.542 V (min 1.44 V)
+PASS  A8.2 op R=1.8 vres=4.3: VCC 4.5940 V, I 64.0 mA, Vgs -1.01 V
+PASS  A8.1 set-point R=1.8 vres=4.3: 4.5940 V vs 4.5880 V (+0.13 %)
+PASS  A8.6 TLV431 cathode R=1.8 vres=4.3: Vka 2.533 V (min 1.44 V)
+PASS  A8.2 op R=2.2 vres=0.5: VCC 4.5911 V, I 24.4 mA, Vgs -0.92 V
+PASS  A8.1 set-point R=2.2 vres=0.5: 4.5911 V vs 4.5880 V (+0.07 %)
+PASS  A8.6 TLV431 cathode R=2.2 vres=0.5: Vka 2.702 V (min 1.44 V)
+PASS  A8.2 op R=2.2 vres=3.0: VCC 4.5911 V, I 24.4 mA, Vgs -0.93 V
+PASS  A8.1 set-point R=2.2 vres=3.0: 4.5911 V vs 4.5880 V (+0.07 %)
+PASS  A8.6 TLV431 cathode R=2.2 vres=3.0: Vka 2.693 V (min 1.44 V)
+PASS  A8.2 op R=2.2 vres=4.3: VCC 4.5911 V, I 24.4 mA, Vgs -0.93 V
+PASS  A8.1 set-point R=2.2 vres=4.3: 4.5911 V vs 4.5880 V (+0.07 %)
+PASS  A8.6 TLV431 cathode R=2.2 vres=4.3: Vka 2.684 V (min 1.44 V)
+PASS  A8.2 op R=2.5 vres=0.5: VCC 4.5893 V, I 3.0 mA, Vgs -0.77 V
+PASS  A8.1 set-point R=2.5 vres=0.5: 4.5893 V vs 4.5880 V (+0.03 %)
+PASS  A8.6 TLV431 cathode R=2.5 vres=0.5: Vka 3.012 V (min 1.44 V)
+PASS  A8.2 op R=2.5 vres=3.0: VCC 4.5893 V, I 3.0 mA, Vgs -0.77 V
+PASS  A8.1 set-point R=2.5 vres=3.0: 4.5893 V vs 4.5880 V (+0.03 %)
+PASS  A8.6 TLV431 cathode R=2.5 vres=3.0: Vka 3.004 V (min 1.44 V)
+PASS  A8.2 op R=2.5 vres=4.3: VCC 4.5893 V, I 3.0 mA, Vgs -0.78 V
+PASS  A8.1 set-point R=2.5 vres=4.3: 4.5893 V vs 4.5880 V (+0.03 %)
+PASS  A8.6 TLV431 cathode R=2.5 vres=4.3: Vka 2.996 V (min 1.44 V)
+
+## A8.3 loop stability over corners
+worst phase margin 58.8 deg at (R, Ccons, Cc, Rk, Rc, fc, GM) = (2.5, 0.00022, 0.9, 0.99, 0.99, np.float64(441.50323029757254), 54.704328430326285)
+PASS  A8.3 min phase margin >= 45 deg: 58.8 deg
+PASS  A8.3 min gain margin >= 13 dB: 16.5 dB
+
+## A8.4 hot-plug
+PASS  A8.4 R=1.6 C=47u Cc x0.9: min 4.5959 V, limit 4.5000 V, margin +95.9 mV
+PASS  A8.4 R=1.6 C=47u Cc x1.1: min 4.5959 V, limit 4.5000 V, margin +95.9 mV
+PASS  A8.4 R=1.6 C=220u Cc x0.9: min 4.5958 V, limit 4.5000 V, margin +95.8 mV
+PASS  A8.4 R=1.6 C=220u Cc x1.1: min 4.5959 V, limit 4.5000 V, margin +95.9 mV
+PASS  A8.4 R=2.0 C=47u Cc x0.9: min 4.5924 V, limit 4.5000 V, margin +92.4 mV
+PASS  A8.4 R=2.0 C=47u Cc x1.1: min 4.5924 V, limit 4.5000 V, margin +92.4 mV
+PASS  A8.4 R=2.0 C=220u Cc x0.9: min 4.5923 V, limit 4.5000 V, margin +92.3 mV
+PASS  A8.4 R=2.0 C=220u Cc x1.1: min 4.5924 V, limit 4.5000 V, margin +92.4 mV
+PASS  A8.4 R=2.3 C=47u Cc x0.9: min 4.5905 V, limit 4.5000 V, margin +90.5 mV
+PASS  A8.4 R=2.3 C=47u Cc x1.1: min 4.5905 V, limit 4.5000 V, margin +90.5 mV
+PASS  A8.4 R=2.3 C=220u Cc x0.9: min 4.5892 V, limit 4.5000 V, margin +89.2 mV
+PASS  A8.4 R=2.3 C=220u Cc x1.1: min 4.5897 V, limit 4.5000 V, margin +89.7 mV
+PASS  A8.4 R=2.5 C=47u Cc x0.9: min 4.5873 V, limit 4.5000 V, margin +87.3 mV
+PASS  A8.4 R=2.5 C=47u Cc x1.1: min 4.5873 V, limit 4.5000 V, margin +87.3 mV
+PASS  A8.4 R=2.5 C=220u Cc x0.9: min 4.5884 V, limit 4.5000 V, margin +88.4 mV
+PASS  A8.4 R=2.5 C=220u Cc x1.1: min 4.5887 V, limit 4.5000 V, margin +88.7 mV
+PASS  A8.4 R=3.0 C=47u Cc x0.9: min 4.5048 V, limit 4.5000 V, margin +4.8 mV
+PASS  A8.4 R=3.0 C=47u Cc x1.1: min 4.5048 V, limit 4.5000 V, margin +4.8 mV
+PASS  A8.4 R=3.0 C=220u Cc x0.9: min 4.5084 V, limit 4.5000 V, margin +8.4 mV
+PASS  A8.4 R=3.0 C=220u Cc x1.1: min 4.5084 V, limit 4.5000 V, margin +8.4 mV
+
+## A8.5 burst after idle (wind-up)
+PASS  A8.5 R=1.6 C=47u Cc x0.9: min 4.5428 V, limit 4.5000 V, margin +42.8 mV
+PASS  A8.5 R=1.6 C=47u Cc x1.1: min 4.5385 V, limit 4.5000 V, margin +38.5 mV
+PASS  A8.5 R=1.6 C=220u Cc x0.9: min 4.5436 V, limit 4.5000 V, margin +43.6 mV
+PASS  A8.5 R=1.6 C=220u Cc x1.1: min 4.5394 V, limit 4.5000 V, margin +39.4 mV
+PASS  A8.5 R=1.8 C=47u Cc x0.9: min 4.5345 V, limit 4.5000 V, margin +34.5 mV
+PASS  A8.5 R=1.8 C=47u Cc x1.1: min 4.5300 V, limit 4.5000 V, margin +30.0 mV
+PASS  A8.5 R=1.8 C=220u Cc x0.9: min 4.5357 V, limit 4.5000 V, margin +35.7 mV
+PASS  A8.5 R=1.8 C=220u Cc x1.1: min 4.5312 V, limit 4.5000 V, margin +31.2 mV
+PASS  A8.5 R=2.0 C=47u Cc x0.9: min 4.5275 V, limit 4.5000 V, margin +27.5 mV
+PASS  A8.5 R=2.0 C=47u Cc x1.1: min 4.5228 V, limit 4.5000 V, margin +22.8 mV
+PASS  A8.5 R=2.0 C=220u Cc x0.9: min 4.5293 V, limit 4.5000 V, margin +29.3 mV
+PASS  A8.5 R=2.0 C=220u Cc x1.1: min 4.5245 V, limit 4.5000 V, margin +24.5 mV
+PASS  A8.5 R=2.2 C=47u Cc x0.9: min 4.5214 V, limit 4.5000 V, margin +21.4 mV
+PASS  A8.5 R=2.2 C=47u Cc x1.1: min 4.5165 V, limit 4.5000 V, margin +16.5 mV
+PASS  A8.5 R=2.2 C=220u Cc x0.9: min 4.5238 V, limit 4.5000 V, margin +23.8 mV
+PASS  A8.5 R=2.2 C=220u Cc x1.1: min 4.5188 V, limit 4.5000 V, margin +18.8 mV
+INFO  A8.5 R=2.4: reservoir only 2.42 V before the burst (console too weak to fill it), case not applicable
+INFO  A8.5 R=2.4: reservoir only 2.42 V before the burst (console too weak to fill it), case not applicable
+INFO  A8.5 R=2.4: reservoir only 2.42 V before the burst (console too weak to fill it), case not applicable
+INFO  A8.5 R=2.4: reservoir only 2.42 V before the burst (console too weak to fill it), case not applicable
+
+## A8.7 time-domain ring test
+PASS  A8.7 R=1.4 C=47u Cc x0.9 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.4 C=47u Cc x0.9 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.4 C=47u Cc x1.1 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.4 C=47u Cc x1.1 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.4 C=220u Cc x0.9 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.4 C=220u Cc x0.9 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.4 C=220u Cc x1.1 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.4 C=220u Cc x1.1 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.6 C=47u Cc x0.9 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.6 C=47u Cc x0.9 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.6 C=47u Cc x1.1 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.6 C=47u Cc x1.1 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.6 C=220u Cc x0.9 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.6 C=220u Cc x0.9 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.6 C=220u Cc x1.1 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.6 C=220u Cc x1.1 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.8 C=47u Cc x0.9 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.8 C=47u Cc x0.9 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.8 C=47u Cc x1.1 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.8 C=47u Cc x1.1 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.8 C=220u Cc x0.9 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.8 C=220u Cc x0.9 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.8 C=220u Cc x1.1 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=1.8 C=220u Cc x1.1 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=2.2 C=47u Cc x0.9 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=2.2 C=47u Cc x0.9 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=2.2 C=47u Cc x1.1 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=2.2 C=47u Cc x1.1 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=2.2 C=220u Cc x0.9 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=2.2 C=220u Cc x0.9 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=2.2 C=220u Cc x1.1 Rc x0.99: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=2.2 C=220u Cc x1.1 Rc x1.01: gate >20 kHz 0.00 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=2.5 C=47u Cc x0.9 Rc x0.99: gate >20 kHz 0.14 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=2.5 C=47u Cc x0.9 Rc x1.01: gate >20 kHz 0.14 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=2.5 C=47u Cc x1.1 Rc x0.99: gate >20 kHz 0.12 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=2.5 C=47u Cc x1.1 Rc x1.01: gate >20 kHz 0.11 mV p-p (strongest at 21 kHz)
+PASS  A8.7 R=2.5 C=220u Cc x0.9 Rc x0.99: gate >20 kHz 0.07 mV p-p (strongest at 22 kHz)
+PASS  A8.7 R=2.5 C=220u Cc x0.9 Rc x1.01: gate >20 kHz 0.07 mV p-p (strongest at 22 kHz)
+PASS  A8.7 R=2.5 C=220u Cc x1.1 Rc x0.99: gate >20 kHz 0.03 mV p-p (strongest at 25 kHz)
+PASS  A8.7 R=2.5 C=220u Cc x1.1 Rc x1.01: gate >20 kHz 0.03 mV p-p (strongest at 24 kHz)
+
+RESULT: ALL PASS
