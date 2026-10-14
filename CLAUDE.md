@@ -66,5 +66,5 @@ Simulation (all passing):
 - KiCad gotchas:
   - After `BOARD.Remove`, objects go stale. Run the board-editing phases in separate processes (see `hw/rev-b/tools/route_clean.py`).
   - `GetBoardPolygonOutlines` needs a second argument, `True`.
-- Gate: `verify/kicad_check.py`. Reviewed exceptions live in `verify/baseline/accepted.json`.
+- Gate: `verify/kicad_check.py`. Reviewed exceptions live in `verify/baseline/accepted.json`. On a fresh KiCad install, copy `sym-lib-table` and `fp-lib-table` from `/Applications/KiCad/KiCad.app/Contents/SharedSupport/template` to `~/Library/Preferences/kicad/10.0/` first; otherwise every footprint shows as a new library issue.
 - Fab: `hw/rev-b/tools/make_bom.py` checks JLC stock and values live. `make_cpl.py` derives rotations from JLC's own footprints (EasyEDA API; falls back to lceda.cn when rate-limited). `pin_audit.py` checks every pin against the JLC part.
