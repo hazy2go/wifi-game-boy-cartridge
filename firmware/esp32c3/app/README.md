@@ -39,6 +39,7 @@ idf.py -p /dev/cu.usbmodemXXXX flash monitor      # through Croco's USB-C (CH334
   - Simulated with 1.4 mA and a silent link: S1 passes, and sim/power A1-A7 pass at 1.4 mA. A 25 mA park was rejected (117 resets).
 - **Jobs answer within 8 s** (`JOB_MS`): every wait in a job uses what is left of the budget. TIME does not wait once the clock is set; SNTP has no start-up delay.
 - **On USB the cart rail is not watched** (`gbw_rail_for_pm`): the mux feeds the radio from VBUS, and the cart rail may be 0 V.
+- **"On USB" means the ST pin AND a cart rail below 1 V** (`gbw_usb_trusted`): Croco's D3 leakage can fake ST in a hot cart (DESIGN_CALCS item 4). So **the first calibration needs the cart on USB and not in a Game Boy.**
 - **Boot energy:** fast boot (no app hash check on power-on, quiet bootloader). The reservoir holds only ~6.75 mJ above power-good. A 2.5 ohm console needs the ESP at app_main within ~7.5 mJ (100 ms at 20 mA, S1.11); 300 ms at 25 mA boot-loops there.
 - **OTA rollback on:** an image is marked valid after 5 s of running.
 
@@ -46,7 +47,10 @@ idf.py -p /dev/cu.usbmodemXXXX flash monitor      # through Croco's USB-C (CH334
 CS IO10, SCK IO6, MOSI IO7, MISO IO2 (through U105), ADC_VRES IO0 (ADC1_CH0), ADC_VCC IO1 (ADC1_CH1), USB_PWR_ST IO5, LIM_FAULT_N IO4. The spare IO3/IO20/IO21 get pull-downs.
 
 ## USB console
-`status` · `wifi <ssid> [<pass>]` · `cal vcc|res <volts>` (one-point ADC calibration against a meter, needed per board) · `fullcal` · `ota <https-url>`
+`status` · `wifi <ssid> [<pass>]` · `job <cmd> [payload]` (run a mailbox command locally) · `cal vcc|res <volts>` (one-point ADC calibration against a meter, needed per board) · `fullcal` · `ota <https-url>`
+
+## XIAO ESP32C3 profile (bench tests)
+`idf.py -B build_xiao -D SDKCONFIG=sdkconfig_xiao -D "SDKCONFIG_DEFAULTS=sdkconfig.defaults;sdkconfig.xiao" build`. It uses the same SPI pins (the XIAO has IO2/IO6/IO7/IO10 on D0/D4/D5/D10) and fixed readings for the missing ADC dividers. **Never flash it onto a cart.** See `firmware/xiao/README.md` section 3.
 
 ## Still to measure on hardware
 - RF calibration time (A7, XIAO test), then set `GBW_BOOT_MS` (components/gbwifi) from it and re-run S1 and the audits.

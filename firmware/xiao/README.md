@@ -1,6 +1,6 @@
 # XIAO ESP32C3 bench tests (hold points before ordering)
 
-Two small ESP-IDF apps for the Seeed XIAO ESP32C3. They answer hold points 1 and 2 in `hw/rev-b/fab/ORDER.md`.
+Two small ESP-IDF apps for the Seeed XIAO ESP32C3. They answer hold points 1 and 2 in `hw/rev-b/fab/ORDER.md` (`a7_cal` also prints the boot time). Section 3 adds an optional link test with a Pico 2.
 Both build with ESP-IDF v5.5.1 (`~/esp/esp-idf-v5.5.1`). They have not run on hardware yet.
 
 ```
@@ -46,3 +46,12 @@ does in IDF v5.5.1) with the mode it wants, stores the result in NVS and reboots
    it and as the Mac received it.
 
 802.11b data rates are off, as on the cart. Power save is off so the RSSI samples are steady.
+
+## 3. Link test (optional, before the cart exists): Pico 2 + XIAO
+The radio app runs on the XIAO with its board profile, and the cartridge's SPI master runs on a Raspberry Pi Pico 2 (RP2350). That tests the real link at 8 MHz (SPI mode 0, the 100 us gap) with both real firmwares.
+- XIAO: `cd firmware/esp32c3/app`, then
+  `idf.py -B build_xiao -D SDKCONFIG=sdkconfig_xiao -D "SDKCONFIG_DEFAULTS=sdkconfig.defaults;sdkconfig.xiao" build`, then
+  `idf.py -B build_xiao -p <port> flash monitor`.
+  - The profile feeds fixed readings (full reservoir, on USB), because the XIAO has no ADC dividers.
+  - Its console also takes `job <cmd> [payload]` (for example `job 3 https://example.org/`), which runs a command without the Pico. That is a real WiFi test of GET, TIME, SCAN and CONNECT on its own.
+- Pico 2, wiring and use: `link-tester/README.md` in the firmware fork (hazy2go/rp2350-gameboy-cartridge-firmware).

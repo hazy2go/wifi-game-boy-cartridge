@@ -6,6 +6,7 @@
  *   ota <https-url>        USB only: firmware update. Also USB only because a new PHY library can invalidate the
  *                          stored calibration, and ESP-IDF then falls back to a full one at the next start. */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "app.h"
@@ -36,6 +37,39 @@ static void status(void)
            kr, (unsigned long)radio_tx_drops());
 }
 
+/* job <cmd> [payload]: run a mailbox command locally, as if the RP2350 had sent it (bench tests without a master) */
+static void local_job(int cmd, const char *payload)
+{
+    static uint8_t seq = 200;
+    seq++;
+    xSemaphoreTake(gbw_link_mtx, portMAX_DELAY);
+    gbw_link.job = true;
+    gbw_link.job_taken = false;
+    gbw_link.job_seq = seq;
+    gbw_link.job_cmd = (uint8_t)cmd;
+    strlcpy(gbw_link.job_data, payload ? payload : "", sizeof gbw_link.job_data);
+    gbw_link.job_len = (uint8_t)strlen(gbw_link.job_data);
+    gbw_link.accepted = true;
+    gbw_link.accepted_seq = seq;
+    gbw_link.resp = false;
+    xSemaphoreGive(gbw_link_mtx);
+    cmds_notify();
+    for (int t = 0; t < 130; t++) { /* 13 s, as a ROM would wait */
+        vTaskDelay(pdMS_TO_TICKS(100));
+        xSemaphoreTake(gbw_link_mtx, portMAX_DELAY);
+        bool done = gbw_link.resp && gbw_link.resp_seq == seq;
+        if (done) {
+            printf("status %u, %u bytes:\n%.*s\n", gbw_link.resp_status, gbw_link.resp_len, gbw_link.resp_len,
+                   (const char *)gbw_link.resp_data);
+            gbw_link.resp = false;
+        }
+        xSemaphoreGive(gbw_link_mtx);
+        if (done)
+            return;
+    }
+    printf("no answer within 13 s\n");
+}
+
 static void handle(char *line)
 {
     char *argv[4] = {0};
@@ -60,6 +94,8 @@ static void handle(char *line)
         else
             printf("usage: cal vcc|res <volts measured with a meter>\n");
         status();
+    } else if (!strcmp(argv[0], "job") && argc >= 2) {
+        local_job(atoi(argv[1]), argc >= 3 ? argv[2] : NULL);
     } else if (!strcmp(argv[0], "fullcal")) {
         if (!power_on_usb()) {
             printf("refused: only on USB power\n");
@@ -83,7 +119,8 @@ static void handle(char *line)
             esp_restart();
         }
     } else {
-        printf("commands: status | wifi <ssid> [<pass>] | cal vcc|res <volts> | fullcal | ota <https-url>\n");
+        printf("commands: status | wifi <ssid> [<pass>] | job <cmd 1-7> [payload] | cal vcc|res <volts> | fullcal | "
+               "ota <https-url>\n");
     }
 }
 

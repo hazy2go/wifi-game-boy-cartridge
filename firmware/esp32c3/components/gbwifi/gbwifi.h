@@ -27,6 +27,14 @@
  * station still using them, so admission must not assume OFDM rates. */
 float gbw_airtime_worst_s(size_t ip_len);
 
+/* "Running from USB", trusted: the TPS2116 ST pin says VIN1 (USB) AND the cart rail reads below 1 V (cart not in a
+ * console). ST alone can lie: Croco's D3 (SM5817PL) leaks from +5V into VBUS, and in a hot cart (~70 C, datasheet
+ * Fig. 5 x max/typ ratio: ~0.5-0.6 mA at 4.7 V) that can exceed the 453 uA the PR1 divider tolerates, so the mux
+ * may report USB while the console powers the cart. Everything USB-only (full RF calibration, OTA, no rail watch)
+ * must use this, not the pin. Cost: the first calibration needs the cart on USB and out of the console. */
+#define GBW_USB_RAIL_MAX_V 1.0f
+bool gbw_usb_trusted(bool st_pin_high, float v_rail);
+
 /* What the power manager is given as the cart rail. On USB the mux feeds the radio from VBUS and the cart rail
  * (which may be absent, 0 V) is not loaded by the radio, so the rail watch does not apply. */
 float gbw_rail_for_pm(bool on_usb, float v_rail);
