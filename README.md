@@ -48,7 +48,7 @@ Demo ROM in that simulation: WiFi scan (real networks seen by the host), passwor
 | `firmware/esp32c3/` | Radio firmware (power manager done, app in progress) |
 | `sim/power/`, `sim/system/` | Power-stage and full-system simulations |
 | `verify/` | Pre-order gates |
-| `esp8266/`, `gb/`, `python/`, `pcb/`, `3dprint/` | The original ESP8266 cartridge's code, PCB and shell, kept for reference only |
+| `legacy/` | The original ESP8266 cartridge's code, PCB and shell, kept for reference only |
 
 ## Credits
 
@@ -59,6 +59,5 @@ Demo ROM in that simulation: WiFi scan (real networks seen by the host), passwor
 ## License
 
 - `hw/rev-b/`: CERN-OHL-P v2, inherited from Croco Cartridge (`hw/rev-b/LICENSE-CERN-OHL-P.md`).
-- `esp8266/`, `gb/`, `python/`, `pcb/`: GPL-3 (original project).
-- `3dprint/`: CC-BY-NC-SA (original project, derived from DomesticHacks' cartridge model).
+- `legacy/`: the original project's licenses, GPL-3 for code and PCB, CC-BY-NC-SA for the shell (see `legacy/README.md`).
 - `sim/system/third_party/Peanut-GB`: MIT.
