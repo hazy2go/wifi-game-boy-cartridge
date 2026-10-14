@@ -4301,7 +4301,7 @@
 				)
 			)
 		)
-		(property "Value" "W956A8MBYA5I"
+		(property "Value" "IS66WVH8M8BLL-100B1LI"
 			(at 0 6 0)
 			(layer "F.Fab")
 			(uuid "e0452930-c88e-4d44-879f-134edea097fc")
@@ -4312,7 +4312,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.winbond.com/resource-files/W958D8NBYA%20256Mb%20HyperRAM%20TFBGA24%20SDP%2085C%20datasheet_A01-002_20211020.pdf"
+		(property "Datasheet" "https://www.issi.com/WW/pdf/66-67WVH8M8ALL-BLL.pdf"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -4336,7 +4336,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C5375118"
+		(property "LCSC" "C1349096"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -9614,7 +9614,7 @@
 				)
 			)
 		)
-		(property "Value" "4.3.pF"
+		(property "Value" "4.3pF"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "656f7937-7c87-4e8a-85e1-539c67c23027")
@@ -9651,7 +9651,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C1644"
+		(property "LCSC" "C59526"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -11534,7 +11534,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C15999"
+		(property "LCSC" "C2827693"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -12919,7 +12919,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C1644"
+		(property "LCSC" "C59526"
 			(at 0 0 180)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -21805,7 +21805,7 @@
 				)
 			)
 		)
-		(property "Value" "W25Q16JVSSIQ"
+		(property "Value" "W25Q128JVSIQ"
 			(at 0 3.56 0)
 			(layer "F.Fab")
 			(uuid "893d088e-1a3e-4e5d-9414-06a8cbc00792")
@@ -21842,7 +21842,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C82317"
+		(property "LCSC" "C97521"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
