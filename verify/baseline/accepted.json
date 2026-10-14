@@ -6,7 +6,7 @@
   },
   {
    "fp": "power_pin_not_driven | Symbol #PWR054 Pin 1 [Power input, Line]",
-   "why": "+BATT power symbol of the removed (DNP) coin-cell holder BT1: the net now only holds BT1's own pin; kept so the holder can be restored by flipping its DNP flag (LOGBOOK 09:1x)"
+   "why": "+BATT power symbol of the removed (DNP) coin-cell holder BT1: the net now only holds BT1's own pin; kept so the holder can be restored by flipping its DNP flag (LOGBOOK 09:10)"
   }
  ]
 }

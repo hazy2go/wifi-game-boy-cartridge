@@ -506,7 +506,7 @@ Next: placement on the top side, then routing.
 So option 2 is not "re-place some peripheral parts": it means ripping up and re-routing most of Croco's top-layer wiring (everything except the RP2350/HyperRAM/flash core) to open up a 14 x 13 mm hole plus ~450 mm2 more. Removing the coin-cell holder frees a 14 x 20 mm region once ~26 F.Cu track segments under it are re-routed, which is a contained job.
 Checked for a smaller backup cell: JLC has no stock of the soldered rechargeable cells (MS621FE, ML414H, ML614S) or small SMD supercaps in its parts API today. Decision needed from Hazy; see the message of this time.
 
-## 2026-10-14 09:12 Decision: coin cell out, clock over WiFi, auto-save; schematic + board updated
+## 2026-10-14 09:10 Decision: coin cell out, clock over WiFi, auto-save; schematic + board updated
 
 ### What the battery actually did (checked, and a correction)
 - Netlist: `+BATT` connects only BT1 and U5 pin 3 (MCP79510 VBAT). **The coin cell only keeps the RTC counting while the cart is off.**
