@@ -723,3 +723,7 @@ Result: **ALL PASS** (flow 1-2-3-4-5-6-5-6, chart text, console min 4.784 V, 0 r
 - Gate after the part swaps: ERC/DRC/unconnected/parity PASS.
 
 **Open before paying:** the logbook's A7 requirement (partial RF calibration <= 5 ms @ 50 % TX on a real ESP32-C3) was still open; I had told Hazy a dev board was optional, which contradicted it. Corrected with Hazy: dev board measurement first, then order.
+
+## 2026-10-14 18:35 Back silkscreen: our name and repo
+Back text now reads "WiFi Cartridge / Rev B 10/2026 / RP2350B+ESP32C3" (1.25 mm, was "Croco Cartridge V2.1 04/2025 RP2350B"), the URL is `github.com/hazy2go/wifi-game-boy-cartridge` (was github.com/shilga), and a credit line "based on Croco Cartridge V2.1 by shilga" sits next to the shell post. Open-hardware logo and Croco's crab logo kept. DRC: no silk issues; gate PASS; Gerbers regenerated.
+![back](img/back_silk.png)

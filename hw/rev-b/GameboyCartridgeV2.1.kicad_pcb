@@ -36983,6 +36983,18 @@
 			(justify left bottom)
 		)
 	)
+	(gr_text "based on Croco Cartridge\nV2.1 by shilga"
+		(at 135.3 108.4 0)
+		(layer "B.SilkS")
+		(uuid "0a4e94ee-5fa0-423d-8db6-0faa7cde7ea3")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.15)
+			)
+			(justify left bottom mirror)
+		)
+	)
 	(gr_text "JLCJLCJLCJLC"
 		(at 114.3 112.9 -90)
 		(layer "B.SilkS")
@@ -36995,7 +37007,7 @@
 			(justify left bottom mirror)
 		)
 	)
-	(gr_text "https://www.github.com/shilga"
+	(gr_text "github.com/hazy2go/wifi-game-boy-cartridge"
 		(at 163.5 113.3 0)
 		(layer "B.SilkS")
 		(uuid "2f593f47-15ad-4ef5-98a9-76d9bf0a6163")
@@ -37007,14 +37019,14 @@
 			(justify left bottom mirror)
 		)
 	)
-	(gr_text "Croco Cartridge\nV2.1 04/2025\nRP2350B"
+	(gr_text "WiFi Cartridge\nRev B 10/2026\nRP2350B+ESP32C3"
 		(at 133.2 87 0)
 		(layer "B.SilkS")
 		(uuid "46c47789-adc5-4f60-99e9-fd6063795911")
 		(effects
 			(font
-				(size 1.5 1.5)
-				(thickness 0.3)
+				(size 1.25 1.25)
+				(thickness 0.25)
 				(bold yes)
 			)
 			(justify left bottom mirror)
