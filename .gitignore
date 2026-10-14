@@ -10,3 +10,6 @@ sim/models/tests/*.out
 sim/power/out/inreg_*.cir
 sim/power/out/*.dat
 sim/models/tests/*.cir
+sim/system/out/*.pgm
+sim/system/sysim
+sim/system/rom/*.o

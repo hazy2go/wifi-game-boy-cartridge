@@ -609,3 +609,28 @@ RP2350 pins boxed in by surrounding routing: GB_A3 (pad 23), GB_A12 (40), DATA_B
 
 ## 2026-10-14 14:57 New gate before ordering (Hazy)
 Before any order, after layout step 3: **a full system simulation including a Game Boy ROM that uses the new parts** (the ROM running in an emulated Game Boy, talking to the emulated cartridge: RP2350 bus logic, the SPI link to the ESP32-C3, the ESP firmware, with the power path in the loop). Recorded as a hard gate in front of the JLC order files.
+
+## 2026-10-14 15:20 Gate S1: full-system simulation with a Game Boy ROM (first version, ALL PASS)
+
+Built `sim/system/` (README there): the test ROM `rom/wifitest.asm` (RGBDS 1.0.4, MBC5 + RAM header) runs in Peanut-GB (MIT, vendored); the cartridge, the RP2350 mailbox/SPI bridge, the ESP32-C3 application and the power path are modelled in `sysim.c`, with the **shipped** radio power manager (`power_mgr.c`) compiled in and gating every TX frame. `run_system.py` builds everything and checks the screen (tile map from VRAM), rail, resets and TX accounting.
+
+| console | screen | console min | radio resets | notes |
+|---|---|---|---|---|
+| fresh (0.7 ohm) | all 13 lines correct | 4.784 V | 0 | 141 TX frames, none refused |
+| tired (1.2 ohm) | all correct | 4.641 V | 0 | |
+| weak (2.0 ohm) | all correct | 4.591 V | 0 | reservoir runs at ~3.5 V, 525 ms of TX waiting |
+| weak+ (2.5 ohm) | all correct, takes longer | 4.588 V | 0 | 163 controlled parks, 32 s of TX waiting |
+
+![fresh](img/sim_rom_fresh.png) ![weak+](img/sim_rom_weak_plus.png)
+
+The console never sees less than the regulator's set-point; on weak consoles the WiFi slows down instead of anything browning out, which is the design intent. Font for the ROM: Monaco 9 px, aliased (chosen from 5 renderings by eye).
+
+**Mailbox protocol** fixed in `sim/system/README.md` (RAM bank 15, CMD/SEQ/STATUS/ACK, request/response windows, live rail/reservoir bytes).
+Not yet real: the croco-fw2 mailbox code, ESP-IDF timing (round-trip times are assumptions), PIO-level bus timing (Croco's proven hardware path, the mailbox uses the same DMA as save RAM). This gate is re-run on the final layout before ordering.
+
+## 2026-10-14 15:20 Routing status (WIP)
+- Pass 3 of Freerouting with the slow Croco nets ripped together with the stuck ones: 11 -> 7.
+- Buck-boost resistor block re-arranged (PG and FB pads facing U103, +3V3_RF ends joined on the right, R111 moved out); `tools/add_path.py` adds hand-chosen polylines only if every segment clears all other-net copper (exact KiCad shapes). `tools/manual_link.py` for via + inner-layer links.
+- **Schematic change:** ESP `USB_PWR_ST` moved from IO3 (module pin 6, bottom edge, trapped above the buck-boost block) to IO5 (pin 19, right edge, free, plain input). Firmware pin map to follow.
+- The ADC_VCC divider (R118/R119) moved next to the VCC source (U101/C102); only the high-impedance ADC_VCC line runs to the module, filtered by C115 at the ADC pin. Removes a VCC run through the crowded buck area.
+- Still open: 7 (the buck-boost corner keeps fighting: RF_EN, ESP_EN, VRES, VCC, USB_PWR_ST; plus U101 VBUS and RP2350 GB_A7). Next: a clean full re-route of all new + moved nets in one Freerouting run with the improved placement, then the finisher.
