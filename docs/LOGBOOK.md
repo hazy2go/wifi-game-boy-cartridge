@@ -528,7 +528,7 @@ Checked for a smaller backup cell: JLC has no stock of the soldered rechargeable
 
 Firmware follow-ups logged for later: NTP time-set path ESP32-C3 -> RP2350 (RTC register write), auto-save.
 
-## 2026-10-14 09:28 Module placed; J3/R11 out; smaller reservoir caps; first auto-placement rejected
+## 2026-10-14 09:19 Module placed; J3/R11 out; smaller reservoir caps; first auto-placement rejected
 
 ### WiFi module placed (`docs/design/placement.json`, `hw/rev-b/tools/fit_part.py`, `place.py`)
 - `fit_part.py` scans positions for one footprint: courtyard inside the outline and clear of all courtyards, every pad >= 0.2 mm from other copper (copper on nets marked for rip-up ignored). The MINI-1U fits in the former coin-cell area at every rotation once the coin cell's GND stitching (6 tracks + vias) is removed.

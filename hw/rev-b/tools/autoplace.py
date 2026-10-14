@@ -24,7 +24,7 @@ RIBS = [(60.5, 63.0), (111.6, 113.6)]
 CONNECTOR_Y = 113.6
 WEAK_NETS = {'GND', '+3V3', 'VCC', '+5V', 'VBUS'}
 # nets whose length matters electrically get a higher weight: buck-boost switch nodes and feedback,
-# hub crystal, regulator high-impedance nodes (LOGBOOK 09:2x)
+# hub crystal, regulator high-impedance nodes (LOGBOOK 09:19)
 NET_WEIGHT = {'/Radio/RF_L1': 20, '/Radio/RF_L2': 20, '/Radio/RF_FB': 5, '/Radio/HUB_XI': 20, '/Radio/HUB_XO': 20,
               '/Radio/REG_REF': 5, '/Radio/REG_CCN': 5, '/Radio/REG_K': 5, '/Radio/REG_G': 5, '/Radio/REG_S': 5}
 

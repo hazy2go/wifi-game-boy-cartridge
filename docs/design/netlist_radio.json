@@ -221,7 +221,7 @@
     "1": "VRES",
     "2": "GND"
    },
-   "why": "Reservoir, KEMET T520B polymer tantalum, B case 3.5 x 2.8 x 2.1 mm max, 3x = 990 uF, 13.3 mOhm. Replaces the 7.3 x 4.3 mm 6TPE330MAP to free ~85 mm2 (LOGBOOK 09:20); system audit A1-A7 and regulator audit A8 re-run at -20 % C (0.792 mF) with 13.3 mOhm",
+   "why": "Reservoir, KEMET T520B polymer tantalum, B case 3.5 x 2.8 x 2.1 mm max, 3x = 990 uF, 13.3 mOhm. Replaces the 7.3 x 4.3 mm 6TPE330MAP to free ~85 mm2 (LOGBOOK 09:19); system audit A1-A7 and regulator audit A8 re-run at -20 % C (0.792 mF) with 13.3 mOhm",
    "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_KEMET-T520B337M006ATE040_C696806.pdf"
   },
   {
@@ -234,7 +234,7 @@
     "1": "VRES",
     "2": "GND"
    },
-   "why": "Reservoir, KEMET T520B polymer tantalum, B case 3.5 x 2.8 x 2.1 mm max, 3x = 990 uF, 13.3 mOhm. Replaces the 7.3 x 4.3 mm 6TPE330MAP to free ~85 mm2 (LOGBOOK 09:20); system audit A1-A7 and regulator audit A8 re-run at -20 % C (0.792 mF) with 13.3 mOhm",
+   "why": "Reservoir, KEMET T520B polymer tantalum, B case 3.5 x 2.8 x 2.1 mm max, 3x = 990 uF, 13.3 mOhm. Replaces the 7.3 x 4.3 mm 6TPE330MAP to free ~85 mm2 (LOGBOOK 09:19); system audit A1-A7 and regulator audit A8 re-run at -20 % C (0.792 mF) with 13.3 mOhm",
    "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_KEMET-T520B337M006ATE040_C696806.pdf"
   },
   {
@@ -247,7 +247,7 @@
     "1": "VRES",
     "2": "GND"
    },
-   "why": "Reservoir, KEMET T520B polymer tantalum, B case 3.5 x 2.8 x 2.1 mm max, 3x = 990 uF, 13.3 mOhm. Replaces the 7.3 x 4.3 mm 6TPE330MAP to free ~85 mm2 (LOGBOOK 09:20); system audit A1-A7 and regulator audit A8 re-run at -20 % C (0.792 mF) with 13.3 mOhm",
+   "why": "Reservoir, KEMET T520B polymer tantalum, B case 3.5 x 2.8 x 2.1 mm max, 3x = 990 uF, 13.3 mOhm. Replaces the 7.3 x 4.3 mm 6TPE330MAP to free ~85 mm2 (LOGBOOK 09:19); system audit A1-A7 and regulator audit A8 re-run at -20 % C (0.792 mF) with 13.3 mOhm",
    "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_KEMET-T520B337M006ATE040_C696806.pdf"
   },
   {
