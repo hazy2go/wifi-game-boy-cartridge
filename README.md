@@ -6,7 +6,7 @@
 |---|---|
 | Status (2026-10-14) | Layout complete, all gates pass, JLC order files ready (`hw/rev-b/fab/ORDER.md`). **Not ordered yet:** waiting for one measurement on an ESP32-C3 dev board (RF calibration time). |
 | Board | 6 layers, 0.8 mm, fully assembled by JLCPCB (nothing to hand-solder), fits the standard shell |
-| Radio | ESP32-C3-MINI-1U (u.FL + stick-on antenna), on the RP2350's SPI bus; both flashable over the one USB-C (CH334P hub) |
+| Radio | ESP32-C3-MINI-1U (MHF III plug + stick-on antenna), on the RP2350's SPI bus; both flashable over the one USB-C (CH334P hub) |
 | Power | power mux (prefers USB) -> 150 mA limit -> precision input-voltage regulator (holds the console at >= 4.588 V) -> ~1 mF reservoir -> power-good -> buck-boost. The radio firmware admits every TX frame against the reservoir's energy |
 | Proven so far | KiCad ERC/DRC/parity clean vs Croco's baseline; transistor-level power simulations with vendor models; full-system simulation: a real Game Boy ROM in an emulated Game Boy, through the cartridge and the shipped power-manager code, on fresh to very weak batteries, with the routed copper's resistance included |
 
@@ -15,6 +15,7 @@
 *Demo ROM in the simulation: WiFi scan (real networks seen by the host's radio), password entry, live BTC/USD chart.*
 
 Where to look:
+- `CLAUDE.md`: handoff, current status and the software to-do list (start here)
 - `docs/ARCHITECTURE.md`: block diagram and why each block
 - `docs/LOGBOOK.md`: every decision, check and result, in order
 - `hw/rev-b/`: the KiCad project (based on Croco V2.1) and the layout tools

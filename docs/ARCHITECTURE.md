@@ -17,7 +17,7 @@ Status (2026-10-14): **layout complete, all pre-order gates green, not ordered o
                    └─► TPS2116 power mux (prefers USB) ─► VMUX ─► TPS2553 (150mA cap, 129-174mA)
                         ─► precision input-voltage regulator (TLV431B + back-to-back PMOS, holds VMUX >= 4.58V +-1%)
                         ─► ~1mF reservoir (3x KEMET T520B 330uF, 2.1mm) ─► power-good (on 4.2V / off 2.0V)
-                        ─► TPS63802 buck-boost ─► 3.3V radio rail ─► ESP32-C3-MINI-1U (u.FL, stick-on antenna)
+                        ─► TPS63802 buck-boost ─► 3.3V radio rail ─► ESP32-C3-MINI-1U (MHF III, stick-on antenna)
                                                                                  │
    RP2350 SPI0 (GPIO0 MISO / GPIO2 SCK / GPIO3 MOSI, shared with SD + RTC) ◄────┤ SPI slave
    RP2350 GPIO46 (was debug UART TX) ─── ESP chip select ───────────────────────┘
@@ -35,7 +35,7 @@ Status (2026-10-14): **layout complete, all pre-order gates green, not ordered o
 | ~1 mF reservoir (3x KEMET T520B337M006ATE040, B case, 2.1 mm) | Fits the shell height and the space left on the top side (the 7.3 x 4.3 mm 6TPE330MAP did not, LOGBOOK). 40 mOhm each, 6.3 V (79 % worst case). Carries 2-2.5 ms TX frames; console safety does not depend on its size. |
 | Power-good on 4.2 V / off 2.0 V | The radio is either properly powered or completely off; never browns out (ESP-IDF issue #17881: a C3 brown-out mid-TX can leave the RF stuck on). |
 | TPS63802 buck-boost | Keeps 3.3 V down to ~1.3 V input, so most of the reservoir's charge is usable. |
-| ESP32-C3-MINI-1U | In JLC stock, native USB for flashing, u.FL to a stick-on antenna in the shell's grip (no soldering). TX peak 350 mA is absorbed by the reservoir. |
+| ESP32-C3-MINI-1U | In JLC stock, native USB for flashing, MHF III (W.FL) plug to a stick-on antenna in the shell's grip (no soldering). TX peak 350 mA is absorbed by the reservoir. |
 | Radio firmware owns its power policy | `firmware/esp32c3/components/power_mgr`: per-frame TX admission from reservoir energy, modem/light-sleep, controlled park, cart-rail watch with hysteresis. Co-simulated as shipped C code (`sim/power/cosim.py`, audit A6). Hard rules: full RF calibration only on USB, 11b data rates off, small MSS. |
 
 ## RP2350 pin budget
