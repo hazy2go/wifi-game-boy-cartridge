@@ -505,3 +505,25 @@ Next: placement on the top side, then routing.
 
 So option 2 is not "re-place some peripheral parts": it means ripping up and re-routing most of Croco's top-layer wiring (everything except the RP2350/HyperRAM/flash core) to open up a 14 x 13 mm hole plus ~450 mm2 more. Removing the coin-cell holder frees a 14 x 20 mm region once ~26 F.Cu track segments under it are re-routed, which is a contained job.
 Checked for a smaller backup cell: JLC has no stock of the soldered rechargeable cells (MS621FE, ML414H, ML614S) or small SMD supercaps in its parts API today. Decision needed from Hazy; see the message of this time.
+
+## 2026-10-14 09:12 Decision: coin cell out, clock over WiFi, auto-save; schematic + board updated
+
+### What the battery actually did (checked, and a correction)
+- Netlist: `+BATT` connects only BT1 and U5 pin 3 (MCP79510 VBAT). **The coin cell only keeps the RTC counting while the cart is off.**
+- Croco firmware (`croco-fw2` README + `src/gb_bootloader.rs`): save RAM lives in the HyperRAM while playing and is written to the SD card as `<game>.SAV` **only when the cart button is pressed**; periodic auto-save is "planned, not implemented". The only non-volatile data on the board itself is production data in the RTC's protected EEPROM (no battery needed). **In chat at 09:04 I said saves go to the main flash chip. That was wrong**, corrected at 09:05 after reading the firmware.
+- Hazy suggested FRAM. FRAM holds data without power but cannot keep time, so it does not replace the battery. It would fix the bigger real problem (unsaved progress lost at power-off), which can also be done in firmware.
+
+### Decision (Hazy, 09:07)
+1. Remove the coin-cell holder BT1. Its 14 x 20 mm area is where the WiFi module goes (LOGBOOK 09:02).
+2. Clock: set from the internet at every boot (ESP32-C3, NTP, UTC as Croco recommends). Offline the clock continues from the last saved time (it does not advance while the cart is off).
+3. Auto-save: firmware first (save RAM copied periodically by the RP2350 to SD, or via the ESP32-C3 to its flash/online). FRAM stays an option if that proves insufficient.
+
+### Changes
+- `croco_edits` gets a new kind of edit: `{"ref": "BT1", "action": "dnp"}` marks the part do-not-populate, not on board, not in BOM (kept in the schematic so it can be restored), and `U5.3: +BATT -> GND`. **MCP79510 VBAT must be tied to VSS when no backup supply is used** (Microchip DS20002300D p9, repeated in the battery-backup section p33).
+- `apply_croco_edits.py` now also follows a pin's wire to a **power symbol** (power:+BATT) and swaps it (power:GND), and handles `dnp`. Netlist before/after: **exactly one pin changes net (U5.3 +BATT -> GND)**.
+- `update_pcb.py`: footprints the schematic marks "exclude from board" are removed (BT1); `--rip` now also removes zones of the ripped net (the orphaned +BATT plane on In2.Cu). Ran with `--rip +BATT`.
+- `netlist_check.py` understands `dnp` edits: PASS, selftest PASS.
+- ERC: one reviewed exception added to `accepted.json` (the +BATT power symbol at the DNP holder now drives nothing).
+- **Parity PASS.** New DRC items besides the staged parts: the MSOP-10 U5 pad-to-pad clearances that already existed in Croco's baseline now carry the new net name (GND instead of +BATT), so they show as new + resolved pairs; U5.3 needs a short GND connection in layout.
+
+Firmware follow-ups logged for later: NTP time-set path ESP32-C3 -> RP2350 (RTC register write), auto-save.

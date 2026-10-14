@@ -136,6 +136,10 @@ def check(data, radio_syms, croco_refs, croco_nets):
     # Croco netlist with the requested edits applied (pin moved from one net to another)
     cnets = {k: list(v) for k, v in croco_nets.items()}
     for ed in data.get('croco_edits', []):
+        if ed.get('action') == 'dnp':
+            if ed['ref'] not in croco_refs:
+                E('CROCO_EDIT', f"{ed['ref']}: DNP edit for a reference Croco does not have")
+            continue
         src = cnets.get(ed['from'], [])
         hit = [x for x in src if x[0] == ed['ref'] and x[1] == str(ed['pin'])]
         if not hit and any(x[0] == ed['ref'] and x[1] == str(ed['pin']) for x in cnets.get(ed['to'], [])):

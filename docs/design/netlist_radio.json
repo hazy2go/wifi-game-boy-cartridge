@@ -30,6 +30,18 @@
    "from": "USB_D_prot-",
    "to": "USB_RP_D-",
    "why": "same for D-"
+  },
+  {
+   "ref": "BT1",
+   "action": "dnp",
+   "why": "Coin-cell holder removed (Hazy 2026-10-14 09:07): its 14 x 20 mm area is the only place the WiFi module fits (LOGBOOK 09:02). The cell only powered the RTC (U5 VBAT); the clock is set over WiFi at boot instead. Kept in the schematic as DNP so it can be restored."
+  },
+  {
+   "ref": "U5",
+   "pin": "3",
+   "from": "+BATT",
+   "to": "GND",
+   "why": "MCP79510 VBAT without a backup supply must be tied to VSS (Microchip DS20002300D p9 and section 5.x)"
   }
  ],
  "external_sources": {

@@ -11,7 +11,7 @@ What it does, from the schematic netlist exported by kicad-cli (the only source 
     board, outside the outline, for placement;
   - every pad whose net differs from the schematic gets the schematic's net (this is how the Croco R9/R10
     re-netting reaches the copper); the tool prints each change. A pad whose old net has copper on it is only
-    re-netted if that old net's tracks are ripped up explicitly with --rip NET (repeatable), so existing routing
+    re-netted if that old net's copper (tracks, vias, zones) is ripped up explicitly with --rip NET (repeatable), so existing routing
     never silently changes meaning or shorts two nets.
 Existing footprint positions, tracks and zones are never moved. Verify with verify/kicad_check.py (parity).
 """
@@ -40,7 +40,9 @@ def main(pdir, rip=()):
         sp = c.find('sheetpath')
         fields = {f.get('name'): (f.text or '') for f in c.iter('field')}
         tstamps = [t.text for t in c.iter('tstamps')] or [c.find('tstamp').text if c.find('tstamp') is not None else '']
-        comps[c.get('ref')] = dict(value=c.findtext('value', ''), footprint=c.findtext('footprint', ''),
+        props = {pp.get('name') for pp in c.iter('property')}
+        comps[c.get('ref')] = dict(off_board='exclude_from_board' in props,
+                                   value=c.findtext('value', ''), footprint=c.findtext('footprint', ''),
                                    sheet_tstamps=sp.get('tstamps'), sym=tstamps[0], fields=fields)
     pin_net = {}
     for n in root.iter('net'):
@@ -69,7 +71,7 @@ def main(pdir, rip=()):
         c = comps[ref]
         if ref.startswith('#') or not c['footprint']:
             continue
-        if ref in on_board:
+        if ref in on_board or c['off_board']:
             continue
         lib, name = c['footprint'].split(':', 1)
         libpath = os.path.join(pdir, lib + '.pretty') if os.path.isdir(os.path.join(pdir, lib + '.pretty')) \
@@ -91,14 +93,21 @@ def main(pdir, rip=()):
         on_board[ref] = fp
         added += 1
 
-    for t in list(board.GetTracks()):
-        if t.GetNetname() in rip:
-            board.Remove(t)
+    all_tracks = [(t, t.GetNetname()) for t in board.GetTracks()]
+    tracks_on = {n for _, n in all_tracks} - rip   # names first: deleted SWIG objects cannot be queried
+    for t, n in all_tracks:
+        if n in rip:
+            board.Delete(t)
+    zones = [(z, z.GetNetname()) for z in board.Zones()]
+    for z, n in zones:
+        if n in rip:
+            board.Delete(z)
     if rip:
-        print(f'ripped up tracks/vias of {sorted(rip)}')
-    tracks_on = {t.GetNetname() for t in board.GetTracks()}
+        print(f'ripped up tracks/vias/zones of {sorted(rip)}')
     changed, blocked = 0, []
     for ref, fp in on_board.items():
+        if comps.get(ref, {}).get('off_board'):
+            continue
         for pad in fp.Pads():
             want = pin_net.get((ref, pad.GetNumber()))
             have = pad.GetNetname()
@@ -112,6 +121,13 @@ def main(pdir, rip=()):
             changed += 1
     if blocked:
         sys.exit('routed pads need --rip of their old net first: ' + ', '.join(blocked))
+    # parts the schematic marks "not on board" (e.g. the removed coin-cell holder BT1) come off the board last
+    # (removing a footprint before iterating tracks upsets the SWIG wrappers); their nets' copper is ripped
+    # explicitly like any other net
+    for ref, c in comps.items():
+        if c['off_board'] and ref in on_board:
+            board.Delete(on_board.pop(ref))
+            print(f'{ref}: removed from the board (schematic: exclude_from_board)')
     board.Save(pcb_path)
     print(f'added {added} footprints (staged at x>{STAGE_X} mm), re-netted {changed} pads')
 

@@ -15596,9 +15596,9 @@
 		(at 312.42 242.57 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
+		(in_bom no)
+		(on_board no)
+		(dnp yes)
 		(fields_autoplaced yes)
 		(uuid "4a0b7480-5c5f-4602-913e-aca3c5feb93e")
 		(property "Reference" "BT1"
@@ -19796,7 +19796,7 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+BATT")
+		(lib_id "power:GND")
 		(at 326.39 177.8 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -19814,7 +19814,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "+BATT"
+		(property "Value" "GND"
 			(at 326.39 172.72 0)
 			(effects
 				(font
@@ -19840,7 +19840,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \"+BATT\""
+		(property "Description" "Power symbol creates a global label with name \"GND\""
 			(at 326.39 177.8 0)
 			(effects
 				(font

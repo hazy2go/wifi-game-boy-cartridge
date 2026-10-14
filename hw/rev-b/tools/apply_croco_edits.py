@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Apply the 'croco_edits' of docs/design/netlist_radio.json to Croco's schematic sheets.
 
-An edit moves one pin of a Croco part from net 'from' to net 'to'. The tool finds the pin's position,
-follows the wire from it to the global label that names its net, checks that this label is 'from' and that
+An edit either moves one pin of a Croco part from net 'from' to net 'to', or ({'action': 'dnp'}) marks a part
+do-not-populate and off the board. The tool finds the pin's position,
+follows the wire from it to the global label or power symbol that names its net, checks that this label is 'from' and that
 nothing else hangs on that wire, and renames the label to 'to'. Anything else (no wire, a junction, a label
 with another name) is a hard error, so an edit can never silently land on the wrong wire. Idempotent: an
 edit whose label already reads 'to' is reported and skipped.
@@ -64,7 +65,25 @@ def same(p, q):
     return abs(p[0] - q[0]) < EPS and abs(p[1] - q[1]) < EPS
 
 
+def dnp(pdir, ref):
+    """Mark a Croco part do-not-populate and off the board (kept in the schematic so it can be restored)."""
+    for path in glob.glob(os.path.join(pdir, '*.kicad_sch')):
+        text = open(path).read()
+        for s, e, b in blocks(text, 'symbol'):
+            if re.match(r'\(symbol\s*\(lib_id', b) and re.search(r'\(property "Reference" "' + re.escape(ref) + '"', b):
+                nb = b.replace('(in_bom yes)', '(in_bom no)', 1).replace('(on_board yes)', '(on_board no)', 1).replace('(dnp no)', '(dnp yes)', 1)
+                if nb == b:
+                    print(f'{ref}: already DNP / off board, skipped')
+                    return
+                open(path, 'w').write(text[:s] + nb + text[e:])
+                print(f'{ref} in {os.path.basename(path)}: DNP, not on board, not in BOM')
+                return
+    sys.exit(f'{ref} not found')
+
+
 def apply(pdir, edit):
+    if edit.get('action') == 'dnp':
+        return dnp(pdir, edit['ref'])
     ref, pin, src, dst = edit['ref'], edit['pin'], edit['from'], edit['to']
     for path in glob.glob(os.path.join(pdir, '*.kicad_sch')):
         text = open(path).read()
@@ -87,6 +106,10 @@ def apply(pdir, edit):
                 at = re.search(r'\(at ([-\d.]+) ([-\d.]+)', b)
                 if same(p, tuple(map(float, at.groups()))):
                     hits.append((s, e, b))
+            for s, e, b in blocks(text, 'symbol'):      # power symbols (power:+BATT, power:GND ...) name nets too
+                m = re.match(r'\(symbol\s*\(lib_id "power:([^"]+)"\)\s*\(at ([-\d.]+) ([-\d.]+)', b)
+                if m and same(p, (float(m.group(2)), float(m.group(3)))):
+                    hits.append((s, e, b))
             for pts in wires:
                 if same(pts[0], p):
                     frontier.append(pts[1])
@@ -94,14 +117,25 @@ def apply(pdir, edit):
                     frontier.append(pts[0])
         if any(re.search(r'\(junction\s*\(at ' + f'{x:g} {y:g}', text) for x, y in seen):
             sys.exit(f'{ref}.{pin}: wire from the pin has a junction, refusing to rename a shared label')
-        names = {re.match(r'\(global_label "([^"]+)"', b).group(1) for _, _, b in hits}
+        def net_name(b):
+            m = re.match(r'\(global_label "([^"]+)"', b) or re.match(r'\(symbol\s*\(lib_id "power:([^"]+)"', b)
+            return m.group(1)
+        names = {net_name(b) for _, _, b in hits}
         if names == {dst}:
             print(f'{ref}.{pin}: already on {dst}, skipped')
             return
         if names != {src} or len(hits) != 1:
             sys.exit(f'{ref}.{pin} in {os.path.basename(path)}: expected exactly one label {src!r} on the pin wire, found {sorted(names)} x{len(hits)}')
         s, e, b = hits[0]
-        text = text[:s] + b.replace(f'(global_label "{src}"', f'(global_label "{dst}"', 1) + text[e:]
+        if b.startswith('(global_label'):
+            nb = b.replace(f'(global_label "{src}"', f'(global_label "{dst}"', 1)
+        else:
+            if f'(symbol "power:{dst}"' not in text:
+                sys.exit(f'power:{dst} is not in the lib_symbols of {os.path.basename(path)}')
+            nb = (b.replace(f'(lib_id "power:{src}")', f'(lib_id "power:{dst}")', 1)
+                  .replace(f'(property "Value" "{src}"', f'(property "Value" "{dst}"', 1)
+                  .replace(f'with name \\"{src}\\"', f'with name \\"{dst}\\"'))
+        text = text[:s] + nb + text[e:]
         open(path, 'w').write(text)
         print(f'{ref}.{pin} in {os.path.basename(path)}: label {src} -> {dst} (wire from pin at {pos})')
         return

@@ -3,6 +3,10 @@
   {
    "fp": "pin_to_pin | Symbol U105 Pin 4 [Tri-state, Line] || Symbol U5 Pin 7 [SO, Output, Line]",
    "why": "SPI_MISO is a shared bus by design: U105 (74LVC1G125) only drives it while the ESP chip select is low, Croco's U5 only while its own CS is low (netlist U105 note)"
+  },
+  {
+   "fp": "power_pin_not_driven | Symbol #PWR054 Pin 1 [Power input, Line]",
+   "why": "+BATT power symbol of the removed (DNP) coin-cell holder BT1: the net now only holds BT1's own pin; kept so the holder can be restored by flipping its DNP flag (LOGBOOK 09:1x)"
   }
  ]
 }
