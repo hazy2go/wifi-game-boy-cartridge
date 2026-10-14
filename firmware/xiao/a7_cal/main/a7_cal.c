@@ -25,6 +25,7 @@
 
 #include "driver/gpio.h"
 #include "esp_event.h"
+#include "esp_log.h"
 #include "esp_mac.h"
 #include "esp_netif.h"
 #include "esp_phy_init.h"
@@ -212,6 +213,9 @@ static bool boot_held_2s(void)
 
 void app_main(void)
 {
+    /* boot energy (LOGBOOK step 4 audit): time from reset to app_main. esp_log_timestamp counts from the bootloader's
+     * start, so the ROM loader before it is not included (a few ms). Measure the current with a meter on 3V3. */
+    printf("A7 boot: app_main reached %" PRIu32 " ms after reset\n", esp_log_timestamp());
     gpio_reset_pin(PIN_MARK);
     gpio_set_direction(PIN_MARK, GPIO_MODE_OUTPUT);
     gpio_set_level(PIN_MARK, 0);

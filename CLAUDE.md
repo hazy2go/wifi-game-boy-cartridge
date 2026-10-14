@@ -18,7 +18,8 @@ Hardware (`hw/rev-b/`, KiCad 10, Croco Cartridge V2.1 + ESP32-C3-MINI-1U + power
 - Before ordering, test on the Seeed XIAO ESP32C3 dev board (Hazy is buying it):
   1. **A7, the calibration-energy budget.** Partial RF calibration must stay within 5 ms at 50 % TX (about 7 mJ above the input supply), measured on the dev board. This one is required.
   2. **Antenna RSSI** in three positions: free, about 2 mm over copper inside the shell, and with the cart inserted in a Game Boy.
-  3. Console 5 V: now optional. The DMG power-board schematics put it at 4.9 to 5.5 V, typically 5.1 to 5.2 V (LOGBOOK, last entry).
+  3. **Boot energy:** time to app_main (a7_cal prints it) and the boot current. It must fit about 7.5 mJ (S1.11).
+  4. Console 5 V: now optional. The DMG power-board schematics put it at 4.9 to 5.5 V, typically 5.1 to 5.2 V (LOGBOOK, last entry).
 - Antenna for the cart: Ebyte TX2400-FPC3-2509 with an IPEX3 / MHF III plug. **Not U.FL.**
 
 Simulation (all passing):
@@ -47,8 +48,9 @@ Simulation (all passing):
    - Link the existing `firmware/esp32c3/components/power_mgr`: plain C, already co-simulated. **Ship that code unchanged, or re-run the `sim/power` audits after any change.**
    - Hard rules from the audits:
      - Full RF calibration only on USB power; store the result in NVS. The cart slot must never see a full calibration.
-     - 802.11b rates off. Use a small MSS (about 300 bytes) or count the guaranteed input current in admission. Note: `CONFIG_LWIP_TCP_MSS` only goes down to 536, so 300 bytes needs another way (LOGBOOK 2026-10-14 20:13).
-     - Every TX frame goes through `pm_admit_tx`.
+     - 802.11b rates off. MSS 300 by clamping the MSS option of incoming SYN-ACKs (`gbw_clamp_mss`). Not by netif MTU: lwIP's DHCP refuses an MTU below 576 (correction in the LOGBOOK audit entry).
+     - The pm's BOOT state lasts `GBW_BOOT_MS` (the A7 calibration time), never the 100 ms default.
+     - Every TX frame goes through `pm_admit_tx`, through the TX queue in `radio.c`. Never block lwIP's thread.
      - Cart-rail watch at 4.45 / 4.48 V.
 5. **Game Boy side.** Test ROMs in RGBDS: `sim/system/rom/wifitest.asm` and `btcdemo.asm`. **GBDK-2020 library done:** `gb/gbdk` (README there, `make` with GBDK 4.5.0 at `~/opt/gbdk`), with its demo in gate S1.9. More demos to come. The opt-in is `WIFICART` anywhere in bank 0.
 6. `legacy/` holds the original ESP8266 cartridge's code, PCB and shell. It is kept for reference only; don't build on it.

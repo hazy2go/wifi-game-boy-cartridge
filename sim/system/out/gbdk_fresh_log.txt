@@ -1,21 +1,23 @@
    0.000  cart: WiFi ROM (WIFICART in bank 0, MBC5, 128 KB RAM): mailbox on bank 15
    0.000  ROM: state 0
    0.028  ESP: boot, reservoir 4.24 V
-   0.028  ESP: power state 0 -> 1 (res 4.24 V, rail 4.783 V)
-   0.033  ESP: power state 1 -> 2 (res 4.00 V, rail 4.783 V)
    0.253  ROM: request seq 1 cmd 1 ""
+   0.328  ESP: power state 0 -> 1 (res 4.87 V, rail 4.874 V)
+   0.333  ESP: connecting (stored credentials)
+   0.333  ESP: power state 1 -> 2 (res 4.68 V, rail 4.783 V)
    0.334  ESP: job seq 1 cmd 1 ""
-   0.417  ESP: response seq 1 status 2 "PONG"
-   0.418  ESP->ROM: seq 1 status 2 "PONG"
-   0.420  ROM: request seq 2 cmd 2 ""
-   0.421  ESP: job seq 2 cmd 2 ""
-   0.535  ESP: response seq 2 status 2 "2026-10-14 15:00:00"
-   0.536  ESP->ROM: seq 2 status 2 "2026-10-14 15:00:00"
-   0.537  ROM: request seq 3 cmd 3 "http://example.com/hello"
-   0.538  ESP: job seq 3 cmd 3 "http://example.com/hello"
-   0.637  ESP: response seq 3 status 2 "Hello from WiFi!"
-   0.638  ESP->ROM: seq 3 status 2 "Hello from WiFi!"
-   0.654  ROM: request seq 4 cmd 4 ""
-   0.655  ESP: job seq 4 cmd 4 ""
-   0.655  ESP: response seq 4 status 2 "RAIL 4.84V RES 4.82V"
-   0.656  ESP->ROM: seq 4 status 2 "RAIL 4.84V RES 4.82V"
+   0.334  ESP: response seq 1 status 2 "PONG"
+   0.335  ESP->ROM: seq 1 status 2 "PONG"
+   0.336  ROM: request seq 2 cmd 2 ""
+   0.337  ESP: job seq 2 cmd 2 ""
+   0.445  ESP: connected
+   0.446  ESP: response seq 2 status 2 "2026-10-14 15:00:00"
+   0.447  ESP->ROM: seq 2 status 2 "2026-10-14 15:00:00"
+   0.454  ROM: request seq 3 cmd 3 "http://example.com/hello"
+   0.455  ESP: job seq 3 cmd 3 "http://example.com/hello"
+   0.554  ESP: response seq 3 status 2 "Hello from WiFi!"
+   0.555  ESP->ROM: seq 3 status 2 "Hello from WiFi!"
+   0.571  ROM: request seq 4 cmd 4 ""
+   0.572  ESP: job seq 4 cmd 4 ""
+   0.572  ESP: response seq 4 status 2 "RAIL 4.84V RES 4.82V"
+   0.573  ESP->ROM: seq 4 status 2 "RAIL 4.84V RES 4.82V"

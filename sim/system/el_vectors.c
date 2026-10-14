@@ -8,7 +8,9 @@
  *   M <ms> <hex>                 mailbox bytes 0x00-0x0F after the tick (written when they change)
  *   P <ms> <hex>                 response area from 0x100 up to and including the 0 terminator (when ACK changes)
  * Scenario: ESP still booting, empty payload, corrupted response body, max-size request and response,
- * corrupted request, ESP restart mid-job, no answer (RADIO TIMEOUT), ESP gone (NO RADIO POWER), SEQ wrap.
+ * corrupted request, ESP restart mid-job, no answer (RADIO TIMEOUT), ESP gone (NO RADIO POWER), SEQ wrap, and an
+ * RP2350 restart while the ESP still holds an unacked answer (the new session must not get it).
+ * After the scenario the transcript ends with a second master session ("S <ms> <session>" line).
  * Build + run: see sim/system/README.md.
  */
 #include <stdio.h>
@@ -100,7 +102,7 @@ static void xfer(uint32_t ms, int corrupt_miso)
 int main(int argc, char **argv)
 {
     out = fopen(argc > 1 ? argv[1] : "out/esp_link_vectors.txt", "w");
-    el_master_init(&m, mb, 0);
+    el_master_init(&m, mb, 0, 0xA7);
     el_slave_init(&s);
     el_slave_build_tx(&s, stx);
     uint8_t mb_prev[MB_REQ] = {0}, ack_prev = 0;
@@ -109,7 +111,7 @@ int main(int argc, char **argv)
     big[EL_MAX_REQ] = 0;
     int bad_miso_done = 0;
 
-    for (uint32_t ms = 0; ms <= 18300; ms++) {
+    for (uint32_t ms = 0; ms <= 18400; ms++) {
         /* ---- script */
         if (ms == 20) live = 1;                                         /* ESP booted */
         if (ms == 5) rom_request(ms, 1, "", 1);
@@ -124,6 +126,14 @@ int main(int argc, char **argv)
         if (ms == 13001) rom_request(ms, 1, "", 7);
         if (ms == 18100) { el_slave_init(&s); live = 1; }
         if (ms == 18110) rom_request(ms, 1, "", 0);                      /* SEQ wraps to 0 */
+        if (ms == 18200) rom_request(ms, 4, "x", 1);                     /* answered at 18203, then: */
+        if (ms == 18204) {                                                 /* RP2350 restarts before its ack poll */
+            flush_repeat(); last_x[0] = 0;
+            el_master_init(&m, mb, ms, 0x3C);
+            fprintf(out, "S %u 3c\n", ms);
+            memset(mb_prev, 0, sizeof mb_prev); ack_prev = 0;
+        }
+        if (ms == 18210) rom_request(ms, 3, "http://example.com/new", 1);   /* same seq 1: must not get the old answer */
 
         /* ---- fake ESP application (runs between transactions, like the ESP's 1 ms task) */
         if (live) {
@@ -134,7 +144,7 @@ int main(int argc, char **argv)
                 app_seq = seq;
                 app_at = (int)ms + (cmd == 5 ? 7 : 3);
                 if (cmd == 1) snprintf(app_resp, sizeof app_resp, "PONG");
-                else if (cmd == 3) snprintf(app_resp, sizeof app_resp, "Hello from WiFi!");
+                else if (cmd == 3) snprintf(app_resp, sizeof app_resp, strstr(pl, "/new") ? "NEW SESSION" : "Hello from WiFi!");
                 else if (cmd == 4) snprintf(app_resp, sizeof app_resp, "RAIL 4.62V RES 3.30V");
                 else { memset(app_resp, 'z', EL_MAX_RESP); app_resp[EL_MAX_RESP] = 0; }
             }

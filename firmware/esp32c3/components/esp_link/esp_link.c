@@ -87,6 +87,13 @@ void el_slave_on_rx(el_slave_t *s, const uint8_t *rx, size_t n)
         s->rx_bad++;
         return;
     }
+    if (rx[7] != s->session) { /* first contact, or the master restarted: nothing of the old session survives */
+        uint8_t live = s->flags_live, pm = s->pm_state, rail = s->rail, res = s->res;
+        uint32_t ok = s->rx_ok, bad = s->rx_bad;
+        el_slave_init(s);
+        s->flags_live = live, s->pm_state = pm, s->rail = rail, s->res = res, s->rx_ok = ok, s->rx_bad = bad;
+        s->session = rx[7];
+    }
     if ((rx[2] & 1) && s->resp && rx[3] == s->resp_seq)
         s->resp = false; /* the master has stored it */
     if (rx[1] == EL_REQUEST) {
@@ -137,16 +144,18 @@ void el_slave_respond(el_slave_t *s, uint8_t seq, uint8_t status, const uint8_t 
 }
 
 /* ---------------------------------------------------------------- master (reference) */
-void el_master_init(el_master_t *m, uint8_t *mb, uint32_t now_ms)
+void el_master_init(el_master_t *m, uint8_t *mb, uint32_t now_ms, uint8_t session)
 {
     memset(m, 0, sizeof *m);
-    memset(mb, 0, MB_REQ);
+    memset(mb, 0, EL_MB_CLEAR);
+    m->session = session ? session : 1;
     m->t_pending_ms = m->t_valid_ms = m->t_accept_ms = now_ms;
     m->t_req_ms = now_ms;
 }
 
 static void finish(el_master_t *m, uint8_t *mb, uint8_t status, const uint8_t *data, size_t len)
 {
+    memset(mb + MB_REQ, 0, MB_RESP - MB_REQ); /* the request may hold a WiFi password: keep it out of the .sav */
     memcpy(mb + MB_RESP, data, len);
     mb[MB_RESP + len] = 0;
     mb[MB_LENL] = (uint8_t)len;
@@ -169,6 +178,7 @@ static void master_hdr(const el_master_t *m, uint8_t *tx, uint8_t type)
     tx[1] = type;
     tx[2] = m->ack_valid ? 1 : 0;
     tx[3] = m->ack_valid ? m->ack : 0;
+    tx[7] = m->session;
 }
 
 size_t el_master_next(el_master_t *m, uint32_t now_ms, uint8_t *mb, uint8_t *tx)

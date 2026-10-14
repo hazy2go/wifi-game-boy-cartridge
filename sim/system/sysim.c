@@ -71,7 +71,21 @@ static double RSRC;                      /* console source resistance: 0.7 fresh
 #ifndef SPI_BER
 #define SPI_BER 0.0                      /* bit error rate on MOSI and MISO (-DSPI_BER=1e-3 for the robustness check) */
 #endif
-#define ESP_BOOT_MS 300                  /* power-good -> SPI slave queued (ESP-IDF boot to app_main; assumed, not measured) */
+#ifndef ESP_BOOT_MS
+#define ESP_BOOT_MS 300                  /* power-good -> app_main: SPI slave queued, power manager starts (assumed, not measured) */
+#endif
+#ifndef BOOT_CPU_A
+#define BOOT_CPU_A 0.025                 /* ESP current while booting (CPU, radio off) */
+#endif
+#define TX_MAX_AGE 2.0                   /* app radio.c: a frame waits in the TX queue until admitted, dropped when 2 s old */
+#define TCP_RTO 1.5                      /* a dropped frame is sent again after the retransmission timeout (sdkconfig) */
+#define NET_WAIT 1.0                     /* app cmds.c: a job waits this long for RUN */
+#ifndef ADC_RES_GAIN
+#define ADC_RES_GAIN 1.0                 /* reservoir ADC reading / true value (-DADC_RES_GAIN=1.025: reads 2.5 % high) */
+#endif
+#ifndef ADC_RAIL_GAIN
+#define ADC_RAIL_GAIN 1.0
+#endif
 #define MAILBOX_BANK 15
 
 /* ------------------------------------------------------------------ cartridge memory */
@@ -145,7 +159,7 @@ static int esp_up;                       /* booted: power-good asserted, pm in B
 static int wifi_assoc;                   /* associated to the AP */
 static double tx_until;                  /* end of the TX frame on air (s) */
 static double cal_until;
-typedef struct { double tx_s; double wait_s; } step_t;
+typedef struct { double tx_s; double wait_s; int mgmt; } step_t;   /* mgmt: sent by the WiFi library, not admitted */
 static step_t steps[64];
 static int nsteps, cur_step;
 static double step_wait_until, op_deadline;
@@ -153,6 +167,12 @@ static int op_active, op_cmd, op_failed;
 static char op_req[240], op_resp[256];
 static int op_seq;
 static int tx_hold;                      /* app: a frame waits for admission -> radio in modem-sleep so the reservoir can rise */
+static double hold_since;                /* when the current frame started waiting */
+static long tx_drops, tx_mgmt;
+static int wifi_started;                 /* esp_wifi_start done (pm left BOOT once) */
+static int assoc_active, assoc_step;     /* app: autoconnect from stored credentials, in RUN only */
+static double assoc_until;
+static long assoc_count;
 static double esp_app_at;                /* SPI slave live from this time (after ESP_BOOT_MS) */
 static el_slave_t esl;
 static uint8_t esp_tx[EL_MAX_XFER];      /* the buffer the slave has queued for the next transaction */
@@ -163,6 +183,8 @@ static double radio_current(void)
 {
     if (!esp_up)
         return 0;
+    if (t_now < esp_app_at)                   /* booting: CPU only */
+        return BOOT_CPU_A;
     if (t_now < cal_until)                    /* calibration: 50 % TX duty */
         return fmod(t_now * 1000, 1.0) < 0.5 ? TX_A : RX_A;
     switch (pm_state(&pm)) {
@@ -177,11 +199,8 @@ static double radio_current(void)
 static void plan_op(int cmd)
 {
     nsteps = 0; cur_step = 0;
-#define STEP(tx, w) (steps[nsteps++] = (step_t){ (tx), (w) })
-    if (!wifi_assoc) {                        /* association: probe/auth/assoc/4-way handshake/DHCP */
-        STEP(0.3e-3, 2e-3); STEP(0.3e-3, 3e-3); STEP(0.3e-3, 5e-3); STEP(0.4e-3, 5e-3); STEP(0.4e-3, 10e-3);
-        STEP(0.5e-3, 50e-3); STEP(0.5e-3, 30e-3);
-    }
+#define STEP(tx, w) (steps[nsteps++] = (step_t){ (tx), (w), 0 })
+#define MGMT(tx, w) (steps[nsteps++] = (step_t){ (tx), (w), 1 })
     switch (cmd) {
     case 1: break;                                                     /* PING: answered locally */
     case 2: STEP(0.3e-3, 25e-3); break;                                /* NTP request, reply after RTT */
@@ -189,11 +208,11 @@ static void plan_op(int cmd)
             STEP(0.3e-3, 30e-3); STEP(0.5e-3, 0); STEP(0.3e-3, 40e-3); /* SYN, ACK + GET, response */
             STEP(0.3e-3, 2e-3); STEP(0.3e-3, 0); break;                /* ACK, FIN */
     case 4: break;                                                     /* POWER: local ADC */
-    case 5: for (int ch = 0; ch < 13; ch++) STEP(0.3e-3, 100e-3); break;  /* active scan: probe + dwell per channel */
-    case 6: if (wifi_assoc) {                                          /* (re)connect: always a full join */
-                STEP(0.3e-3, 2e-3); STEP(0.3e-3, 3e-3); STEP(0.3e-3, 5e-3); STEP(0.4e-3, 5e-3); STEP(0.4e-3, 10e-3);
-                STEP(0.5e-3, 50e-3); STEP(0.5e-3, 30e-3);
-            }
+    case 5: for (int ch = 0; ch < 13; ch++) STEP(0, 120e-3); break;    /* app: passive scan, 120 ms per channel, no TX */
+    case 6: wifi_assoc = 0;                                            /* app: disconnect, then a full join on the known */
+            MGMT(0.3e-3, 2e-3); MGMT(0.3e-3, 3e-3); MGMT(0.3e-3, 5e-3); /* channel: probe, auth, assoc, 4-way handshake */
+            MGMT(0.4e-3, 5e-3); MGMT(0.4e-3, 10e-3);                   /* (EAPOL), all sent by the library: not admitted */
+            STEP(0.5e-3, 50e-3); STEP(0.5e-3, 30e-3);                  /* DHCP discover/request: lwIP data, admitted */
             break;
     case 7: STEP(0.3e-3, 20e-3);                                       /* DNS api.binance.com */
             STEP(0.3e-3, 30e-3); STEP(0.5e-3, 40e-3);                  /* SYN; TLS ClientHello -> ServerHello+cert */
@@ -269,10 +288,31 @@ static void esp_finish(void)
     }
     default: snprintf(r, sizeof op_resp, "ERR");
     }
-    wifi_assoc = wifi_assoc || (!op_failed && (op_cmd == 3 || op_cmd == 2 || op_cmd == 6 || op_cmd == 7));
+    if (!op_failed && op_cmd == 6)
+        wifi_assoc = 1;                       /* CONNECT joined; otherwise only the autoconnect associates */
     op_active = 0;
     el_slave_respond(&esl, (uint8_t)op_seq, op_failed ? 3 : 2, (const uint8_t *)r, strlen(r));
     fprintf(slog, "%8.3f  ESP: response seq %d status %d \"%s\"\n", t_now, op_seq, op_failed ? 3 : 2, r);
+}
+
+/* app radio.c tx_task: 1 = on air now; 0 = still queued (radio holds in modem-sleep, also in PARK); -1 = dropped
+ * after TX_MAX_AGE in the queue, the stack sends it again later (TCP RTO / DHCP retry) */
+static int try_admit(double tx_s)
+{
+    double ip_len = fmin(GBW_MTU, fmax(0.0, (tx_s - 20e-6) * 6e6 / 8 - 36));   /* IP length from the OFDM airtime */
+    if (pm_state(&pm) == PM_RUN && pm_admit_tx(&pm, gbw_airtime_worst_s((size_t)ip_len), GBW_TX_W)) {
+        tx_hold = 0;
+        tx_frames++;
+        return 1;
+    }
+    tx_refused_ms++;
+    if (!tx_hold) { tx_hold = 1; hold_since = t_now; }
+    if (t_now - hold_since >= TX_MAX_AGE) {
+        tx_hold = 0;
+        tx_drops++;
+        return -1;
+    }
+    return 0;
 }
 
 static void esp_tick_1ms(void)
@@ -280,31 +320,56 @@ static void esp_tick_1ms(void)
     if (!powered) {
         if (esp_up)
             fprintf(slog, "%8.3f  ESP: supply lost (power-good off) -> reset\n", t_now);
-        esp_up = 0; wifi_assoc = 0; op_active = 0; tx_hold = 0;
+        esp_up = 0; wifi_assoc = 0; op_active = 0; tx_hold = 0; wifi_started = 0; assoc_active = 0;
         el_slave_init(&esl);                  /* RAM lost: job, response, accepted seq */
         el_slave_build_tx(&esl, esp_tx);
         return;
     }
-    if (!esp_up) {                            /* power-on reset of the ESP */
-        pm_config_t cfg; pm_default_config(&cfg); cfg.c_res = CRES; cfg.boot_ms = CAL_MS;
-#ifdef GB_WATCH
-        cfg.gb_watch_v = GB_WATCH; cfg.gb_resume_v = GB_WATCH + 0.02f;   /* experiment: lower firmware rail watch */
-#endif
-        pm_init(&pm, &cfg);
+    if (!esp_up) {                            /* power-on reset of the ESP: ROM bootloader, then app_main */
         esp_up = 1;
         esp_app_at = t_now + ESP_BOOT_MS * 1e-3;
         fprintf(slog, "%8.3f  ESP: boot, reservoir %.2f V\n", t_now, vt);
     }
+    if (t_now < esp_app_at)
+        return;
+    if (t_now - 1e-3 < esp_app_at) {          /* app_main: power manager with the app's config (boot_ms 100) */
+        pm_config_t cfg; pm_default_config(&cfg); cfg.c_res = CRES; cfg.boot_ms = GBW_BOOT_MS;   /* as the app */
+#ifdef GB_WATCH
+        cfg.gb_watch_v = GB_WATCH; cfg.gb_resume_v = GB_WATCH + 0.02f;   /* experiment: lower firmware rail watch */
+#endif
+        pm_init(&pm, &cfg);
+    }
     pm_state_t before = pm_state(&pm);
-    pm_tick_1ms(&pm, (float)vt, (float)vgb);
-    if (before != PM_BOOT && pm_state(&pm) == PM_BOOT)
-        cal_until = t_now + CAL_MS * 1e-3;
+    pm_tick_1ms(&pm, (float)(vt * ADC_RES_GAIN), (float)(vgb * ADC_RAIL_GAIN));   /* the app sees ADC readings */
+    if (before != PM_BOOT && pm_state(&pm) == PM_BOOT && !wifi_started) {
+        cal_until = t_now + CAL_MS * 1e-3;    /* esp_wifi_start: partial calibration (A7: 5 ms at 50 % TX) */
+        wifi_started = 1;
+    }
+    /* app: autoconnect / reconnect from stored credentials, only in RUN; join frames are not admitted */
+    if (wifi_started && !wifi_assoc && !assoc_active && pm_state(&pm) == PM_RUN && t_now >= cal_until) {
+        assoc_active = 1; assoc_step = 0; assoc_until = t_now; assoc_count++;
+        fprintf(slog, "%8.3f  ESP: connecting (stored credentials)\n", t_now);
+    }
+    if (assoc_active && t_now >= assoc_until && t_now >= tx_until) {
+        static const double JOIN[7][3] = { {0.3e-3, 2e-3, 1}, {0.3e-3, 3e-3, 1}, {0.3e-3, 5e-3, 1}, {0.4e-3, 5e-3, 1},
+                                           {0.4e-3, 10e-3, 1}, {0.5e-3, 50e-3, 0}, {0.5e-3, 30e-3, 0} };
+        if (assoc_step >= 7) {
+            assoc_active = 0; wifi_assoc = 1;
+            fprintf(slog, "%8.3f  ESP: connected\n", t_now);
+        } else if (JOIN[assoc_step][2]) {     /* probe/auth/assoc/EAPOL: the library sends them, no admission */
+            tx_mgmt++; tx_until = t_now + JOIN[assoc_step][0]; assoc_until = tx_until + JOIN[assoc_step][1]; assoc_step++;
+        } else {                              /* DHCP: lwIP data, through admit() like any other frame */
+            int a = try_admit(JOIN[assoc_step][0]);
+            if (a > 0) { tx_until = t_now + JOIN[assoc_step][0]; assoc_until = tx_until + JOIN[assoc_step][1]; assoc_step++; }
+            else if (a < 0) assoc_until = t_now + TCP_RTO;   /* DHCP retransmits */
+        }
+    }
     if (pm_state(&pm) != before)
         fprintf(slog, "%8.3f  ESP: power state %d -> %d (res %.2f V, rail %.3f V)\n", t_now, before, pm_state(&pm), vt, vgb);
     el_slave_set_live(&esl, pm_state(&pm) == PM_RUN, (uint8_t)pm_state(&pm), (float)vgb, (float)vt);
     uint8_t seq, cmd;
     char payload[EL_MAX_REQ + 1];
-    if (t_now >= esp_app_at && el_slave_take_job(&esl, &seq, &cmd, payload)) {
+    if (!op_active && el_slave_take_job(&esl, &seq, &cmd, payload)) {   /* app: one job at a time */
         op_seq = seq; op_cmd = cmd;
         snprintf(op_req, sizeof op_req, "%s", payload);
         op_active = 1; op_failed = 0; plan_op(op_cmd);
@@ -314,21 +379,33 @@ static void esp_tick_1ms(void)
     }
     if (!op_active)
         goto out;
-    if (t_now > op_deadline) { op_failed = 1; tx_hold = 0; esp_finish(); goto out; }
+    if (t_now > op_deadline) { op_failed = 1; tx_hold = 0; esp_finish(); goto out; }   /* app JOB_MS 8 s */
     if (cur_step >= nsteps) { tx_hold = 0; esp_finish(); goto out; }
     if (t_now < step_wait_until || t_now < tx_until)
         goto out;
-    step_t *s = &steps[cur_step];
-    /* the app only knows the frame length: it admits with the 1 Mbit/s worst case (gbwifi). The frame's IP length
-       is recovered from its OFDM 6 Mbit/s airtime and capped at the MTU. */
-    double ip_len = fmin(GBW_MTU, fmax(0.0, (s->tx_s - 20e-6) * 6e6 / 8 - 36));
-    if (s->tx_s > 0 && !(pm_state(&pm) == PM_RUN && pm_admit_tx(&pm, gbw_airtime_worst_s((size_t)ip_len), GBW_TX_W))) {
-        tx_refused_ms++;                      /* not allowed now: retry next ms */
-        tx_hold = 1;
+    /* app need_net: commands that use the network wait for the connection (or answer ERR NOT CONNECTED) */
+    if ((op_cmd == 2 || op_cmd == 3 || op_cmd == 7) && !wifi_assoc) {
+        if (t_now > op_deadline - 1.5) { op_failed = 1; esp_finish(); }
         goto out;
     }
-    tx_hold = 0;
-    tx_frames++;
+    step_t *s = &steps[cur_step];
+    if (s->mgmt) {                            /* library frame: on air without admission */
+        tx_mgmt++;
+        tx_until = t_now + s->tx_s;
+        step_wait_until = tx_until + s->wait_s;
+        cur_step++;
+        goto out;
+    }
+    /* the app only knows the frame length: it admits with the 1 Mbit/s worst case (gbwifi) */
+    if (s->tx_s > 0) {
+        int a = try_admit(s->tx_s);
+        if (a == 0)
+            goto out;
+        if (a < 0) {                          /* dropped: TCP sends it again after the RTO */
+            step_wait_until = t_now + TCP_RTO;
+            goto out;
+        }
+    }
     tx_until = t_now + s->tx_s;
     step_wait_until = tx_until + s->wait_s;
     cur_step++;
@@ -413,7 +490,8 @@ int main(int argc, char **argv)
                                                       : "no WIFICART opt-in: bank 15 is plain save RAM");
     el_slave_init(&esl);
     el_slave_build_tx(&esl, esp_tx);
-    el_master_init(&elm, MB, 0);
+    if (wifi_rom)
+        el_master_init(&elm, MB, 0, 0xA5);    /* the cart only touches bank 15 for WiFi ROMs */
 
     static struct gb_s gb;
     if (gb_init(&gb, gb_rom_read, gb_cart_ram_read, gb_cart_ram_write, gb_error, NULL) != GB_INIT_NO_ERROR) {
@@ -484,10 +562,12 @@ int main(int argc, char **argv)
                "\"radio_resets\": %d, \"reservoir_min_v_while_on\": %.3f, \"tx_frames\": %ld, \"tx_refused_ms\": %ld, "
                "\"pm_parks\": %u, \"frames_admitted\": %u, \"frames_refused\": %u, \"wifi_rom\": %d, "
                "\"cart_writes_mailbox\": %ld, \"spi_xfers\": %u, \"spi_bad_hdr\": %u, \"spi_bad_body\": %u, "
-               "\"spi_resent\": %u, \"spi_bit_errors\": %ld, \"spi_bus_share\": %.4f, \"esp_rx_bad\": %u}\n",
+               "\"spi_resent\": %u, \"spi_bit_errors\": %ld, \"spi_bus_share\": %.4f, \"esp_rx_bad\": %u, "
+               "\"tx_drops\": %ld, \"tx_mgmt_unadmitted\": %ld, \"connects\": %ld}\n",
             argv[2], RSRC, t_now, gb_min, unsafe_s * 1000, resets, res_min_on, tx_frames, tx_refused_ms,
             pm.parks, pm.frames_admitted, pm.frames_refused, wifi_rom, cart_writes_mb, elm.xfers, elm.bad_hdr,
-            elm.bad_body, elm.resent, spi_bit_errors, t_now > 0 ? spi_bus_s / t_now : 0, esl.rx_bad);
+            elm.bad_body, elm.resent, spi_bit_errors, t_now > 0 ? spi_bus_s / t_now : 0, esl.rx_bad, tx_drops, tx_mgmt,
+            assoc_count);
     fclose(p);
     fclose(slog);
     return 0;

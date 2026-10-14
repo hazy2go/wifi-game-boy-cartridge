@@ -42,7 +42,15 @@ before the game starts. The croco-fw2 side is in the fork (`src/esp_link.rs`).
 - S1.8: host test of `components/gbwifi`: the screen text and TX sizing the app ships.
 - S1.9: the GBDK-2020 library's demo ROM (`gb/gbdk`, built with `make`) on the fresh and weak consoles. sysim also writes `<scenario>_tiles.bin` (the raw tile map), because GBDK's font starts at tile 0 = space.
 
-App behaviour modelled since step 4 (LOGBOOK): TX admission with the app's 1 Mbit/s worst-case airtime; modem-sleep while a frame waits for admission (`tx_hold`); PARK = light sleep at 1.4 mA, during which the SPI slave does not answer; the slave buffer rebuilt only after a transaction.
+App behaviour modelled (LOGBOOK, audit entry):
+- TX goes through the app's queue: the 1 Mbit/s worst-case estimate, modem-sleep while a frame waits (`tx_hold`), dropped at 2 s with a 1.5 s TCP retransmit.
+- The library's join frames (probe, auth, assoc, EAPOL) are not admitted. The autoconnect runs in RUN only; DHCP is admitted.
+- One job at a time with the 8 s budget. SCAN is passive.
+- The ESP boots for 300 ms at 25 mA before the power manager starts (`ESP_BOOT_MS`, `BOOT_CPU_A`); BOOT lasts `GBW_BOOT_MS`.
+- PARK = light sleep at 1.4 mA with a silent SPI slave. The slave buffer is rebuilt only after a transaction.
+- Optional ADC gain errors (`ADC_RES_GAIN`, `ADC_RAIL_GAIN`).
+
+Checks added by the audit: S1.10 (ADC reads the reservoir 2.5 % high), S1.11 (weak_plus with a fast boot). S1.7 also covers a WIFICART ROM with only 32 KB RAM. weak_plus at the default boot assumption is INFO only: it boot-loops (the boot needs 28 mJ, the reservoir holds 6.75 mJ).
 - `el_vectors.c` writes `out/esp_link_vectors.txt`, a scripted run of the reference master against the shipped
   slave (ESP boot, corrupted body, corrupted request, ESP restart mid-job, RADIO TIMEOUT, NO RADIO POWER, SEQ
   wrap). The Rust master's host test (croco-fw2 `tests-host/`) replays it byte for byte. Build:

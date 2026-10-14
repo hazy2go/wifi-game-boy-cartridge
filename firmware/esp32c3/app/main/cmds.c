@@ -1,25 +1,42 @@
-/* Mailbox commands 01-07 (sim/system/README.md). One job at a time; every answer within JOB_MS, below the
- * master's 12 s RADIO TIMEOUT. Screen text comes from components/gbwifi, the same code gate S1 runs. */
+/* Mailbox commands 01-07 (sim/system/README.md). One job at a time, answered within JOB_MS (the 8 s of the spec,
+ * well below the master's 12 s RADIO TIMEOUT): every wait inside a job gets what is left of that budget.
+ * (Not bounded: a DNS lookup inside esp_http_client.) Screen text comes from components/gbwifi, as in gate S1. */
 #include <string.h>
 #include <sys/time.h>
 #include <time.h>
 
 #include "app.h"
-#include "cJSON.h"
 #include "esp_crt_bundle.h"
 #include "esp_http_client.h"
 #include "esp_log.h"
 #include "esp_netif_sntp.h"
+#include "esp_timer.h"
 #include "freertos/task.h"
 
 static const char *TAG = "cmds";
 
-#define JOB_MS 9000
+#define JOB_MS 8000
+#define NET_WAIT_MS 1000 /* how long a job waits for PM_RUN before answering ERR RADIO NOT READY */
 #define BTC_URL "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=15m&limit=96"
 
 static gbw_ap_t s_aps[GBW_SCAN_MAX];
 static int s_naps;
 static char s_resp[EL_MAX_RESP + 1];
+static TaskHandle_t s_task;
+static int64_t s_job_end_us;
+
+void cmds_notify(void)
+{
+    if (s_task)
+        xTaskNotifyGive(s_task);
+}
+
+/* milliseconds left of the current job's budget, minus a margin for sending the answer */
+static int left_ms(int margin)
+{
+    int64_t l = (s_job_end_us - esp_timer_get_time()) / 1000 - margin;
+    return l > 0 ? (int)l : 0;
+}
 
 typedef struct {
     char *buf;
@@ -64,11 +81,12 @@ static int need_net(char *r)
         snprintf(r, EL_MAX_RESP + 1, "ERR NEEDS USB CAL");
         return 3;
     }
-    if (!radio_wait_run(3000)) {
+    if (!radio_wait_run(NET_WAIT_MS)) {
         snprintf(r, EL_MAX_RESP + 1, "ERR RADIO NOT READY");
         return 3;
     }
-    if (!radio_connected()) {
+    /* right after power-up the autoconnect may still be joining: wait for it within the job budget */
+    if (!radio_wait_connected(left_ms(1500))) {
         snprintf(r, EL_MAX_RESP + 1, "ERR NOT CONNECTED");
         return 3;
     }
@@ -86,7 +104,8 @@ static int cmd_time(char *r)
         esp_netif_sntp_init(&c);
         sntp_on = true;
     }
-    if (esp_netif_sntp_sync_wait(pdMS_TO_TICKS(7000)) != ESP_OK && time(NULL) < 1700000000) {
+    /* the sync semaphore is only given on a sync (hourly after the first), so wait only while the clock is unset */
+    if (time(NULL) < 1700000000 && esp_netif_sntp_sync_wait(pdMS_TO_TICKS(left_ms(300))) != ESP_OK) {
         snprintf(r, EL_MAX_RESP + 1, "ERR NTP");
         return 3;
     }
@@ -102,7 +121,7 @@ static int cmd_get(const char *url, char *r)
     int e = need_net(r);
     if (e)
         return e;
-    int st = http_get(url, r, EL_MAX_RESP + 1, JOB_MS - 1500);
+    int st = left_ms(500) > 500 ? http_get(url, r, EL_MAX_RESP + 1, left_ms(500)) : -1;
     if (st != 200) {
         snprintf(r, EL_MAX_RESP + 1, st < 0 ? "ERR NO CONNECTION" : "ERR HTTP %d", st);
         return 3;
@@ -119,24 +138,13 @@ static int cmd_btc(char *r)
     if (e)
         return e;
     static char json[24 * 1024]; /* 96 klines are about 14 KB */
-    int st = http_get(BTC_URL, json, sizeof json, JOB_MS - 1500);
+    int st = left_ms(500) > 500 ? http_get(BTC_URL, json, sizeof json, left_ms(500)) : -1;
     if (st != 200) {
         snprintf(r, EL_MAX_RESP + 1, st < 0 ? "ERR NO CONNECTION" : "ERR HTTP %d", st);
         return 3;
     }
-    cJSON *a = cJSON_Parse(json);
-    double closes[96];
-    int n = 0;
-    double close_ms = 0;
-    cJSON *k;
-    cJSON_ArrayForEach(k, a) {
-        cJSON *c = cJSON_GetArrayItem(k, 4), *t = cJSON_GetArrayItem(k, 6);
-        if (n < 96 && cJSON_IsString(c)) {
-            closes[n++] = strtod(c->valuestring, NULL);
-            close_ms = cJSON_IsNumber(t) ? t->valuedouble : close_ms;
-        }
-    }
-    cJSON_Delete(a);
+    double closes[96], close_ms = 0;
+    int n = gbw_parse_klines(json, closes, 96, &close_ms); /* streaming: no JSON tree on the heap */
     if (n < 2) {
         snprintf(r, EL_MAX_RESP + 1, "ERR BAD DATA");
         return 3;
@@ -184,18 +192,19 @@ static int cmd_connect(const char *payload, char *r)
         return 3;
     }
     char ip[20];
-    int c = radio_connect(s_aps[idx].ssid, pass, ip, sizeof ip, JOB_MS - 500);
+    int c = radio_connect(s_aps[idx].ssid, pass, s_aps[idx].channel, ip, sizeof ip, left_ms(300));
     if (c) {
         snprintf(r, EL_MAX_RESP + 1, c == -2 ? "ERR RADIO NOT READY" : "ERR CONNECT FAILED");
         return 3;
     }
-    radio_store_creds(s_aps[idx].ssid, pass);
+    radio_store_creds(s_aps[idx].ssid, pass, s_aps[idx].channel);
     snprintf(r, EL_MAX_RESP + 1, "OK %s", ip);
     return 2;
 }
 
 void cmds_task(void *arg)
 {
+    s_task = xTaskGetCurrentTaskHandle();
     for (;;) {
         uint8_t seq, cmd;
         char payload[EL_MAX_REQ + 1];
@@ -203,9 +212,12 @@ void cmds_task(void *arg)
         bool got = el_slave_take_job(&gbw_link, &seq, &cmd, payload);
         xSemaphoreGive(gbw_link_mtx);
         if (!got) {
-            vTaskDelay(pdMS_TO_TICKS(2));
+            /* woken by the link task; the 1 s fallback keeps idle periods long enough for light sleep (a short poll
+             * here kept tickless idle from ever sleeping) */
+            ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(1000));
             continue;
         }
+        s_job_end_us = esp_timer_get_time() + (int64_t)JOB_MS * 1000;
         ESP_LOGI(TAG, "job seq %u cmd %u \"%s\"", seq, cmd, payload);
         int st = 2;
         switch (cmd) {

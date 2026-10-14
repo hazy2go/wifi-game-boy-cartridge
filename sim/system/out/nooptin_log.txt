@@ -1,6 +1,8 @@
    0.000  cart: no WIFICART opt-in: bank 15 is plain save RAM
    0.000  ROM: state 0
    0.028  ESP: boot, reservoir 4.24 V
-   0.028  ESP: power state 0 -> 1 (res 4.24 V, rail 4.783 V)
-   0.033  ESP: power state 1 -> 2 (res 4.00 V, rail 4.783 V)
    0.051  ROM: state 1
+   0.328  ESP: power state 0 -> 1 (res 4.87 V, rail 4.874 V)
+   0.333  ESP: connecting (stored credentials)
+   0.333  ESP: power state 1 -> 2 (res 4.68 V, rail 4.783 V)
+   0.445  ESP: connected

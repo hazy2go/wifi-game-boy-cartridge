@@ -32,7 +32,8 @@ static void status(void)
     printf("radio %s  connected %d  tx admitted %lu refused %lu  parks %lu\n",
            radio_state() == RADIO_STARTED ? "started" : radio_state() == RADIO_NOCAL ? "NO CAL DATA" : "off",
            radio_connected(), (unsigned long)p.frames_admitted, (unsigned long)p.frames_refused, (unsigned long)p.parks);
-    printf("link rx ok %lu bad %lu  adc k_vcc %.4f k_res %.4f\n", (unsigned long)ok, (unsigned long)bad, kv, kr);
+    printf("link rx ok %lu bad %lu  adc k_vcc %.4f k_res %.4f  tx dropped %lu\n", (unsigned long)ok, (unsigned long)bad, kv,
+           kr, (unsigned long)radio_tx_drops());
 }
 
 static void handle(char *line)
@@ -46,7 +47,7 @@ static void handle(char *line)
     if (!strcmp(argv[0], "status")) {
         status();
     } else if (!strcmp(argv[0], "wifi") && argc >= 2) {
-        radio_store_creds(argv[1], argc >= 3 ? argv[2] : "");
+        radio_store_creds(argv[1], argc >= 3 ? argv[2] : "", 0);
         radio_autoconnect();
         printf("stored; connecting\n");
     } else if (!strcmp(argv[0], "cal") && argc == 3) {

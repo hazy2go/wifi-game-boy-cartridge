@@ -11,10 +11,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* STA netif MTU. lwIP sends TCP segments of min(TCP_MSS, MTU - 40) = 300 bytes (A5: MSS about 300). */
-#define GBW_MTU 340
+/* Largest IP packet the radio is expected to send: TCP segments of GBW_MSS bytes + 40 header bytes (A5: MSS about
+ * 300). The netif keeps MTU 1500 (lwIP's DHCP refuses an MTU below 576); the MSS comes from gbw_clamp_mss. */
+#define GBW_MSS 300
+#define GBW_MTU (GBW_MSS + 40)
 /* Power drawn from the reservoir while transmitting: 350 mA at 3.3 V through the buck-boost (eta 0.88). */
 #define GBW_TX_W (0.350f * 3.3f / 0.88f)
+/* Length of the pm's BOOT state = the RF calibration (A7: partial calibration assumed 5 ms at 50 % TX; replace with
+ * the XIAO measurement). The audits A5-A7 and gate S1 use the same value. BOOT cannot sleep, so a longer BOOT than
+ * needed drains a weak console's reservoir (S1 2026-10-14: 100 ms BOOT = 51 radio resets on the weak console). */
+#define GBW_BOOT_MS 5
 
 /* On-air time of a frame carrying ip_len bytes, worst case: 802.11b 1 Mbit/s with the long preamble (192 us),
  * 24-byte MAC header + 8-byte LLC/SNAP + 4-byte FCS. 11b data rates are off, but ESP-IDF issue #19164 shows a
@@ -24,6 +30,15 @@ float gbw_airtime_worst_s(size_t ip_len);
 /* What the power manager is given as the cart rail. On USB the mux feeds the radio from VBUS and the cart rail
  * (which may be absent, 0 V) is not loaded by the radio, so the rail watch does not apply. */
 float gbw_rail_for_pm(bool on_usb, float v_rail);
+
+/* MSS clamping on receive, as routers do: in an incoming Ethernet II / IPv4 / TCP SYN segment, lower the MSS option
+ * to mss and fix the TCP checksum (RFC 1624). lwIP then sends at most mss bytes per segment on that connection.
+ * Returns 1 if the frame was changed. */
+int gbw_clamp_mss(uint8_t *frame, size_t len, uint16_t mss);
+
+/* Binance /api/v3/klines JSON ([[open_time,"open","high","low","close",...,close_time,...],...]) without a JSON
+ * tree: fills closes (oldest first, up to max) and *close_ms of the last kline. Returns the count. */
+int gbw_parse_klines(const char *json, double *closes, int max, double *close_ms);
 
 enum { GBW_AUTH_OPEN, GBW_AUTH_WEP, GBW_AUTH_WPA, GBW_AUTH_WPA2, GBW_AUTH_WPA3 };
 typedef struct {

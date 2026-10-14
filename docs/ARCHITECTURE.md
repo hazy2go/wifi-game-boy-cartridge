@@ -74,7 +74,8 @@ Defined 2026-10-14 (LOGBOOK). Reference code: `firmware/esp32c3/components/esp_l
 | 4 | seq (REQUEST): the mailbox SEQ the Game Boy wrote |
 | 5 | cmd (REQUEST): mailbox CMD |
 | 6 | len (REQUEST): request body length, 0-240 (no terminator) |
-| 7-9 | 0 (reserved) |
+| 7 | session: random and != 0, new on every master boot |
+| 8-9 | 0 (reserved) |
 | 10-11 | CRC of bytes 0-9 |
 
 REQUEST body (only when len > 0): `len` payload bytes, CRC of the payload, zero pad.
@@ -103,9 +104,11 @@ With RESP and len > 0, the ESP's buffer carries the body right after the header:
    - ACCEPTED with byte 8 = pending seq: the request counts as accepted.
    - If it is accepted but the ESP shows neither BUSY nor RESP for it (the ESP restarted), clear "accepted" so the REQUEST is sent again.
 4. RESP for the pending seq: fetch it with one POLL of 12 + body bytes. Store the response at A100, a 0 terminator, the length at A004/5 and the status at A002, then write **ACK (A003) last**. That seq is now the ack sent in the next POLL.
-5. Timeouts: no valid header for 5 s while a request is pending gives STATUS 3 "NO RADIO POWER". Accepted but no response within 12 s gives STATUS 3 "RADIO TIMEOUT" (the ESP's own job deadline is 8 s).
+5. Timeouts: not accepted within 5 s gives STATUS 3 "NO RADIO POWER" (no valid header in that time) or "RADIO NOT ACCEPTING" (headers, but no acceptance). Accepted but no response within 12 s gives STATUS 3 "RADIO TIMEOUT" (the ESP's own job deadline is 8 s).
+6. At start the master clears A000-A1FF. When it stores a response, it also clears the request area A010-A0FF, because a CONNECT payload holds the WiFi password and save RAM is written to the SD card.
 
 **ESP:**
+- A valid header with a session byte different from the last one: drop the job, the response and the accepted seq. The RP2350 restarted, and its new session starts again at SEQ 1.
 - On a valid REQUEST whose seq is not the current job: start it (this drops any older job or response) and set ACCEPTED/seq.
 - A REQUEST repeated with the current seq is ignored.
 - On a POLL whose ack equals the response seq: drop the response.
