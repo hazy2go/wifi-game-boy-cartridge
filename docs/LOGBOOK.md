@@ -554,3 +554,15 @@ Conclusion: functional blocks (buck-boost, regulator, hub, buffers) have to be p
 - Free top area now 712 mm2 (`docs/img/free_space_after_lift.png`); the cleared corner is ~10.8 x 17.5 mm.
 - Area the remaining parts need (courtyards): power stage ~290 mm2 if kept together (mux 15, limiter 25, regulator 75 incl. four SOD-323 diodes = 26, reservoir 47, buck-boost block 64, power-good comparator 25, Croco's re-placed LDO/diodes 40) plus hub ~45, buffers/pull-ups ~60. The corner holds ~180. **The limiting factor is not part area but Croco's top-layer routing**: counting courtyards only there would be ~1,280 mm2 free; counting F.Cu copper it is 712, in fragments.
 - Options being put to Hazy: (a) keep 4 layers and hand-pack (shrink parts: SOT-23 dual diodes instead of 4 x SOD-323, 0402 everywhere, split the power stage between the corner and the old J3 area), slow; (b) go to 6 layers and move Croco's top-layer signal routing inward, which frees most of the top side but means re-routing much of Croco; (c) cut features (USB hub first).
+
+## 2026-10-14 13:55 Option A (keep 4 layers, hand-pack) checked against the numbers: it does not fit
+
+Hazy chose option A at 13:48. Before hand-placing, measured what has to fit and where it could go.
+
+- Clamp diodes D101-D104 moved to SOD-523 1N4148WT (C27748, 83k in stock): same 1N4148 die as the simulated model, courtyard 3.1 instead of 6.5 mm2. Schematic regenerated, footprints swapped in place, netlist_check and sim_vs_netlist PASS.
+- New plotting tools `hw/rev-b/tools/dump_geom.py` + `plot_geom.py`: top-side copper, vias, courtyards on a 1 mm grid (`docs/img/board_top_after_lift.png`).
+- **Courtyard area still to place: 377 mm2** (buffers/pull-ups 75, regulator 68, reservoir 51, Croco's lifted LDO/diodes 46, buck-boost 45, USB hub 38, mux + limiter 32, power-good 23). Real layouts need roughly 1.5-2x the courtyard area for routing: **~560-750 mm2.**
+- **Usable free regions: ~250 mm2** (cleared lower-left corner ~170, old J3 spot ~44, strip above the module ~23, right edge ~14), ~285 if the SWD Tag-Connect pads J4 were also removed.
+- Every shrink available (TPS2553 in 2x2 SON, TLV3012 and TLV431 in SC-70, 74LVC1G125 in SC-70, no power-on hold, no USB hub) takes the parts to ~285 mm2 of courtyards: about equal to the free area with **zero** room for routing.
+- The 7.2 mm square "pad" at (136-143, 104-112) is a non-plated hole (shell post), not usable.
+- Conclusion: on this outline, either a large part of Croco's top-layer routing moves (6 layers, or re-routing on 4), or a big Croco part goes. The only big part that could go is the microSD slot J2 (~14 x 13 mm, right next to the module). Options put to Hazy.

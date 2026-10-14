@@ -17248,7 +17248,7 @@
 				)
 			)
 		)
-		(property "Value" "1N4148WS"
+		(property "Value" "1N4148WT"
 			(at 406.4 403.16 0)
 			(effects
 				(font
@@ -17256,7 +17256,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_SOD-323"
+		(property "Footprint" "Diode_SMD:D_SOD-523"
 			(at 406.4 391.16 0)
 			(effects
 				(font
@@ -17283,7 +17283,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C2128"
+		(property "LCSC" "C27748"
 			(at 406.4 391.16 0)
 			(effects
 				(font
@@ -17346,7 +17346,7 @@
 				)
 			)
 		)
-		(property "Value" "1N4148WS"
+		(property "Value" "1N4148WT"
 			(at 469.9 403.16 0)
 			(effects
 				(font
@@ -17354,7 +17354,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_SOD-323"
+		(property "Footprint" "Diode_SMD:D_SOD-523"
 			(at 469.9 391.16 0)
 			(effects
 				(font
@@ -17381,7 +17381,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C2128"
+		(property "LCSC" "C27748"
 			(at 469.9 391.16 0)
 			(effects
 				(font
@@ -17444,7 +17444,7 @@
 				)
 			)
 		)
-		(property "Value" "1N4148WS"
+		(property "Value" "1N4148WT"
 			(at 25.4 441.26 0)
 			(effects
 				(font
@@ -17452,7 +17452,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_SOD-323"
+		(property "Footprint" "Diode_SMD:D_SOD-523"
 			(at 25.4 429.26 0)
 			(effects
 				(font
@@ -17479,7 +17479,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C2128"
+		(property "LCSC" "C27748"
 			(at 25.4 429.26 0)
 			(effects
 				(font
@@ -17848,7 +17848,7 @@
 				)
 			)
 		)
-		(property "Value" "1N4148WS"
+		(property "Value" "1N4148WT"
 			(at 215.9 441.26 0)
 			(effects
 				(font
@@ -17856,7 +17856,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_SOD-323"
+		(property "Footprint" "Diode_SMD:D_SOD-523"
 			(at 215.9 429.26 0)
 			(effects
 				(font
@@ -17883,7 +17883,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C2128"
+		(property "LCSC" "C27748"
 			(at 215.9 429.26 0)
 			(effects
 				(font

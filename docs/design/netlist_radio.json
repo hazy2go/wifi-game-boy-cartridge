@@ -931,38 +931,38 @@
   {
    "ref": "D101",
    "symbol": "Device:D",
-   "value": "1N4148WS",
-   "footprint": "Diode_SMD:D_SOD-323",
-   "lcsc": "C2128",
+   "value": "1N4148WT",
+   "footprint": "Diode_SMD:D_SOD-523",
+   "lcsc": "C27748",
    "pins": {
     "1": "REG_CL1",
     "2": "REG_S"
    },
-   "why": "Gate clamp 1/3: limits Vsg to ~1.8 V (enough for 150 mA, limits how far the gate can be driven)"
+   "why": "Gate clamp 1/3: limits Vsg to ~1.8 V (enough for 150 mA, limits how far the gate can be driven) | SOD-523 1N4148WT (C27748, 83k in stock) instead of SOD-323 1N4148WS: same 1N4148 die (the sim model is the 1N4148 one), courtyard 3.1 instead of 6.5 mm2 (LOGBOOK 13:50, layout option A)"
   },
   {
    "ref": "D102",
    "symbol": "Device:D",
-   "value": "1N4148WS",
-   "footprint": "Diode_SMD:D_SOD-323",
-   "lcsc": "C2128",
+   "value": "1N4148WT",
+   "footprint": "Diode_SMD:D_SOD-523",
+   "lcsc": "C27748",
    "pins": {
     "1": "REG_CL2",
     "2": "REG_CL1"
    },
-   "why": "Gate clamp 2/3"
+   "why": "Gate clamp 2/3 | SOD-523 1N4148WT (C27748, 83k in stock) instead of SOD-323 1N4148WS: same 1N4148 die (the sim model is the 1N4148 one), courtyard 3.1 instead of 6.5 mm2 (LOGBOOK 13:50, layout option A)"
   },
   {
    "ref": "D103",
    "symbol": "Device:D",
-   "value": "1N4148WS",
-   "footprint": "Diode_SMD:D_SOD-323",
-   "lcsc": "C2128",
+   "value": "1N4148WT",
+   "footprint": "Diode_SMD:D_SOD-523",
+   "lcsc": "C27748",
    "pins": {
     "1": "REG_G",
     "2": "REG_CL2"
    },
-   "why": "Gate clamp 3/3"
+   "why": "Gate clamp 3/3 | SOD-523 1N4148WT (C27748, 83k in stock) instead of SOD-323 1N4148WS: same 1N4148 die (the sim model is the 1N4148 one), courtyard 3.1 instead of 6.5 mm2 (LOGBOOK 13:50, layout option A)"
   },
   {
    "ref": "C124",
@@ -991,14 +991,14 @@
   {
    "ref": "D104",
    "symbol": "Device:D",
-   "value": "1N4148WS",
-   "footprint": "Diode_SMD:D_SOD-323",
-   "lcsc": "C2128",
+   "value": "1N4148WT",
+   "footprint": "Diode_SMD:D_SOD-523",
+   "lcsc": "C27748",
    "pins": {
     "1": "REG_POR_G",
     "2": "GND"
    },
-   "why": "Clamps the hold node at unplug (VMUX falling would drive it negative)"
+   "why": "Clamps the hold node at unplug (VMUX falling would drive it negative) | SOD-523 1N4148WT (C27748, 83k in stock) instead of SOD-323 1N4148WS: same 1N4148 die (the sim model is the 1N4148 one), courtyard 3.1 instead of 6.5 mm2 (LOGBOOK 13:50, layout option A)"
   },
   {
    "ref": "Q102",
