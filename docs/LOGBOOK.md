@@ -491,7 +491,7 @@ Checks: every symbol pin of U103/U104 has a pad and every pad a pin. `netlist_ch
 
 Next: placement on the top side, then routing.
 
-## 2026-10-14 09:08 Placement feasibility: option 2 does not fit as planned
+## 2026-10-14 09:02 Placement feasibility: option 2 does not fit as planned
 
 `hw/rev-b/tools/free_space.py` (KiCad Python) maps the top side on a 0.1 mm grid. Blocked: outside the outline (0.3 mm inset), the shell-rib bands and connector zone, every top courtyard of a Croco part, and **every existing F.Cu pad, track and via plus 0.25 mm**. The 04:57 area budget (Croco ~1,370 of ~2,650 mm2) only counted courtyards, not Croco's top-layer routing, which covers much of the "empty" area.
 
