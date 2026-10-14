@@ -19,7 +19,7 @@ event logs, `report.txt`.
 ## Mailbox protocol (cart RAM bank 15, A000-BFFF)
 | addr | meaning |
 |---|---|
-| A000 | CMD: 01 PING, 02 TIME (UTC via NTP), 03 HTTP GET (payload = URL), 04 POWER |
+| A000 | CMD: 01 PING, 02 TIME (UTC via NTP), 03 HTTP GET (payload = URL), 04 POWER, 05 SCAN, 06 CONNECT (payload "n|password"), 07 BTC (3 text lines + 128 chart bytes, 0x20 + 0..63) |
 | A001 | SEQ: the ROM writes it last; this write submits the request |
 | A002 | STATUS: 0 idle, 1 busy, 2 done, 3 error |
 | A003 | ACK: SEQ of the answered request |
@@ -43,3 +43,9 @@ PING, TIME, GET /hello, POWER, then 20 GETs back to back, then POWER again; prin
   and the WiFi stack (frames + assumed round-trip times), the network (local server, fixed answers), the input
   regulator (behavioural; the transistor-level loop is audit A8 in `sim/power`).
 - Timing granularity: one video frame for the emulator, 1 ms for firmware, 2 us for the power plant.
+
+## BTC demo (`run_demo.py`, `rom/btcdemo.asm`)
+Scan -> pick a network -> type the password on the on-screen keyboard -> connect -> live BTC/USD chart (last 24 h,
+15 min candles) -> A refreshes. `host_net.py` gives the ESP model real inputs: the networks this Mac's radio sees,
+this Mac's address, live Binance prices (`BTC_FIXTURE=file.json` replays a recorded series offline). Screenshots:
+`out/demo_*.png`. The input script (sysim argv 6) presses the buttons; `wState` ($C000) gates it per screen.

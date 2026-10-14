@@ -1,3 +1,5 @@
+   0.000  ROM: state 0
+   0.051  ROM: state 1
    0.094  ESP: boot, reservoir 4.24 V
    0.094  ESP: power state 0 -> 1 (res 4.24 V, rail 4.591 V)
    0.094  ROM: request seq 1 cmd 1 ""
@@ -45,6 +47,7 @@
    0.224  ESP: power state 2 -> 3 (res 3.37 V, rail 4.591 V)
    0.232  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    0.233  ESP: power state 2 -> 3 (res 3.37 V, rail 4.591 V)
+   0.235  ROM: state 2
    0.241  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    0.242  ESP: power state 2 -> 3 (res 3.38 V, rail 4.591 V)
    0.250  ESP: power state 3 -> 2 (res 3.52 V, rail 4.591 V)
@@ -103,6 +106,7 @@
    0.383  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    0.385  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
    0.386  ESP: power state 2 -> 3 (res 3.45 V, rail 4.591 V)
+   0.386  ROM: state 3
    0.389  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    0.390  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    0.393  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
@@ -163,6 +167,7 @@
    0.516  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
    0.517  ESP: power state 2 -> 3 (res 3.45 V, rail 4.591 V)
    0.520  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
+   0.520  ROM: state 4
    0.521  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    0.521  ROM: request seq 5 cmd 3 "http://example.com/burst"
    0.524  ESP: power state 3 -> 2 (res 3.52 V, rail 4.591 V)
@@ -170,6 +175,7 @@
    0.532  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
    0.533  ESP: power state 2 -> 3 (res 3.45 V, rail 4.591 V)
    0.536  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
+   0.536  ROM: state 5
    0.537  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    0.540  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    0.541  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
@@ -227,6 +233,7 @@
    0.666  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    0.669  ESP: power state 3 -> 2 (res 3.52 V, rail 4.591 V)
    0.670  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
+   0.670  ROM: state 6
    0.672  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    0.673  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    0.676  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
@@ -283,6 +290,7 @@
    0.799  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
    0.801  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    0.802  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
+   0.804  ROM: state 7
    0.805  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    0.806  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
    0.808  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
@@ -341,6 +349,7 @@
    0.935  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
    0.937  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
    0.938  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
+   0.938  ROM: state 8
    0.941  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    0.942  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    0.944  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
@@ -397,6 +406,7 @@
    1.067  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    1.070  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    1.071  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
+   1.072  ROM: state 9
    1.073  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
    1.074  ESP: power state 2 -> 3 (res 3.45 V, rail 4.591 V)
    1.077  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
@@ -454,6 +464,7 @@
    1.202  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    1.203  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    1.206  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
+   1.206  ROM: state 10
    1.207  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
    1.209  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
    1.210  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
@@ -511,6 +522,7 @@
    1.335  ESP: power state 2 -> 3 (res 3.45 V, rail 4.591 V)
    1.338  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    1.339  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
+   1.340  ROM: state 11
    1.342  ESP: power state 3 -> 2 (res 3.52 V, rail 4.591 V)
    1.343  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
    1.345  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
@@ -568,6 +580,7 @@
    1.470  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
    1.471  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    1.474  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
+   1.474  ROM: state 12
    1.475  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    1.478  ESP: power state 3 -> 2 (res 3.52 V, rail 4.591 V)
    1.479  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
@@ -625,6 +638,7 @@
    1.604  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
    1.606  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
    1.607  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
+   1.608  ROM: state 13
    1.610  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    1.611  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    1.614  ESP: power state 3 -> 2 (res 3.52 V, rail 4.591 V)
@@ -682,6 +696,7 @@
    1.739  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    1.740  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
    1.742  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
+   1.742  ROM: state 14
    1.743  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    1.746  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    1.747  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
@@ -739,6 +754,7 @@
    1.872  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    1.875  ESP: power state 3 -> 2 (res 3.52 V, rail 4.591 V)
    1.876  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
+   1.876  ROM: state 15
    1.878  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    1.879  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    1.882  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
@@ -796,6 +812,7 @@
    2.007  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    2.008  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    2.010  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
+   2.010  ROM: state 16
    2.011  ESP: power state 2 -> 3 (res 3.45 V, rail 4.591 V)
    2.014  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    2.015  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
@@ -853,6 +870,7 @@
    2.140  ESP: power state 2 -> 3 (res 3.45 V, rail 4.591 V)
    2.143  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    2.144  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
+   2.144  ROM: state 17
    2.147  ESP: power state 3 -> 2 (res 3.52 V, rail 4.591 V)
    2.148  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
    2.150  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
@@ -909,6 +927,7 @@
    2.273  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    2.276  ESP: power state 3 -> 2 (res 3.52 V, rail 4.591 V)
    2.277  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
+   2.278  ROM: state 18
    2.279  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    2.280  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    2.283  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
@@ -965,6 +984,7 @@
    2.400  ESP: power state 2 -> 3 (res 3.37 V, rail 4.591 V)
    2.408  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    2.409  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
+   2.411  ROM: state 19
    2.412  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    2.413  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
    2.415  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
@@ -1023,6 +1043,7 @@
    2.542  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
    2.544  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
    2.545  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
+   2.545  ROM: state 20
    2.548  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    2.549  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    2.552  ESP: power state 3 -> 2 (res 3.52 V, rail 4.591 V)
@@ -1079,6 +1100,7 @@
    2.669  ESP: power state 2 -> 3 (res 3.37 V, rail 4.591 V)
    2.677  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    2.678  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
+   2.679  ROM: state 21
    2.681  ESP: power state 3 -> 2 (res 3.52 V, rail 4.591 V)
    2.682  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
    2.684  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
@@ -1136,6 +1158,7 @@
    2.810  ESP: power state 3 -> 2 (res 3.52 V, rail 4.591 V)
    2.811  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
    2.813  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
+   2.813  ROM: state 22
    2.814  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    2.817  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    2.818  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
@@ -1193,6 +1216,7 @@
    2.943  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    2.946  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    2.947  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
+   2.947  ROM: state 23
    2.949  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
    2.950  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    2.953  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
@@ -1249,6 +1273,7 @@
    3.076  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
    3.078  ESP: power state 3 -> 2 (res 3.50 V, rail 4.591 V)
    3.079  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
+   3.081  ROM: state 24
    3.082  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    3.083  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    3.086  ESP: power state 3 -> 2 (res 3.52 V, rail 4.591 V)
@@ -1310,6 +1335,7 @@
    3.210  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
    3.213  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)
    3.214  ESP: power state 2 -> 3 (res 3.46 V, rail 4.591 V)
+   3.215  ROM: state 25
    3.217  ESP: power state 3 -> 2 (res 3.52 V, rail 4.591 V)
    3.218  ESP: power state 2 -> 3 (res 3.47 V, rail 4.591 V)
    3.220  ESP: power state 3 -> 2 (res 3.51 V, rail 4.591 V)

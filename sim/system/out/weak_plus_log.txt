@@ -1,3 +1,5 @@
+   0.000  ROM: state 0
+   0.051  ROM: state 1
    0.891  ESP: boot, reservoir 4.20 V
    0.891  ESP: power state 0 -> 1 (res 4.20 V, rail 4.588 V)
    0.891  ROM: request seq 1 cmd 1 ""
@@ -20,6 +22,7 @@
    2.694  ESP: power state 2 -> 3 (res 3.44 V, rail 4.588 V)
    2.697  ROM: request seq 2 cmd 2 ""
    2.712  ESP: power state 3 -> 4 (res 2.99 V, rail 4.588 V)
+   2.713  ROM: state 2
    3.045  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
    3.052  ESP: power state 2 -> 3 (res 3.49 V, rail 4.588 V)
    3.073  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
@@ -39,6 +42,7 @@
    4.864  ESP->ROM: seq 2 status 2 "2026-10-14 15:00:04"
    4.870  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
    4.874  ROM: request seq 3 cmd 3 "http://example.com/hello"
+   4.889  ROM: state 3
    4.891  ESP: power state 3 -> 4 (res 2.99 V, rail 4.588 V)
    5.227  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
    5.235  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
@@ -55,7 +59,9 @@
    6.330  ROM: request seq 4 cmd 4 ""
    6.332  ESP->ROM: seq 4 status 2 "RAIL 4.59V RES 3.31V"
    6.344  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
+   6.346  ROM: state 4
    6.347  ROM: request seq 5 cmd 3 "http://example.com/burst"
+   6.363  ROM: state 5
    6.681  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
    6.689  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
    6.710  ESP: power state 3 -> 4 (res 2.99 V, rail 4.588 V)
@@ -70,6 +76,7 @@
    7.777  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
    7.787  ROM: request seq 6 cmd 3 "http://example.com/burst"
    7.798  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
+   7.803  ROM: state 6
    8.135  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
    8.143  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
    8.164  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
@@ -84,6 +91,7 @@
    9.231  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
    9.243  ROM: request seq 7 cmd 3 "http://example.com/burst"
    9.252  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
+   9.259  ROM: state 7
    9.589  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
    9.597  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
    9.618  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
@@ -98,6 +106,7 @@
   10.685  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   10.700  ROM: request seq 8 cmd 3 "http://example.com/burst"
   10.706  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
+  10.716  ROM: state 8
   11.043  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   11.051  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   11.072  ESP: power state 3 -> 4 (res 2.99 V, rail 4.588 V)
@@ -111,6 +120,7 @@
   12.137  ESP->ROM: seq 8 status 2 "ok"
   12.139  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   12.140  ROM: request seq 9 cmd 3 "http://example.com/burst"
+  12.156  ROM: state 9
   12.160  ESP: power state 3 -> 4 (res 2.99 V, rail 4.588 V)
   12.496  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   12.504  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
@@ -125,6 +135,7 @@
   13.591  ESP->ROM: seq 9 status 2 "ok"
   13.593  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   13.597  ROM: request seq 10 cmd 3 "http://example.com/burst"
+  13.612  ROM: state 10
   13.614  ESP: power state 3 -> 4 (res 2.99 V, rail 4.588 V)
   13.950  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   13.958  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
@@ -140,6 +151,7 @@
   15.046  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   15.053  ROM: request seq 11 cmd 3 "http://example.com/burst"
   15.067  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
+  15.069  ROM: state 11
   15.404  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   15.412  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   15.433  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
@@ -154,6 +166,7 @@
   16.501  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   16.510  ROM: request seq 12 cmd 3 "http://example.com/burst"
   16.522  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
+  16.526  ROM: state 12
   16.859  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   16.867  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   16.888  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
@@ -168,6 +181,7 @@
   17.957  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   17.966  ROM: request seq 13 cmd 3 "http://example.com/burst"
   17.978  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
+  17.982  ROM: state 13
   18.315  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   18.323  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   18.344  ESP: power state 3 -> 4 (res 2.99 V, rail 4.588 V)
@@ -182,6 +196,7 @@
   19.412  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   19.423  ROM: request seq 14 cmd 3 "http://example.com/burst"
   19.433  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
+  19.439  ROM: state 14
   19.769  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   19.777  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   19.798  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
@@ -196,6 +211,7 @@
   20.867  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   20.880  ROM: request seq 15 cmd 3 "http://example.com/burst"
   20.888  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
+  20.895  ROM: state 15
   21.225  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   21.233  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   21.254  ESP: power state 3 -> 4 (res 2.99 V, rail 4.588 V)
@@ -210,6 +226,7 @@
   22.322  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   22.336  ROM: request seq 16 cmd 3 "http://example.com/burst"
   22.343  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
+  22.352  ROM: state 16
   22.680  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   22.688  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   22.709  ESP: power state 3 -> 4 (res 2.99 V, rail 4.588 V)
@@ -223,6 +240,7 @@
   23.774  ESP->ROM: seq 16 status 2 "ok"
   23.776  ESP: power state 2 -> 3 (res 3.49 V, rail 4.588 V)
   23.776  ROM: request seq 17 cmd 3 "http://example.com/burst"
+  23.792  ROM: state 17
   23.797  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
   24.135  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   24.143  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
@@ -237,6 +255,7 @@
   25.230  ESP->ROM: seq 17 status 2 "ok"
   25.232  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   25.233  ROM: request seq 18 cmd 3 "http://example.com/burst"
+  25.249  ROM: state 18
   25.253  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
   25.590  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   25.598  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
@@ -251,6 +270,7 @@
   26.685  ESP->ROM: seq 18 status 2 "ok"
   26.687  ESP: power state 2 -> 3 (res 3.49 V, rail 4.588 V)
   26.689  ROM: request seq 19 cmd 3 "http://example.com/burst"
+  26.705  ROM: state 19
   26.708  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
   27.046  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   27.054  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
@@ -265,6 +285,7 @@
   28.141  ESP->ROM: seq 19 status 2 "ok"
   28.143  ESP: power state 2 -> 3 (res 3.49 V, rail 4.588 V)
   28.146  ROM: request seq 20 cmd 3 "http://example.com/burst"
+  28.162  ROM: state 20
   28.164  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
   28.501  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   28.509  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
@@ -279,6 +300,7 @@
   29.597  ESP->ROM: seq 20 status 2 "ok"
   29.599  ESP: power state 2 -> 3 (res 3.49 V, rail 4.588 V)
   29.603  ROM: request seq 21 cmd 3 "http://example.com/burst"
+  29.618  ROM: state 21
   29.620  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
   29.958  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   29.966  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
@@ -293,6 +315,7 @@
   31.053  ESP->ROM: seq 21 status 2 "ok"
   31.055  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   31.059  ROM: request seq 22 cmd 3 "http://example.com/burst"
+  31.075  ROM: state 22
   31.076  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
   31.412  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   31.420  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
@@ -308,6 +331,7 @@
   32.509  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   32.516  ROM: request seq 23 cmd 3 "http://example.com/burst"
   32.530  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
+  32.532  ROM: state 23
   32.867  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   32.875  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   32.896  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
@@ -322,6 +346,7 @@
   33.964  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   33.972  ROM: request seq 24 cmd 3 "http://example.com/burst"
   33.985  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
+  33.988  ROM: state 24
   34.322  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   34.331  ESP: power state 2 -> 3 (res 3.41 V, rail 4.588 V)
   34.348  ESP: power state 3 -> 4 (res 2.99 V, rail 4.588 V)
@@ -337,6 +362,7 @@
   35.429  ROM: request seq 25 cmd 4 ""
   35.431  ESP->ROM: seq 25 status 2 "RAIL 4.59V RES 3.12V"
   35.435  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)
+  35.445  ROM: state 25
   35.771  ESP: power state 4 -> 2 (res 4.20 V, rail 4.588 V)
   35.780  ESP: power state 2 -> 3 (res 3.50 V, rail 4.588 V)
   35.801  ESP: power state 3 -> 4 (res 2.98 V, rail 4.588 V)

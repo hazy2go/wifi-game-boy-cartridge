@@ -694,3 +694,20 @@ Fed into the S1 power plant (`SIM_LAYOUT='-DRPATH=0.0369 -DRESR=0.0156' python3 
 Margin run with **3x** the extracted copper (`out/report_layout_3x_copper.txt`): ALL PASS, reservoir minimum 2.97 V on weak+.
 
 Board state: routed, cleaned, all gates green. Not done yet: fab outputs (Gerbers/drill, BOM + CPL for JLC assembly incl. part availability) and their review before any order.
+
+## 2026-10-14 17:45 Routing tidy-up audit (Hazy: "so it's all clean, no dead lines")
+
+`hw/rev-b/tools/route_audit.py` audits only copper that is not in Croco's original board (Croco's proven routing is never reported or touched): dead ends, crumbs < 50 um, duplicates lying on another same-net segment, router staircases, collinear pieces, acute (< 90 deg) corners, vias that change no layer, detours. First run on the routed board: 147 crumbs, 445 suspected overlaps (87 real), 34 staircases, 1 stub, 2 acute corners.
+
+`hw/rev-b/tools/route_clean.py` (each phase in its own process; every change must clear all other-net copper by 0.155 mm incl. pad-specific clearances, hole clearance 0.255 mm to every drilled hole, and board + footprint keep-out areas): removed 79 duplicates and 35 crumbs, pulled 48 router staircases tight into 0/45/90-degree runs (195 segments fewer; widths kept as routed, neck-downs at pins preserved), merged 12 collinear pairs. A first version allowed any-angle shortcuts and ignored holes/keep-outs: the gate caught 5 new DRC items, that version was thrown away, and the board was re-cleaned from the committed state. By hand: the 2 acute corners (GB_A6 In3 join, GB_A7 landing) re-shaped to >= 90 deg; a dead LIM_FAULT_N branch (via + 2 segments + a 0.25 mm B.Cu stub) removed.
+
+After: **0 dead ends, 0 acute corners, 0 pointless vias**; left as is: 37 sub-50 um pieces that sit at pads (mostly in Croco's own layer-converted copper), 11 places where a wider trace lies over its own narrower neck-down at a pin, 4 short staircases boxed in by neighbours, 3 collinear joints at pads. **Gate: ERC/DRC/unconnected/parity all PASS** (DRC 0 new, 131 resolved vs Croco).
+![before / after, In2 and In3](img/tidy_before_after.png)
+
+## 2026-10-14 17:45 BTC demo ROM on the simulated cartridge (Hazy: "search for wifi, connect, show the BTC chart")
+
+`sim/system/rom/btcdemo.asm` + `run_demo.py`: scan -> network list (D-pad + A) -> on-screen keyboard password entry (A type, B delete, START) -> connect -> live BTC/USD chart of the last 24 h (128 x 64 px area chart drawn by the Game Boy from 128 values) -> A refreshes. The test harness presses the buttons like a player (state-gated input script).
+New mailbox commands (README): 05 SCAN, 06 CONNECT ("n|password"), 07 BTC.
+What is real: the ROM; the network list is what this Mac's WiFi radio actually sees (channel, band, security, signal; macOS hides SSIDs without location permission, the ESP would show names); the BTC data is live from Binance (CoinGecko fallback); the shipped power manager admits every TX frame; layout copper in the power path. Modelled: the WPA2 join itself (the ESP model accepts any >= 8-char key and reports this Mac's address), ESP-IDF timing, RP2350 PIO timing.
+Result: **ALL PASS** (flow 1-2-3-4-5-6-5-6, chart text, console min 4.784 V, 0 radio resets, 87/87 TX frames through the power manager). S1 re-run after the sysim changes: ALL PASS.
+![demo](img/btc_demo_screens.png)

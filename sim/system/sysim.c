@@ -14,7 +14,10 @@
  * that 16.74 ms in 1 ms ticks (plant at 2 us). Cartridge accesses within a frame are taken at frame start.
  * Outputs (out/<scenario>_*): screen.pgm, tilemap.txt, log.txt, result.json.
  *
- * Usage: sysim ROM.gb SCENARIO RSRC_OHM SECONDS OUTDIR
+ * Usage: sysim ROM.gb SCENARIO RSRC_OHM SECONDS OUTDIR [INPUT_SCRIPT]
+ * INPUT_SCRIPT (demo ROMs): space-separated tokens, pressed one after another: U D L R A B S(tart);
+ *   Wn = wait until the ROM's wState ($C000) is n; Fn = wait n frames; P = screenshot now. Each press: 4 frames held, 6 released.
+ *   A screenshot (out/<scenario>_<k>_s<state>.pgm) is taken 45 frames after every wState change.
  */
 #include <math.h>
 #include <stdint.h>
@@ -133,7 +136,7 @@ static step_t steps[64];
 static int nsteps, cur_step;
 static double step_wait_until, op_deadline;
 static int op_active, op_cmd, op_failed;
-static char op_req[240], op_resp[240];
+static char op_req[240], op_resp[256];
 static double spi_busy_until;
 static int resp_ready;
 static long tx_frames, tx_refused_ms;
@@ -169,8 +172,33 @@ static void plan_op(int cmd)
             STEP(0.3e-3, 30e-3); STEP(0.5e-3, 0); STEP(0.3e-3, 40e-3); /* SYN, ACK + GET, response */
             STEP(0.3e-3, 2e-3); STEP(0.3e-3, 0); break;                /* ACK, FIN */
     case 4: break;                                                     /* POWER: local ADC */
+    case 5: for (int ch = 0; ch < 13; ch++) STEP(0.3e-3, 100e-3); break;  /* active scan: probe + dwell per channel */
+    case 6: if (wifi_assoc) {                                          /* (re)connect: always a full join */
+                STEP(0.3e-3, 2e-3); STEP(0.3e-3, 3e-3); STEP(0.3e-3, 5e-3); STEP(0.4e-3, 5e-3); STEP(0.4e-3, 10e-3);
+                STEP(0.5e-3, 50e-3); STEP(0.5e-3, 30e-3);
+            }
+            break;
+    case 7: STEP(0.3e-3, 20e-3);                                       /* DNS api.binance.com */
+            STEP(0.3e-3, 30e-3); STEP(0.5e-3, 40e-3);                  /* SYN; TLS ClientHello -> ServerHello+cert */
+            STEP(0.6e-3, 40e-3); STEP(0.5e-3, 60e-3);                  /* key exchange; GET -> first data */
+            for (int k = 0; k < 24; k++) STEP(0.2e-3, 3e-3);           /* ~24 KB JSON: ACK every 1-2 segments */
+            STEP(0.3e-3, 2e-3); break;                                 /* close_notify / FIN */
     }
 }
+
+static const char *HOST_NET = "python3 host_net.py";   /* real scan / IP / BTC data (sim/system/host_net.py) */
+static int host(const char *arg, char *out, size_t n)
+{
+    char cmd[128]; snprintf(cmd, sizeof cmd, "%s %s", HOST_NET, arg);
+    FILE *p = popen(cmd, "r");
+    if (!p) return -1;
+    size_t k = fread(out, 1, n - 1, p); out[k] = 0;
+    pclose(p);
+    return (int)k;
+}
+static void commas(long v, char *o) { char t[32]; snprintf(t, sizeof t, "%ld", v); int L = strlen(t), j = 0;
+    for (int i = 0; i < L; i++) { if (i && (L - i) % 3 == 0) o[j++] = ','; o[j++] = t[i]; } o[j] = 0; }
+static int scan_count;
 
 static void esp_finish(void)
 {
@@ -186,9 +214,43 @@ static void esp_finish(void)
     }
     case 3: snprintf(r, sizeof op_resp, strstr(op_req, "/hello") ? "Hello from WiFi!" : "ok"); break;
     case 4: snprintf(r, sizeof op_resp, "RAIL %.2fV RES %.2fV", vgb, vt); break;   /* ESP ADC1 via R118/R119, R116/R117 */
+    case 5: {                                  /* the ESP formats display-ready lines for the 20-column screen */
+        char buf[2048]; host("scan", buf, sizeof buf); r[0] = 0; scan_count = 0;
+        char *sv = NULL;   /* strtok_r: the input script parser owns strtok */
+        for (char *ln = strtok_r(buf, "\n", &sv); ln && scan_count < 8; ln = strtok_r(NULL, "\n", &sv)) {
+            char name[64], ch[8], band[8], sec[8]; int rssi;
+            if (sscanf(ln, "%63[^|]|%7[^|]|%7[^|]|%7[^|]|%d", name, ch, band, sec, &rssi) != 5) continue;
+            char line[40], rs[8];
+            if (rssi) snprintf(rs, sizeof rs, "%d", rssi); else snprintf(rs, sizeof rs, "--");
+            snprintf(line, sizeof line, "%d %s CH%-3s %3s %s\n", ++scan_count, band, ch, rs, sec);
+            strncat(r, line, sizeof op_resp - strlen(r) - 1);
+        }
+        if (!scan_count) snprintf(r, sizeof op_resp, "NO NETWORKS");
+        break;
+    }
+    case 6: {
+        const char *bar = strchr(op_req, '|');
+        if (!bar || strlen(bar + 1) < 8) { op_failed = 1; snprintf(r, sizeof op_resp, "WPA2 KEY < 8 CHARS"); break; }
+        char ip[64]; host("ip", ip, sizeof ip); ip[strcspn(ip, "\n")] = 0;
+        snprintf(r, sizeof op_resp, "OK %s", ip);
+        wifi_assoc = 1;
+        break;
+    }
+    case 7: {
+        char buf[2048]; host("btc", buf, sizeof buf);
+        if (!strncmp(buf, "ERR", 3)) { op_failed = 1; buf[strcspn(buf, "\n")] = 0; snprintf(r, sizeof op_resp, "%.30s", buf); break; }
+        double price, chg, hi, lo; char hm[8]; int off = 0;
+        if (sscanf(buf, "%lf|%lf|%lf|%lf|%7[^|]|%n", &price, &chg, &hi, &lo, hm, &off) < 5 || !off) { op_failed = 1; snprintf(r, sizeof op_resp, "BAD DATA"); break; }
+        char p[24], h[24], l[24]; commas((long)(price + 0.5), p); commas((long)(hi + 0.5), h); commas((long)(lo + 0.5), l);
+        int n = snprintf(r, sizeof op_resp, "$%s  %+.2f%%\nH %s  L %s\n%.2s:%.2s UTC  15M BARS\n", p, chg, h, l, hm, hm + 2);
+        char *q = buf + off;
+        for (int c = 0; c < 128 && n < (int)sizeof op_resp - 1; c++) { int v = (int)strtol(q, &q, 10); r[n++] = (char)(0x20 + (v < 0 ? 0 : v > 63 ? 63 : v)); }
+        r[n] = 0;
+        break;
+    }
     default: snprintf(r, sizeof op_resp, "ERR");
     }
-    wifi_assoc = wifi_assoc || (!op_failed && op_cmd == 3) || (!op_failed && op_cmd == 2);
+    wifi_assoc = wifi_assoc || (!op_failed && (op_cmd == 3 || op_cmd == 2 || op_cmd == 6 || op_cmd == 7));
     op_active = 0;
     resp_ready = 1;
     spi_busy_until = t_now + (strlen(r) + 4) * 8 / SPI_HZ;              /* response frame back over SPI */
@@ -295,7 +357,32 @@ int main(int argc, char **argv)
     }
     gb_init_lcd(&gb, lcd_draw_line);
     int frames = (int)(seconds / (70224.0 / 4194304.0));
+    char *script = argc > 6 ? strdup(argv[6]) : NULL, *tok = script ? strtok(script, " ") : NULL;
+    int hold = 0, gap = 0, waitf = 0, last_state = -1, shot_at = -1, shots = 0;
+    uint8_t press = 0;
     for (int fr = 0; fr < frames; fr++) {
+        uint8_t st = gb.wram[0];
+        if (st != last_state) { last_state = st; shot_at = fr + 45; fprintf(slog, "%8.3f  ROM: state %d\n", t_now, st); }
+        if (tok && tok[0] == 'P' && !hold && !gap && !waitf) { shot_at = fr; tok = strtok(NULL, " "); }
+        if (fr == shot_at) {
+            snprintf(path, sizeof path, "%s/%s_%02d_s%d.pgm", argv[5], argv[2], ++shots, st);
+            FILE *q = fopen(path, "wb"); fprintf(q, "P5 160 144 255\n");
+            for (int y = 0; y < 144; y++) for (int x = 0; x < 160; x++) fputc(255 - fb[y][x] * 85, q);
+            fclose(q);
+        }
+        if (hold) { hold--; if (!hold) { press = 0; gap = 6; } }
+        else if (gap) gap--;
+        else if (waitf) waitf--;
+        else if (tok) {
+            if (tok[0] == 'W') { if (st == atoi(tok + 1)) tok = strtok(NULL, " "); }
+            else if (tok[0] == 'F') { waitf = atoi(tok + 1); tok = strtok(NULL, " "); }
+            else {
+                const char *k = "UDLRABS"; const uint8_t m[] = { JOYPAD_UP, JOYPAD_DOWN, JOYPAD_LEFT, JOYPAD_RIGHT, JOYPAD_A, JOYPAD_B, JOYPAD_START };
+                const char *c = strchr(k, tok[0]); press = c ? m[c - k] : 0; hold = 4;
+                tok = strtok(NULL, " ");
+            }
+        }
+        gb.direct.joypad = (uint8_t)~press;
         gb_run_frame(&gb);
         double frame_end = (fr + 1) * (70224.0 / 4194304.0);
         while (t_now < frame_end) {

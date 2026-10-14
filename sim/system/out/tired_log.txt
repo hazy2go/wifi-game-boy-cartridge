@@ -1,53 +1,79 @@
+   0.000  ROM: state 0
    0.028  ESP: boot, reservoir 4.24 V
    0.028  ESP: power state 0 -> 1 (res 4.24 V, rail 4.628 V)
    0.033  ESP: power state 1 -> 2 (res 4.00 V, rail 4.628 V)
    0.035  ROM: request seq 1 cmd 1 ""
+   0.051  ROM: state 1
    0.119  ESP->ROM: seq 1 status 2 "PONG"
    0.135  ROM: request seq 2 cmd 2 ""
+   0.151  ROM: state 2
    0.250  ESP->ROM: seq 2 status 2 "2026-10-14 15:00:00"
    0.253  ROM: request seq 3 cmd 3 "http://example.com/hello"
+   0.268  ROM: state 3
    0.353  ESP->ROM: seq 3 status 2 "Hello from WiFi!"
    0.370  ROM: request seq 4 cmd 4 ""
    0.372  ESP->ROM: seq 4 status 2 "RAIL 4.73V RES 4.71V"
+   0.386  ROM: state 4
    0.387  ROM: request seq 5 cmd 3 "http://example.com/burst"
+   0.402  ROM: state 5
    0.487  ESP->ROM: seq 5 status 2 "ok"
    0.504  ROM: request seq 6 cmd 3 "http://example.com/burst"
+   0.520  ROM: state 6
    0.604  ESP->ROM: seq 6 status 2 "ok"
    0.621  ROM: request seq 7 cmd 3 "http://example.com/burst"
+   0.637  ROM: state 7
    0.721  ESP->ROM: seq 7 status 2 "ok"
    0.738  ROM: request seq 8 cmd 3 "http://example.com/burst"
+   0.754  ROM: state 8
    0.838  ESP->ROM: seq 8 status 2 "ok"
    0.839  ROM: request seq 9 cmd 3 "http://example.com/burst"
+   0.854  ROM: state 9
    0.939  ESP->ROM: seq 9 status 2 "ok"
    0.956  ROM: request seq 10 cmd 3 "http://example.com/burst"
+   0.972  ROM: state 10
    1.056  ESP->ROM: seq 10 status 2 "ok"
    1.073  ROM: request seq 11 cmd 3 "http://example.com/burst"
+   1.089  ROM: state 11
    1.173  ESP->ROM: seq 11 status 2 "ok"
    1.190  ROM: request seq 12 cmd 3 "http://example.com/burst"
+   1.206  ROM: state 12
    1.290  ESP->ROM: seq 12 status 2 "ok"
    1.291  ROM: request seq 13 cmd 3 "http://example.com/burst"
+   1.306  ROM: state 13
    1.391  ESP->ROM: seq 13 status 2 "ok"
    1.408  ROM: request seq 14 cmd 3 "http://example.com/burst"
+   1.424  ROM: state 14
    1.508  ESP->ROM: seq 14 status 2 "ok"
    1.525  ROM: request seq 15 cmd 3 "http://example.com/burst"
+   1.541  ROM: state 15
    1.625  ESP->ROM: seq 15 status 2 "ok"
    1.626  ROM: request seq 16 cmd 3 "http://example.com/burst"
+   1.641  ROM: state 16
    1.726  ESP->ROM: seq 16 status 2 "ok"
    1.743  ROM: request seq 17 cmd 3 "http://example.com/burst"
+   1.758  ROM: state 17
    1.843  ESP->ROM: seq 17 status 2 "ok"
    1.860  ROM: request seq 18 cmd 3 "http://example.com/burst"
+   1.876  ROM: state 18
    1.960  ESP->ROM: seq 18 status 2 "ok"
    1.977  ROM: request seq 19 cmd 3 "http://example.com/burst"
+   1.993  ROM: state 19
    2.077  ESP->ROM: seq 19 status 2 "ok"
    2.078  ROM: request seq 20 cmd 3 "http://example.com/burst"
+   2.093  ROM: state 20
    2.178  ESP->ROM: seq 20 status 2 "ok"
    2.195  ROM: request seq 21 cmd 3 "http://example.com/burst"
+   2.211  ROM: state 21
    2.295  ESP->ROM: seq 21 status 2 "ok"
    2.312  ROM: request seq 22 cmd 3 "http://example.com/burst"
+   2.328  ROM: state 22
    2.412  ESP->ROM: seq 22 status 2 "ok"
    2.429  ROM: request seq 23 cmd 3 "http://example.com/burst"
+   2.445  ROM: state 23
    2.529  ESP->ROM: seq 23 status 2 "ok"
    2.530  ROM: request seq 24 cmd 3 "http://example.com/burst"
+   2.545  ROM: state 24
    2.630  ESP->ROM: seq 24 status 2 "ok"
    2.647  ROM: request seq 25 cmd 4 ""
    2.649  ESP->ROM: seq 25 status 2 "RAIL 4.73V RES 4.71V"
+   2.663  ROM: state 25
