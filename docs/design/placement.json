@@ -1,0 +1,5 @@
+[
+ {"ref": "U104", "x": 121.0, "y": 84.0, "rot": 90,
+  "why": "WiFi module in the freed coin-cell area (LOGBOOK 09:02/09:10). fit_part.py: legal at all rotations; 90 deg puts the SPI/ADC/IO pins (12-24) on the side facing the RP2350, USB D+/D- (26/27) towards the hub/USB-C at the top, and the module's antenna end towards the board edge for the u.FL cable",
+  "rip": {"nets": ["GND"], "box": [113.5, 76.5, 128.6, 91.5]}}
+]
