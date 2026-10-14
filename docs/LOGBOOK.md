@@ -958,3 +958,10 @@ The gate checks are stronger as well:
   - A wrong expectation was checked to fail.
 - **GET in the sim** now goes through `host_net.py fetch` (fixtures / live / offline) and the shipped `gbw_sanitize` (also used by the app now). The example.com fixtures for the gate are unchanged. URLs with shell metacharacters are refused: they come from the ROM and reach popen.
 - **Gate S1.12:** the RGBDS example and the GBDK template on the weak console through run_rom.py. **S1 ALL PASS** (S1.1-S1.12).
+
+## 2026-10-14 22:49 Hardware gate run (closes the audit's open item; Hazy installed KiCad 10.0.6)
+- The first run FAILED (ERC 420 new, DRC 130 new): all of them library-link items (footprint_link_issues / lib_footprint_issues). The fresh install had no global `sym-lib-table` / `fp-lib-table` in `~/Library/Preferences/kicad/10.0`; the KiCad GUI creates them on first launch, kicad-cli does not. I installed KiCad's own stock tables from `KiCad.app/Contents/SharedSupport/template`. That is an environment fix, nothing in the repo changed.
+- **`verify/kicad_check.py`: ALL PASS.** ERC 67 now / 68 baseline, 0 new. DRC 321 / 452, 0 new. Unconnected 0, parity 0. The working tree is unchanged afterwards.
+- **`netlist_check.py`: PASS** (0 errors). **`design_calcs.py`: all limits PASS.** **`sim_vs_netlist.py`: PASS.**
+- **Order files current:** Gerbers and drill files re-exported with kicad-cli 10.0.6 (no X2, soldermask subtracted, separate PTH/NPTH, mm) match `hw/rev-b/fab/gerbers` exactly on all 15 files (ignoring date and generator lines). The order zip holds the same 15 files byte for byte, plus the job file.
+- For the next fresh machine (CLAUDE.md tool notes): copy the stock lib tables before running the gate.
