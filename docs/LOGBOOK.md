@@ -634,3 +634,21 @@ Not yet real: the croco-fw2 mailbox code, ESP-IDF timing (round-trip times are a
 - **Schematic change:** ESP `USB_PWR_ST` moved from IO3 (module pin 6, bottom edge, trapped above the buck-boost block) to IO5 (pin 19, right edge, free, plain input). Firmware pin map to follow.
 - The ADC_VCC divider (R118/R119) moved next to the VCC source (U101/C102); only the high-impedance ADC_VCC line runs to the module, filtered by C115 at the ADC pin. Removes a VCC run through the crowded buck area.
 - Still open: 7 (the buck-boost corner keeps fighting: RF_EN, ESP_EN, VRES, VCC, USB_PWR_ST; plus U101 VBUS and RP2350 GB_A7). Next: a clean full re-route of all new + moved nets in one Freerouting run with the improved placement, then the finisher.
+
+## 2026-10-14 16:45 Routing complete: 0 open connections
+
+(The 15:55 session crashed mid-step; the work was recovered from the scratch board `/tmp/try.kicad_pcb`: both stuck GND pads already joined via-in-pad, four inner traces ripped for it.)
+
+- **Re-routed the ripped traces** with the finisher: +3V3_RF, LIM_FAULT_N, GB_CS. Its VCC answer (U101 pin 6 to D5, a **108 mm** detour with 6 vias) was **rejected**.
+- **VCC to the power mux U101:** the U101/C102/R118 VCC island now reaches the In4 VCC strip through one via at (136.22, 102.08) on its own F.Cu run and an **extension of the In4 VCC plane** (merged into the VCC zone outline, x 133.9-136.9, y 101.5-109.6). It cuts a notch into the In4 +3V3 plane there; DRC shows no +3V3 item losing its connection. GB_A2 (In2) jogged around the new via.
+- **ESP_IO2_MISO** by hand on In3 (jog around a GND via); **ESP_MOSI** by the finisher with 0.35/0.15 vias (`FR_VIA` env; board minimums now 0.28 mm via / 0.15 mm hole, JLC 6-layer: 0.25/0.15).
+- **GB_A7 (RP2350 pin 28) escape:** pin 27's (GB_A6) via moved down to (143.17, 96.96), GB_A5's via reduced to 0.35/0.15, so pin 28 gets its own via at (143.60, 96.70); In2 link to the existing GB_A7 run, dead 3.5 mm stub of the old approach removed.
+- **PG_SENSE:** R123 (1.3 M, VRES -> PG_SENSE) moved from the far side of U108 to right below U108 pin 3 (rotated 180 deg); its VRES end drops on the B.Cu VRES run with one via. Shorter high-impedance node than before.
+- **GB_A15 (pin 44):** escape via at (150.20, 93.30), finisher route to D8 pin 6 (3 vias).
+- Clean-up: co-located VRES via pair merged; leftover dangling USB_RP_D+ / DEBUG_UART_TX / DATA_BUS7 vias and two dangling inner stubs removed (exact-match pruning).
+
+**Gate (`verify/kicad_check.py`):** ERC PASS (0 new), **unconnected 0** (Croco's own baseline had 3), parity PASS. DRC: 0 new copper items (clearance/shorting/hole counts equal to Croco's baseline: J5 B.Cu pad polygons, SW1 contact pattern, USB-C NPTH). New items are silkscreen/mask/library only (silk_overlap, silk_over_copper, silk_edge_clearance, 6 solder_mask_bridge, 14 lib_footprint_issues) = step 3.
+
+New tools: `pad_to_plane.py`, `via_to_track.py`, `route_pair.py` (finisher with chosen ends, `--best`), `dump_region.py` + `plot_layers.py` (per-layer zoom plots), `prune_dangling.py`.
+
+Next: step 3 (silkscreen, the 6 mask bridges, footprint library links), then step 4 (full DRC/parity/sim-vs-board) and the S1 system simulation re-run on the final layout before any order.
