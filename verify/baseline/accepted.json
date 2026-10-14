@@ -8,5 +8,95 @@
    "fp": "power_pin_not_driven | Symbol #PWR054 Pin 1 [Power input, Line]",
    "why": "+BATT power symbol of the removed (DNP) coin-cell holder BT1: the net now only holds BT1's own pin; kept so the holder can be restored by flipping its DNP flag (LOGBOOK 09:10)"
   }
+ ],
+ "drc": [
+  {
+   "fp": "lib_footprint_mismatch | Footprint C105",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "lib_footprint_mismatch | Footprint C106",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "lib_footprint_mismatch | Footprint C107",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "lib_footprint_mismatch | Footprint D101",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "lib_footprint_mismatch | Footprint D102",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "lib_footprint_mismatch | Footprint D103",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "lib_footprint_mismatch | Footprint D104",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "lib_footprint_mismatch | Footprint Q102",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "lib_footprint_mismatch | Footprint U102",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "lib_footprint_mismatch | Footprint U104",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "lib_footprint_mismatch | Footprint U105",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "lib_footprint_mismatch | Footprint U107",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "lib_footprint_mismatch | Footprint U108",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "lib_footprint_mismatch | Footprint U109",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "lib_footprint_mismatch | Footprint Y101",
+   "why": "silkscreen outline clipped on the board (tools/silk_clip.py, LOGBOOK step 3) so it clears pads and neighbouring silk; copper/pads identical to the library footprint"
+  },
+  {
+   "fp": "solder_mask_bridge | Pad 2 [GB_CLK] of J5 on F.Cu || Polygon of J5 on F.Mask",
+   "why": "Croco's J5 edge-connector footprint: one common mask opening over all gold fingers, by design. Same item class is in the baseline; KiCad reports at most 199 per type, so which J5 fingers get listed shifts when other mask items change"
+  },
+  {
+   "fp": "solder_mask_bridge | Pad 27 [GB_D5] of J5 on F.Cu || Polygon of J5 on F.Mask",
+   "why": "Croco's J5 edge-connector footprint: one common mask opening over all gold fingers, by design. Same item class is in the baseline; KiCad reports at most 199 per type, so which J5 fingers get listed shifts when other mask items change"
+  },
+  {
+   "fp": "solder_mask_bridge | Pad 3 [unconnected-(J5-WR-Pad3)] of J5 on F.Cu || Polygon of J5 on F.Mask",
+   "why": "Croco's J5 edge-connector footprint: one common mask opening over all gold fingers, by design. Same item class is in the baseline; KiCad reports at most 199 per type, so which J5 fingers get listed shifts when other mask items change"
+  },
+  {
+   "fp": "solder_mask_bridge | Pad 4 [GB_RD] of J5 on F.Cu || Polygon of J5 on F.Mask",
+   "why": "Croco's J5 edge-connector footprint: one common mask opening over all gold fingers, by design. Same item class is in the baseline; KiCad reports at most 199 per type, so which J5 fingers get listed shifts when other mask items change"
+  },
+  {
+   "fp": "solder_mask_bridge | Pad 5 [GB_CS] of J5 on F.Cu || Polygon of J5 on F.Mask",
+   "why": "Croco's J5 edge-connector footprint: one common mask opening over all gold fingers, by design. Same item class is in the baseline; KiCad reports at most 199 per type, so which J5 fingers get listed shifts when other mask items change"
+  },
+  {
+   "fp": "solder_mask_bridge | Pad 6 [GB_A0] of J5 on F.Cu || Polygon of J5 on F.Mask",
+   "why": "Croco's J5 edge-connector footprint: one common mask opening over all gold fingers, by design. Same item class is in the baseline; KiCad reports at most 199 per type, so which J5 fingers get listed shifts when other mask items change"
+  },
+  {
+   "fp": "solder_mask_bridge | Pad 7 [GB_A1] of J5 on F.Cu || Polygon of J5 on F.Mask",
+   "why": "Croco's J5 edge-connector footprint: one common mask opening over all gold fingers, by design. Same item class is in the baseline; KiCad reports at most 199 per type, so which J5 fingers get listed shifts when other mask items change"
+  }
  ]
 }

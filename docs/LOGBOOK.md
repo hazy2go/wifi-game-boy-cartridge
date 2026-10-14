@@ -652,3 +652,15 @@ Not yet real: the croco-fw2 mailbox code, ESP-IDF timing (round-trip times are a
 New tools: `pad_to_plane.py`, `via_to_track.py`, `route_pair.py` (finisher with chosen ends, `--best`), `dump_region.py` + `plot_layers.py` (per-layer zoom plots), `prune_dangling.py`.
 
 Next: step 3 (silkscreen, the 6 mask bridges, footprint library links), then step 4 (full DRC/parity/sim-vs-board) and the S1 system simulation re-run on the final layout before any order.
+
+## 2026-10-14 17:05 Step 3: silkscreen and clean-up
+
+- **70 LCSC part numbers were set visible on F.Silkscreen** (the `LCSC` field of every new part, e.g. "C25790"): they would have been printed all over the board. Hidden (the field stays for the BOM).
+- References of the 70 new parts moved to F.Fab (a 0402-dense layout has no room for legible silk text; the assembly drawing carries them).
+- New-part silk outlines clipped against pads and neighbouring silk (`tools/silk_clip.py`: segments split into the clear runs, other shapes to Fab if they collide): 37 split, 6 dropped, 1 to Fab. This makes 15 footprints differ from their library copy (`lib_footprint_mismatch`, accepted with reason; pads untouched).
+- Croco references our parts now overlapped: 20 moved to the nearest legal spot (`tools/ref_place.py`, clear of pads/vias/silk/edge), 5 to Fab (R12, R15, C15, U5, C26: no legal spot).
+- Removed a dangling +3V3 via + its 4-segment stub at C118 (left from a plane drop over the VBUS corner of In4; C118 is connected through U107's own +3V3 run).
+- KiCad caps each DRC type at 199 reports, which hid most silk items before (the J5 gold-finger mask opening also shows as "new" only because the capped selection shifts): accepted with reason; `kicad_check.py` now accepts repeats of a reviewed fingerprint.
+
+**Gate: ERC PASS, DRC PASS (0 new, 153 resolved vs Croco's baseline), unconnected 0, parity PASS.** Silkscreen: 0 silk_overlap / silk_over_copper / silk_edge_clearance (Croco's own 8 small connector labels stay below the 0.8 mm text-height rule, as in the original).
+![top silk](img/silk_top_v1.png)

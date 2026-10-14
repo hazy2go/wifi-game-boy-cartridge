@@ -61,7 +61,7 @@ def main():
         for a in lst:
             if a['fp'] in cur[k]:
                 print(f"ACCEPTED {k}: {a['fp'][:120]}  ({a['why']})")
-                base[k] = base[k] + [a['fp']]
+                base[k] = base[k] + [a['fp']] * cur[k].count(a['fp'])   # a reviewed item may repeat
     bad = 0
     for k in cur:
         new = collections.Counter(cur[k]) - collections.Counter(base[k])
