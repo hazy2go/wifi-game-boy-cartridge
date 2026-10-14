@@ -32,11 +32,16 @@
 
 /* ------------------------------------------------------------------ parameters (with sources) */
 static double RSRC;                      /* console source resistance: 0.7 fresh / 1.2 tired / 2.0 weak (run_sim.py) */
+#ifndef VSRC
+#define VSRC 5.0                         /* console open-circuit rail (-DVSRC=4.8 etc.) */
+#endif
 #define GB_LOAD 0.100                    /* console draw (A) */
 #define LOGIC_LOAD 0.060                 /* cart logic: RP2350 + HyperRAM + flash (A, audit corner nominal) */
 #define GB_CAP 100e-6
 #define ILIM 0.150                       /* TPS2553 at RILIM 180k */
-#define VDPM 4.588                       /* TLV431B regulator set-point (A8.1) */
+#ifndef VDPM
+#define VDPM 4.588                       /* TLV431B regulator set-point (A8.1); R126 sets it */
+#endif
 #define DPM_GAIN 15.0                    /* A/V, A8 load regulation */
 #ifndef RPATH
 #define RPATH 0.0                        /* board copper J5 VCC -> reservoir (-DRPATH from hw/rev-b/tools/path_res.py) */
@@ -119,7 +124,7 @@ static void plant_ms(void)
             gb_min = vgb;
         if (t_now > 0.05 && vgb < 4.5)
             unsafe_s += dt;
-        vgb += ((5.0 - vgb) / RSRC - GB_LOAD - LOGIC_LOAD - isw) / GB_CAP * dt;
+        vgb += ((VSRC - vgb) / RSRC - GB_LOAD - LOGIC_LOAD - isw) / GB_CAP * dt;
         vc += icap / CRES * dt;
         t_now += dt;
     }
@@ -349,7 +354,7 @@ int main(int argc, char **argv)
     char path[512];
     snprintf(path, sizeof path, "%s/%s_log.txt", argv[5], argv[2]);
     slog = fopen(path, "w");
-    vgb = 5.0 - RSRC * GB_LOAD;               /* console on, cartridge empty: hot-plug at t = 0 */
+    vgb = VSRC - RSRC * GB_LOAD;               /* console on, cartridge empty: hot-plug at t = 0 */
 
     static struct gb_s gb;
     if (gb_init(&gb, gb_rom_read, gb_cart_ram_read, gb_cart_ram_write, gb_error, NULL) != GB_INIT_NO_ERROR) {
