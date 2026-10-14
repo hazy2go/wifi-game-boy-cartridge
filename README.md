@@ -1,75 +1,64 @@
-# wifi-game-boy-cartridge: Rev B (this fork)
+# WiFi Game Boy Cartridge (Rev B)
 
-**This fork is a ground-up redesign of the cartridge.** It keeps the idea of the original (custom Game Boy code with WiFi) but replaces the hardware: the base is the proven [Croco Cartridge V2.1](https://github.com/shilga/rp-gameboy-cartridge-hw) (RP2350, CERN-OHL-P), with an **ESP32-C3** radio and a **console-safe power stage** added, so the WiFi can never brown out the Game Boy (the unresolved problem of the original, see below).
+A WiFi cartridge for the original Game Boy and the Game Boy Color that **can't brown out the console**.
+An RP2350 serves the whole cartridge bus, and an ESP32-C3 radio sits behind a power stage. That stage limits what the cart takes from the console to a steady 150 mA and never pulls the console's 5 V rail below 4.588 V.
+Fully assembled by JLCPCB, nothing to hand-solder.
+
+![Rev B board, 3D render](docs/img/board_iso.png)
 
 | | |
 |---|---|
-| Status (2026-10-14) | Layout complete, all gates pass, JLC order files ready (`hw/rev-b/fab/ORDER.md`). **Not ordered yet:** waiting for one measurement on an ESP32-C3 dev board (RF calibration time). |
-| Board | 6 layers, 0.8 mm, fully assembled by JLCPCB (nothing to hand-solder), fits the standard shell |
-| Radio | ESP32-C3-MINI-1U (MHF III plug + stick-on antenna), on the RP2350's SPI bus; both flashable over the one USB-C (CH334P hub) |
-| Power | power mux (prefers USB) -> 150 mA limit -> precision input-voltage regulator (holds the console at >= 4.588 V) -> ~1 mF reservoir -> power-good -> buck-boost. The radio firmware admits every TX frame against the reservoir's energy |
-| Proven so far | KiCad ERC/DRC/parity clean vs Croco's baseline; transistor-level power simulations with vendor models; full-system simulation: a real Game Boy ROM in an emulated Game Boy, through the cartridge and the shipped power-manager code, on fresh to very weak batteries, with the routed copper's resistance included |
+| Status (2026-10-14) | Hardware design finished, all checks green, JLC order files ready. **Not ordered yet:** two tests on an ESP32-C3 dev board come first (RF calibration energy, antenna inside the shell). Software in progress. |
+| Board | 6 layers, 0.8 mm, standard cartridge shell, USB-C |
+| Cartridge core | RP2350B + 8 MB HyperRAM + 16 MB flash + microSD + RTC, serving the cartridge bus over PIO (the proven Croco Cartridge design) |
+| Radio | ESP32-C3-MINI-1U on the RP2350's SPI bus, stick-on FPC antenna (MHF III plug) inside the shell. Both chips flash over the one USB-C port (built-in USB hub) |
+| Power | USB/console power mux → 150 mA current limit → precision input-voltage regulator (console never pulled below 4.588 V ±1 %) → ~1 mF reservoir → power-good → buck-boost to 3.3 V. The radio firmware admits every WiFi frame against the energy left in the reservoir |
 
-![BTC demo in the simulated cartridge](docs/img/btc_demo_screens.png)
+## Why
 
-*Demo ROM in the simulation: WiFi scan (real networks seen by the host's radio), password entry, live BTC/USD chart.*
+Earlier WiFi carts powered the radio straight from the Game Boy's 5 V. Every transmit burst (170 to 350 mA) hit the console's weak power converter, and on tired batteries the whole system collapsed.
+Here the console only ever sees a steady, limited draw. The bursts come out of a local reservoir, and if the console can't keep up, the radio waits instead of the Game Boy crashing.
 
-Where to look:
-- `CLAUDE.md`: handoff, current status and the software to-do list (start here)
-- `docs/ARCHITECTURE.md`: block diagram and why each block
-- `docs/LOGBOOK.md`: every decision, check and result, in order
-- `hw/rev-b/`: the KiCad project (based on Croco V2.1) and the layout tools
-- `sim/power/`, `sim/system/`: power-stage and full-system simulations; `verify/`: the gates
-- `firmware/esp32c3/components/power_mgr`: the radio's power manager
+| Top | Bottom |
+|---|---|
+| ![top](docs/img/board_top.png) | ![bottom](docs/img/board_bottom.png) |
 
-Credits: original cartridge and demos by [Staacks / there.oughta.be](https://github.com/Staacks/wifi-game-boy-cartridge) (GPL-3); cartridge core by [shilga / Croco Cartridge](https://github.com/shilga/rp-gameboy-cartridge-hw) (CERN-OHL-P); emulator in the simulation: [Peanut-GB](https://github.com/deltabeard/Peanut-GB) (MIT).
+## Proven before ordering
 
----
+None of this has been built yet. Instead, everything was simulated against real part models and checked against the actual layout:
+- **Power stage, at transistor level:** ngspice with TI and Vishay vendor models, covering hot-plug, bursts after idle, loop stability and every tolerance corner (`sim/power`, audits A1 to A8).
+- **Full system:** a real Game Boy ROM runs in a cycle-accurate emulator and goes through the cartridge's mailbox. The models cover the RP2350, the ESP32-C3 running the *shipped* power-manager C code, and the power plant including the routed copper's resistance. Tested on fresh, tired and weak batteries (`sim/system`).
+- **Layout:**
+  - KiCad ERC, DRC and connectivity are clean against the Croco baseline (`verify/`).
+  - Every part is checked pin by pin against the exact JLC part.
+  - The placement file is derived from JLC's own footprints.
 
-*Original README (the ESP8266 version this fork started from):*
+Demo ROM in that simulation: WiFi scan (real networks seen by the host), password entry, then a live BTC/USD chart:
 
-# wifi-game-boy-cartridge
-A WiFi cartridge for the original Game Boy.
+![BTC demo running in the simulated cartridge](docs/img/btc_demo_screens.png)
 
-This open source and open hardware Game Boy cartridge uses an ESP8266 to allow WiFi access for custom Game Boy code. First demos include accessing Wikipedia articles from the Game Boy.
+## Repository
 
-Details and instructions can be found on https://there.oughta.be/a/wifi-game-boy-cartridge and an overview is given in the following video:
+| Path | What |
+|---|---|
+| `CLAUDE.md` | Handoff: current status, rules, software to-do (start here) |
+| `docs/ARCHITECTURE.md` | Block diagram, why each block, pin budget |
+| `docs/LOGBOOK.md` | Every decision, check and result, in order |
+| `hw/rev-b/` | KiCad project, layout tools, `fab/` order files (`fab/ORDER.md`) |
+| `firmware/esp32c3/` | Radio firmware (power manager done, app in progress) |
+| `sim/power/`, `sim/system/` | Power-stage and full-system simulations |
+| `verify/` | Pre-order gates |
+| `esp8266/`, `gb/`, `python/`, `pcb/`, `3dprint/` | The original ESP8266 cartridge's code, PCB and shell, kept for reference only |
 
-[![Youtube Video: WiFi Game Boy Cartridge](https://img.youtube.com/vi/QS4fzElm8zk/0.jpg)](https://youtu.be/QS4fzElm8zk)
+## Credits
 
-Also, another article and video have been published on streaming video through this cartridge, which can be found at https://there.oughta.be/gta5-for-the-game-boy and in this video:
+- Forked from [Staacks/wifi-game-boy-cartridge](https://github.com/Staacks/wifi-game-boy-cartridge) (there.oughta.be). The original ESP8266 cartridge was the idea and the starting point.
+- The cartridge core is [Croco Cartridge V2.1](https://github.com/shilga/rp-gameboy-cartridge-hw) by shilga. Firmware base: [rp2350-gameboy-cartridge-firmware](https://github.com/shilga/rp2350-gameboy-cartridge-firmware).
+- The emulator in the simulation is [Peanut-GB](https://github.com/deltabeard/Peanut-GB). The DMG power-supply analysis uses [Gekkio's gb-schematics](https://github.com/Gekkio/gb-schematics).
 
-[![Youtube Video: Playing GTA5 on the original Game Boy](https://img.youtube.com/vi/pX1opw_gsBs/0.jpg)](https://youtu.be/pX1opw_gsBs)
+## License
 
-If you have pull-requests, bug reports or want to contribute new case designs, please do not hesitate to open an issue. For generic discussions, "show and tell" and if you are looking for support for something that is not a problem in the code here, I would recommend [r/thereoughtabe on reddit](https://www.reddit.com/r/thereoughtabe/).
-
-<a href="https://www.buymeacoffee.com/there.oughta.be" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" height="47" width="174" ></a>
-
-# Important notice
-
-Please read the resources above carefully and understand the limitations of this project. The brown-out issues have never been resolved and this is more a prove of concept than a consumer product. If you still want to try it yourself, please also note that rgbasm has changed a lot since this project was written and that its current version is no longer compatible with the asm files provided here. You may need to revert to rgbasm 0.5.2 to build them. 
-
-# Short overview of the demos
-
-As the number of demos keeps growing and some of them are just a quick experiment, you can find a few notes here:
-
-## color-stream
-
-This is the code for streaming videos to the Game Boy Color as shown in [in this little video](https://www.youtube.com/watch?v=kHexmGR_rPY). The code is supposed to detect if the cart is in a classic Game Boy (DMG) or a Game Boy color and both, the EEPROM code as well as the ESP8266 code should react accordingly. However, you have to use the right Python script, i.e. `video-stream` or `game-stream` for the original Game Boy or `color-stream` for a Game Boy color.
-
-Note, that this has not been tested much and still has a few glitches. Also note, that I ran into an ffmpeg problem that prevented me from streaming screen captures on Linux (x11grab).
-
-## serial
-
-The oldest demo from the first video. When this is running, the Game Boy should show your IP address and you can connect to it with a telnet client. You can send text between Game Boy and PC and that's it. Note that there is an error in the way the data pins are initialized, causing them to run in open drain mode, which is ok, except for the highest bit which has an external pull-down and therefore stays low forever. For this demo, it does not matter because the character map does not have anything above the 7bit ASCII map anyways, but if you ever need the eighth bit, look at the streaming videos for how to initialize this correctly.
-
-## stream
-
-The streaming code on which the second video (playing GTA5) is based. It allows to show a video stream on the Game Boy and sends back key presses. You need to feed it with one of the Python scripts, either `video-stream.py` or `game-stream.py`. The buttons seem to generate a few ghost presses, which should be fixed by doing a few more readouts for the buttons (not tested).
-
-## wiki
-
-The Wikipedia demo from the first video. Once it has started, you can press start to get an on-screen keyboard, enter the title of a Wikipedia article and press start again to fetch an excerpt of that article. Pressing A shows you the remainder of the article, if any. Just like with the serial demo above, there is an error in the way the data pins are initialized, causing them to run in open drain mode, which is ok, except for the highest bit which has an external pull-down and therefore stays low forever. For this demo, it does not matter because the character map does not have anything above the 7bit ASCII map anyways, but if you ever need the eighth bit, look at the streaming videos for how to initialize this correctly.
-
-# License
-The code and the PCB design are released under the GNU General Public Licence 3. The only exception is the cartridge model for the 3d print, which is based on a [Game Boy cartridge by DomesticHacks on Thingiverse](https://www.thingiverse.com/thing:107841), which is released under a CC-BY-NC-SA license, so I have to publish my derived work under CC-BY-NC-SA, too.
+- `hw/rev-b/`: CERN-OHL-P v2, inherited from Croco Cartridge (`hw/rev-b/LICENSE-CERN-OHL-P.md`).
+- `esp8266/`, `gb/`, `python/`, `pcb/`: GPL-3 (original project).
+- `3dprint/`: CC-BY-NC-SA (original project, derived from DomesticHacks' cartridge model).
+- `sim/system/third_party/Peanut-GB`: MIT.
