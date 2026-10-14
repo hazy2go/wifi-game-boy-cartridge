@@ -54,4 +54,5 @@ The CPL already carries the corrections JLC's own footprints need (e.g. USB-C J1
 - U2 flash W25Q16JVSSIQ (0 stock) -> **W25Q128JVSIQ** C97521 (same family/footprint, 16 MB, JLC basic part)
 - U4 HyperRAM W956A8MBYA5I (0 stock) -> **ISSI IS66WVH8M8BLL-100B1LI** C1349096 (3.0 V, 64 Mb, identical HyperBus ball map, checked ball by ball; 100 MHz max vs ~22 MHz used by Croco's firmware)
 - U1 USBLC6-2P6: same part, in-stock listing C2827693
+- R101/R102 PR1 divider (2026-10-14): 5.1k/2.0k -> **1.3k C25866 (extended) / 510 C25123**. Same USB threshold; it tolerates 1.78 mA of D3 leakage instead of 453 uA (the SM5817PL can leak ~0.6 mA at 75 C). One more feeder fee.
 - C27/C28 RTC crystal load caps: schematic said 4.3 pF but linked a 15 pF part; now 4.3 pF C59526 (MCP7951x datasheet eq. 5-1 with the 7 pF crystal)

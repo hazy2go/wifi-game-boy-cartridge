@@ -89,26 +89,26 @@
   {
    "ref": "R101",
    "symbol": "Device:R",
-   "value": "5.1k 1%",
+   "value": "1.3k 1%",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
-   "lcsc": "C25905",
+   "lcsc": "C25866",
    "pins": {
     "1": "VBUS",
     "2": "MUX_PR1"
    },
-   "why": "PR1 divider top: USB is used when VBUS > 3.55 V nom (3.22-3.89 V worst)"
+   "why": "PR1 divider top: USB is used when VBUS > 3.55 V nom (3.22-3.89 V worst). 1.3k/510 (was 5.1k/2.0k): same ratio, 3.9x the D3-leakage margin (LOGBOOK 2026-10-14)"
   },
   {
    "ref": "R102",
    "symbol": "Device:R",
-   "value": "2.0k 1%",
+   "value": "510 1%",
    "footprint": "Resistor_SMD:R_0402_1005Metric",
-   "lcsc": "C4109",
+   "lcsc": "C25123",
    "pins": {
     "1": "MUX_PR1",
     "2": "GND"
    },
-   "why": "PR1 divider bottom; 7.1 kOhm total also pulls a floating VBUS (D3 reverse leakage) to ground"
+   "why": "PR1 divider bottom; 1.81 kOhm total pulls a floating VBUS (D3 reverse leakage, up to ~0.6 mA at 75 C) to ground: needs 1.78 mA to fake USB"
   },
   {
    "ref": "C101",

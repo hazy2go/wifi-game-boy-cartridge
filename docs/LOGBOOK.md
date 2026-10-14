@@ -976,3 +976,16 @@ The gate checks are stronger as well:
 - **XIAO board profile for the radio app** (`CONFIG_GBW_BOARD_XIAO`, `sdkconfig.xiao`): same SPI pins, fixed readings for the missing ADC dividers. Plus a console `job <cmd> [payload]` that runs any mailbox command locally, so GET/TIME/SCAN/CONNECT can be tried on real WiFi. Both profiles build; the cart build was checked to default to the cart profile.
 - **Pico 2 link tester** (fork `link-tester/`, PR #4): `src/esp_link.rs` unchanged on an RP2350A, SPI0 on the cart's pins plus CS on GPIO5, with a USB serial console standing in for the Game Boy. It builds, and picotool reads the UF2 as an RP2350 ARM Secure image. Not run on hardware.
 - **Still to decide (Hazy):** a license for the new software (README lists only hw/ and legacy/), and NVS encryption for the stored WiFi credentials (off).
+
+## 2026-10-14 23:52 R101/R102 1.3k/510 (Hazy agreed to change the divider; asked which tests are needed)
+- **Why:** the D3 leakage (entry above) can exceed the PR1 divider's 453 uA margin in a hot cart. The new values keep the ratio (2.55, so the threshold is unchanged: 3.55 V nominal, 3.22-3.89 V worst case), and the total drops from 7.1 to 1.81 kOhm. The margin becomes **1.78 mA, 3x the ~0.6 mA worst case**. Costs: 2.9 mA from USB (was 0.74 mA), 10.9 mW in R101 (0402: 62.5 mW).
+- **Parts:** 510 is basic (C25123). 1.3k is extended (C25866), and so is 1.2k (C25862, 1.2k/470 would also keep the ratio). The fully basic option 2.0k/820 is out too, because 820 (C25135) is extended. The BOM already has 43 extended parts, so this adds one feeder fee.
+- **Changed:** radio.kicad_sch (set_sch_props.py), board footprint values/LCSC, netlist_radio.json, DESIGN_CALCS (section 2, item 4 resolved), design_calcs.py (new limits: leakage margin x1.5 and resistor power), ORDER.md. The firmware guard (`gbw_usb_trusted`) stays as a second layer.
+- **Checks re-run after the change** (only the ones the change can affect; the power sims model the mux as a 70 mOhm switch without its divider, so A1-A8 cannot see it):
+  - kicad_check ERC/DRC/unconnected/parity: ALL PASS, 0 new.
+  - netlist_check: PASS. design_calcs: all limits PASS. sim_vs_netlist: PASS.
+  - make_bom: ALL PASS (live JLC: C25866 stock 61,521, C25123 1.7 M).
+  - make_cpl: positions and rotations unchanged; report regenerated with the new LCSC numbers.
+  - pin_audit --all: 0 mismatches (both resistors 2/2 pins).
+  - Gerbers and drill re-exported: all 15 identical to fab/ (values are not on any exported layer), so the order zip stays as it is.
+  - S1: ALL PASS.

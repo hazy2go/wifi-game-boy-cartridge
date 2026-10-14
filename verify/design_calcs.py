@@ -34,7 +34,7 @@ def par(*rs):
 
 # ---------------------------------------------------------------------------------------------
 print('1. TPS2116 PR1 divider (VBUS priority threshold)  [SLVSFG1A Table 6.5 p6, 7.6.1.1 p12]')
-RT, RB = 5.1e3, 2.0e3
+RT, RB = 1.3e3, 510.0   # was 5.1k/2.0k: same ratio, lower impedance for D3 leakage (LOGBOOK 2026-10-14)
 VREF = (0.92, 1.00, 1.08)
 nom = VREF[1] * (1 + RT / RB)
 vals = [v * (1 + rt / rb) for v, rt, rb in corners((VREF[0], VREF[2]), rr(RT), rr(RB))]
@@ -45,6 +45,11 @@ ileak_to_trip = min(vals) / (RT + RB)
 print(f'  VBUS pull-down when USB absent: {(RT + RB) / 1e3:.1f} kOhm; a reverse leakage of '
       f'{ileak_to_trip * 1e6:.0f} uA from D3 would be needed to float VBUS to the lowest threshold')
 print(f'  load on VBUS when USB present: {5.25 / (RT + RB) * 1e3:.2f} mA at 5.25 V')
+D3_LEAK_WORST = 0.6e-3   # SM5817PL at 4.7 V / 75 C: Fig. 5 typical x the max/typ ratio of the IR table (MCC Rev.4-1)
+limit('PR1 divider tolerates the worst-case D3 leakage with margin x1.5', ileak_to_trip > 1.5 * D3_LEAK_WORST,
+      f'{ileak_to_trip * 1e3:.2f} mA needed vs {D3_LEAK_WORST * 1e3:.1f} mA worst case')
+limit('PR1 divider power within 0402 rating (62.5 mW)', 5.25 ** 2 / (RT + RB) * max(RT, RB) / (RT + RB) < 0.0625,
+      f'{5.25 ** 2 / (RT + RB) * max(RT, RB) / (RT + RB) * 1e3:.1f} mW in the larger resistor')
 
 # ---------------------------------------------------------------------------------------------
 print('\n2. TPS2553 ILIM  [SLVS841F Eq. 1 p15]')
