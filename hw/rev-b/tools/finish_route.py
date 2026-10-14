@@ -109,6 +109,15 @@ class Raster:
 
     def blocked(self, net, layer, halfw):
         g = (self.total[layer] - self.per[(net, layer)]) > 0
+        extra = halfw - (self.r - CLEAR)          # rasters were built for half-width 0.175 mm
+        if extra > 1e-9:
+            k = int(math.ceil(extra / RES))
+            gg = g.copy()
+            for dj in range(-k, k + 1):
+                for di in range(-k, k + 1):
+                    if dj * dj + di * di <= k * k:
+                        gg |= np.roll(np.roll(g, dj, 0), di, 1)
+            g = gg
         return g | self.outside      # outside the outline is blocked too
 
     def add_item(self, it, l):
@@ -140,6 +149,36 @@ def via_spot(R, net, x, y, layer, stub_w):
                 continue
             return vx, vy, False
         r += RES * 2
+    return None
+
+
+def fanout(R, net, x, y, layer, width, max_len=6.0):
+    """BFS on the item's own outer layer from (x, y) to the nearest cell where a via fits on every signal
+    layer. Returns [(x, y), ..., (vx, vy)] or None."""
+    blk = R.blocked(net, layer, width / 2)
+    vr = VIA_D / 2
+    vok = ~np.any([R.blocked(net, l, vr) for l in ALL], axis=0)
+    j0, i0 = int(round((y - R.y0) / RES)), int(round((x - R.x0) / RES))
+    lim = int(max_len / RES)
+    from collections import deque
+    q = deque([(j0, i0)]); prev = {(j0, i0): None}
+    while q:
+        j, i = q.popleft()
+        if vok[j, i] and (j, i) != (j0, i0):
+            path = [(j, i)]
+            while prev[path[-1]] is not None:
+                path.append(prev[path[-1]])
+            return [(R.x0 + ii * RES, R.y0 + jj * RES) for jj, ii in path[::-1]]
+        for dj, di in ((0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)):
+            nj, ni = j + dj, i + di
+            if (nj, ni) in prev or abs(nj - j0) > lim or abs(ni - i0) > lim:
+                continue
+            if not (0 <= nj < R.ny and 0 <= ni < R.nx):
+                continue
+            # the first few cells may sit on the item's own pad copper (same net => not blocked anyway)
+            if blk[nj, ni]:
+                continue
+            prev[(nj, ni)] = (j, i); q.append((nj, ni))
     return None
 
 
@@ -216,14 +255,18 @@ def main(pcb, drc_json, only=None):
             layer = pcbnew.B_Cu if bot else pcbnew.F_Cu
             s = via_spot(R, net, x, y, layer, min(width, 0.25))
             if s is None:
-                break
-            vias.append(((s[0], s[1]), (x, y), layer, s[2]))
+                fo = fanout(R, net, x, y, layer, 0.15)
+                if fo is None:
+                    break
+                vias.append((fo[-1], (x, y), layer, False, fo))
+                continue
+            vias.append(((s[0], s[1]), (x, y), layer, s[2], None))
         if len(vias) != 2:
             print(f'FAIL {net}: no via spot near {ends}'); fail += 1; continue
         grids = [R.blocked(net, l, width / 2) for l in LAYERS]
         cell = lambda p: (int(round((p[1] - R.y0) / RES)), int(round((p[0] - R.x0) / RES)))
         for g in grids:                     # the via cells themselves are ours
-            for (vx, vy), _, _, _ in vias:
+            for (vx, vy), _, _, _, _ in vias:
                 j, i = cell((vx, vy)); g[max(j - 3, 0):j + 4, max(i - 3, 0):i + 4] = False
         # a layer change needs a via that is legal on every signal layer (via radius instead of track half-width)
         vr = VIA_D / 2 - width / 2
@@ -243,13 +286,24 @@ def main(pcb, drc_json, only=None):
         def add_via(x, y):
             v = pcbnew.PCB_VIA(b); v.SetPosition(pcbnew.VECTOR2I(mm(x), mm(y))); v.SetWidth(mm(VIA_D)); v.SetDrill(mm(VIA_H))
             v.SetViaType(pcbnew.VIATYPE_THROUGH); v.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu); v.SetNet(ni); b.Add(v); new.append(v)
-        def add_seg(p, q, layer):
+        def add_seg(p, q, layer, w=None):
             if abs(p[0] - q[0]) < 1e-6 and abs(p[1] - q[1]) < 1e-6:
                 return
             t = pcbnew.PCB_TRACK(b); t.SetStart(pcbnew.VECTOR2I(mm(p[0]), mm(p[1]))); t.SetEnd(pcbnew.VECTOR2I(mm(q[0]), mm(q[1])))
-            t.SetWidth(mm(width)); t.SetLayer(layer); t.SetNet(ni); b.Add(t); new.append(t)
-        for (vx, vy), (x, y), layer, existing in vias:
-            if not existing:
+            t.SetWidth(mm(w or width)); t.SetLayer(layer); t.SetNet(ni); b.Add(t); new.append(t)
+        for (vx, vy), (x, y), layer, existing, fo in vias:
+            if fo:                           # fan-out path: merge collinear steps
+                add_via(vx, vy)
+                pts_ = [fo[0]]
+                for k in range(1, len(fo) - 1):
+                    a_, b_, c_ = pts_[-1], fo[k], fo[k + 1]
+                    if abs((b_[0] - a_[0]) * (c_[1] - b_[1]) - (b_[1] - a_[1]) * (c_[0] - b_[0])) > 1e-9:
+                        pts_.append(b_)
+                pts_.append(fo[-1]); pts_[0] = (x, y)
+                for p_, q_ in zip(pts_, pts_[1:]):
+                    add_seg(p_, q_, layer, 0.15)
+                # fan-out tracks use the signal width; power nets get a 0.25 mm neck here at most
+            elif not existing:
                 add_via(vx, vy); add_seg((x, y), (vx, vy), layer)
         pts = [(L, R.x0 + i * RES, R.y0 + j * RES) for L, j, i in path]
         pts[0] = (pts[0][0], vias[0][0][0], vias[0][0][1]); pts[-1] = (pts[-1][0], vias[1][0][0], vias[1][0][1])
@@ -259,7 +313,7 @@ def main(pcb, drc_json, only=None):
             p, q = pts[k - 1], pts[k]
             if q[0] != p[0]:
                 add_seg(seg_start[1:], p[1:], LAYERS[p[0]])
-                if all(math.hypot(p[1] - vx, p[2] - vy) > 0.6 for (vx, vy), _, _, _ in vias):
+                if all(math.hypot(p[1] - vx, p[2] - vy) > 0.6 for (vx, vy), _, _, _, _ in vias):
                     add_via(*p[1:])
                 seg_start = q; continue
             nxt = pts[k + 1] if k + 1 < len(pts) else None

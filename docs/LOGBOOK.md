@@ -585,3 +585,24 @@ Ripped the copper of 41 slow Croco nets (Game Boy address bus GB_A0-15/CLK/RD/CS
 - Croco's LED D1 back at its original position; Croco's 5 V/3.3 V parts (U6, D2, D3, C25, C26) re-placed on the right side (their nets are on the In4 planes, a via each).
 - 4 GND stitching vias without tracks removed where parts landed on them (2 more found by DRC: the raster check rounds to 0.1 mm).
 - DRC after placement: no courtyard or copper errors from the new placement (only silkscreen, the pre-existing Croco items, and the +5V plane now isolated until routed). Unconnected: 292 (routing next). Parity PASS.
+
+## 2026-10-14 14:55 Routing: 293 open connections -> 11
+
+### Rules (`GameboyCartridgeV2.1.kicad_pro`)
+Croco's own copper is 0.15 mm tracks and 0.5/0.2 mm vias, so the classes now say so: Default/USB 0.15 mm track, 0.15 mm clearance, 0.5/0.2 via; new **Power** class (VMUX, VLIM, VRES, +3V3_RF, VCC, VBUS, +5V, +3V3, buck-boost switch nodes) 0.35 mm, 0.6/0.3 via. Board minimum clearance 0.2 -> 0.15 mm (JLC 6-layer capability is 0.09 mm). In1 and In4 marked as power layers so the router treats them as planes.
+A first router run with 0.2 mm clearance left 101-187 connections open: 0.2 mm tracks with 0.2 mm clearance cannot escape the RP2350's 0.4 mm-pitch pins whose original tracks had been ripped.
+
+### Freerouting 2.5 (OpenJDK 27, headless)
+- Pass 1 (`hw/rev-b/route/board.ses`): fan-out of 653 SMD pins, 18 routing passes, stopped when the score stopped improving.
+- **KiCad 10's `ImportSpecctraSES()` returns False with no message on Freerouting 2.5 sessions.** Wrote `hw/rev-b/tools/import_ses.py`: parses the session, skips wires/vias marked `(type protect)` (the board's existing copper), adds the rest. 293 -> 41 open.
+- Freerouting narrowed 8 segments to 0.075-0.09 mm at pins; widened to 0.1 mm (KiCad minimum; JLC 0.09 mm).
+- Pass 2 on the rest: 41 -> 27.
+### Why the last ones resisted
+Croco's In4 power-plane split (VCC strip, VBUS corner, +5V patch, +3V3 elsewhere) was drawn for Croco's part positions. With the LDO/diodes and our power parts moved, many power pins sit over the wrong plane; the router kept trying to drop vias onto planes that are not there.
+### Own finisher (`hw/rev-b/tools/finish_route.py`)
+Per open pair: a via spot near each end (or reuse of an existing same-net via; or a BFS fan-out on the outer layer to the nearest legal via cell), then A* over In2/In3 (In2 favours horizontal, In3 vertical; layer change only where a via fits on all four signal layers), plus a direct straight/L connection on the outer layer for short gaps. Rasters at 0.05 mm, exact KiCad shape collision for vias/stubs, footprint copper graphics (SW1's button contact pattern) as obstacles.
+Its own bug, caught by KiCad DRC and reverted: layer-change vias were checked with the track's clearance radius instead of the via's (9 clearance errors). Fixed; re-run.
+BUTTON had been routed by Freerouting straight through SW1's no-net contact pattern (a short on the copper drawing); ripped and re-routed.
+Result: **27 -> 11 open**, new DRC copper items limited to 1 clearance (VMUX/GND, F.Cu), 1 co-located +3V3 via pair, 1 GBBUS_EN via pair too close, 4 dangling vias, the orphaned +5V plane patch. Added a full-board F.Cu GND pour (priority 0, islands removed).
+### Still open (11)
+RP2350 pins boxed in by surrounding routing: GB_A3 (pad 23), GB_A12 (40), DATA_BUS0 (45), DEBUG_UART_TX (57), RTC_CS (2); U101 VBUS (needs a long run from the VBUS corner); PG_SENSE (R123-U108); three GND pads (U5 pad 3, C108, one track pair). Next: rip and re-route the slow Croco nets around the processor together with these (Freerouting can only re-route what is not fixed), re-shape the In4 split for the new power-part positions, then the clean-up and the full verification gates.

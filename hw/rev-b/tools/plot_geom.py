@@ -7,6 +7,8 @@ fig, ax = plt.subplots(figsize=(max(6, (x1 - x0) * 0.7), max(6, (y1 - y0) * 0.7)
 for net, l, xa, ya, xb, yb, w in g['tracks']:
     if l == 'F.Cu':
         ax.plot([xa, xb], [ya, yb], color='tab:red', lw=w * 30, solid_capstyle='round', alpha=0.7)
+    elif l in ('In2.Cu', 'In3.Cu') and '--inner' in sys.argv:
+        ax.plot([xa, xb], [ya, yb], color='tab:green' if l == 'In2.Cu' else 'tab:orange', lw=w * 30, alpha=0.5)
     elif l == 'B.Cu' and '--bcu' in sys.argv:
         ax.plot([xa, xb], [ya, yb], color='tab:blue', lw=w * 30, alpha=0.4)
 for net, xa, ya, xb, yb in g['pads']:
@@ -17,6 +19,10 @@ for ref, xa, ya, xb, yb, new in g['crt']:
     ax.add_patch(plt.Rectangle((xa, ya), xb - xa, yb - ya, fill=False, ec='green' if new else 'purple', lw=0.8))
     if x0 - 2 < xa < x1 and y0 - 2 < ya < y1:
         ax.text((xa + xb) / 2, (ya + yb) / 2, ref, fontsize=7, ha='center', va='center')
+if '--nets' in sys.argv:
+    for net, xa, ya, xb, yb in g['pads']:
+        if x0 < xa < x1 and y0 < ya < y1:
+            ax.text((xa + xb) / 2, (ya + yb) / 2, net.replace('/Radio/', '')[:8], fontsize=4, ha='center', va='center', color='navy')
 for xa, ya, xb, yb in g['edge']:
     ax.plot([xa, xb], [ya, yb], 'k-')
 ax.set_xlim(x0, x1); ax.set_ylim(y1, y0); ax.set_aspect('equal')
