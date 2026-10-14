@@ -47,7 +47,7 @@ The CPL already carries the corrections JLC's own footprints need (e.g. USB-C J1
 - J1 USB-C and J2 microSD sit on their pads and face the board edge
 
 ## Not on the board (buy separately)
-- 2.4 GHz stick-on FPC antenna with an **I-PEX MHF III ("IPEX3" / "3rd generation", = Hirose W.FL)** plug. The ESP32-C3-MINI-1U uses this smaller connector (datasheet v2.2, 10.3), **not U.FL/IPEX1**: a U.FL antenna does not plug in. Goes inside the shell at the grip end (LOGBOOK 18:45). Not common in Japanese shops; AliExpress sells them (search "IPEX3 2.4G FPC antenna" / "MHF3"); prefer small ones (<= ~35 x 10 mm).
+- 2.4 GHz stick-on FPC antenna with an **I-PEX MHF III ("IPEX3" / "3rd generation", = Hirose W.FL)** plug. The ESP32-C3-MINI-1U uses this smaller connector (datasheet v2.2, 10.3), **not U.FL/IPEX1**: a U.FL antenna does not plug in. Goes inside the shell at the grip end (LOGBOOK 18:45). Not common in Japanese shops; AliExpress sells them (search "IPEX3 2.4G FPC antenna" / "MHF3"); prefer small ones (<= ~35 x 10 mm). **Pick (2026-10-14): CDEBYTE/Ebyte TX2400-FPC3-2509** (25 x 9 mm, IPEX3, 10 pcs about 663 yen, https://ja.aliexpress.com/item/1005012574238566.html, choose variant "TX2400-FPC3-2509"). A buyer review confirms it works on an ESP32-S3-MINI-1U, which uses the same connector.
 - Cartridge shell (`3dprint/` or a standard DMG shell).
 
 ## Part changes vs Croco's schematic (2026-10-14, stock)
