@@ -43,10 +43,11 @@ os.makedirs(OUT, exist_ok=True)
 sh(f'{sys.executable} make_font.py && rgbasm -Werror -o wifitest.o wifitest.asm && rgblink -o wifitest.gb -n wifitest.sym wifitest.o '
    '&& rgbfix -v -p 0xFF -m MBC5+RAM+BATTERY -r 0x04 -t WIFITEST wifitest.gb', os.path.join(HERE, 'rom'))
 pm = os.path.join(ROOT, 'firmware', 'esp32c3', 'components', 'power_mgr')
+el = os.path.join(ROOT, 'firmware', 'esp32c3', 'components', 'esp_link')
 LAYOUT = os.environ.get('SIM_LAYOUT', '')   # e.g. '-DRPATH=0.0369 -DRESR=0.0156' (extracted copper)
 if LAYOUT:
     log(f'layout parasitics: {LAYOUT}')
-sh(f'cc -O2 -std=c11 {LAYOUT} -Wall -Wextra -Werror -Wno-unused-parameter -I{pm} -o sysim sysim.c {pm}/power_mgr.c -lm', HERE)
+sh(f'cc -O2 -std=c11 {LAYOUT} -Wall -Wextra -Werror -Wno-unused-parameter -I{pm} -I{el} -o sysim sysim.c {pm}/power_mgr.c {el}/esp_link.c -lm', HERE)
 log('# S1 full-system simulation: Game Boy ROM -> cartridge mailbox -> RP2350 -> SPI -> ESP32-C3 firmware -> power path')
 for name, r, secs in SCEN:
     sh(f'./sysim rom/wifitest.gb {name} {r} {secs} out', HERE)
@@ -70,6 +71,26 @@ for name, r, secs in SCEN:
     check(f'S1.3 {name} radio resets', res['radio_resets'] == 0, f"{res['radio_resets']}; reservoir min while on {res['reservoir_min_v_while_on']:.2f} V")
     check(f'S1.4 {name} TX through power manager', res['frames_admitted'] == res['tx_frames'],
           f"{res['tx_frames']} frames sent, {res['frames_admitted']} admitted, refused-ms {res['tx_refused_ms']}, parks {res['pm_parks']}")
+
+log('\n## S1.6 SPI link with bit errors on MOSI and MISO (fresh console)')
+sh(f'cc -O2 -std=c11 {LAYOUT} -DSPI_BER=1e-4 -Wall -Wextra -Werror -Wno-unused-parameter -I{pm} -I{el} -o sysim_ber sysim.c {pm}/power_mgr.c {el}/esp_link.c -lm', HERE)
+sh('./sysim_ber rom/wifitest.gb fresh_ber 0.7 15 out', HERE)
+res = json.load(open(os.path.join(OUT, 'fresh_ber_result.json')))
+shown = [l.rstrip() for l in open(os.path.join(OUT, 'fresh_ber_tilemap.txt')) if l.strip()]
+complete = len(shown) >= len(EXPECT) and all((e.fullmatch(s) if hasattr(e, 'fullmatch') else e == s) for e, s in zip(EXPECT, shown))
+wrong = [s for s in shown if s not in ('ERR', 'TIMEOUT') and not any((e.fullmatch(s) if hasattr(e, 'fullmatch') else e == s) for e in EXPECT)]
+check('S1.6 BER 1e-4 screen', complete and not wrong, f"{res['spi_bit_errors']} bit errors, {res['spi_bad_hdr']} bad headers, "
+      f"{res['spi_bad_body']} bad bodies, ESP rejected {res['esp_rx_bad']}, {res['spi_resent']} requests re-sent; "
+      + ('all 13 lines as expected' if complete else f'got {shown}'))
+
+log('\n## S1.7 a ROM without the WIFICART opt-in gets no mailbox')
+rom = bytearray(open(os.path.join(HERE, 'rom', 'wifitest.gb'), 'rb').read())
+rom[0x150:0x158] = bytes(8)
+open(os.path.join(OUT, 'nooptin.gb'), 'wb').write(rom)
+sh('./sysim out/nooptin.gb nooptin 0.7 3 out', HERE)
+res = json.load(open(os.path.join(OUT, 'nooptin_result.json')))
+check('S1.7 no opt-in', res['wifi_rom'] == 0 and res['spi_xfers'] == 0,
+      f"wifi_rom {res['wifi_rom']}, {res['spi_xfers']} SPI transactions (bank 15 stays plain save RAM)")
 log(f"\nRESULT: {'ALL PASS' if not fails else str(len(fails)) + ' FAIL: ' + ', '.join(fails)}")
 open(os.path.join(OUT, 'report.txt'), 'w').write('\n'.join(lines) + '\n')
 sys.exit(1 if fails else 0)

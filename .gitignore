@@ -13,3 +13,6 @@ sim/models/tests/*.cir
 sim/system/out/*.pgm
 sim/system/sysim
 sim/system/rom/*.o
+sim/system/sysim_ber
+sim/system/el_vectors
+sim/system/out/nooptin.gb

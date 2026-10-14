@@ -2,10 +2,13 @@
  *
  *   Game Boy (Peanut-GB, MIT) running a real ROM
  *     -> cartridge bus: MBC5 ROM/RAM as the RP2350 firmware serves it; RAM bank 15 = WiFi mailbox
- *     -> RP2350 firmware model: polls mailbox writes, frames requests over SPI (CS = GPIO46/DEBUG_UART_TX,
- *        SCK/MOSI through U106, MISO through U105 which only drives while CS is low)
- *     -> ESP32-C3 firmware model: command handlers, WiFi traffic as TX/RX frames, every TX frame admitted by
- *        the SHIPPED power manager (firmware/esp32c3/components/power_mgr/power_mgr.c)
+ *     -> RP2350 firmware model: polls the mailbox every 1 ms and talks to the ESP with the SPI link protocol
+ *        (docs/ARCHITECTURE.md), byte for byte, through the reference master in esp_link.c (CS = GPIO46,
+ *        SCK/MOSI through U106, MISO through U105 which only drives while CS is low). Only for ROMs that opt in
+ *        ("WIFICART" at 0x0150 + MBC5 with 128 KB RAM).
+ *     -> ESP32-C3 firmware model: the SHIPPED SPI-slave protocol half (firmware/esp32c3/components/esp_link),
+ *        command handlers, WiFi traffic as TX/RX frames, every TX frame admitted by the SHIPPED power manager
+ *        (firmware/esp32c3/components/power_mgr/power_mgr.c)
  *     -> power path plant: console rail (Thevenin), input regulator (TLV431 loop, behavioural, A8-audited),
  *        150 mA limit, reservoir (T520B 3 x 330 uF), power-good comparator (4.2 V on / 2.0 V off),
  *        TPS63802 (efficiency), ESP current from the radio state. Same equations as sim/power/cosim.py.
@@ -29,6 +32,7 @@
 #define ENABLE_LCD 1
 #include "third_party/Peanut-GB/peanut_gb.h"
 #include "power_mgr.h"
+#include "esp_link.h"
 
 /* ------------------------------------------------------------------ parameters (with sources) */
 static double RSRC;                      /* console source resistance: 0.7 fresh / 1.2 tired / 2.0 weak (run_sim.py) */
@@ -60,6 +64,10 @@ static double RSRC;                      /* console source resistance: 0.7 fresh
 #define PG_ON 4.2
 #define PG_OFF 2.0
 #define SPI_HZ 8e6                       /* RP2350 -> ESP SPI clock */
+#ifndef SPI_BER
+#define SPI_BER 0.0                      /* bit error rate on MOSI and MISO (-DSPI_BER=1e-3 for the robustness check) */
+#endif
+#define ESP_BOOT_MS 300                  /* power-good -> SPI slave queued (ESP-IDF boot to app_main; assumed, not measured) */
 #define MAILBOX_BANK 15
 
 /* ------------------------------------------------------------------ cartridge memory */
@@ -67,9 +75,8 @@ static uint8_t *rom;
 static size_t rom_size;
 static uint8_t cram[16 * 0x2000];
 #define MB (cram + MAILBOX_BANK * 0x2000)
-enum { MB_CMD = 0x00, MB_SEQ = 0x01, MB_STATUS = 0x02, MB_ACK = 0x03, MB_LENL = 0x04, MB_LENH = 0x05,
-       MB_RAIL = 0x06, MB_RES = 0x07, MB_REQ = 0x10, MB_RESP = 0x100 };
-static int mb_seq_pending = -1;          /* seq written by the ROM, not yet taken by the firmware */
+static int wifi_rom;                     /* the ROM opted in: the cartridge serves the mailbox */
+static long cart_writes_mb;              /* bytes the cartridge (not the ROM) wrote into bank 15 */
 
 static uint8_t gb_rom_read(struct gb_s *gb, const uint_fast32_t a) { (void)gb; return a < rom_size ? rom[a] : 0xFF; }
 static uint8_t gb_cart_ram_read(struct gb_s *gb, const uint_fast32_t a) { (void)gb; return a < sizeof cram ? cram[a] : 0xFF; }
@@ -78,9 +85,7 @@ static void gb_cart_ram_write(struct gb_s *gb, const uint_fast32_t a, const uint
     (void)gb;
     if (a >= sizeof cram)
         return;
-    cram[a] = v;
-    if (a == MAILBOX_BANK * 0x2000 + MB_SEQ)
-        mb_seq_pending = v;              /* the RP2350's write-sniff DMA logs this address */
+    cram[a] = v;                         /* the RP2350 sees these by polling the SEQ byte, no event */
 }
 static void gb_error(struct gb_s *gb, const enum gb_error_e e, const uint16_t addr)
 {
@@ -142,8 +147,10 @@ static int nsteps, cur_step;
 static double step_wait_until, op_deadline;
 static int op_active, op_cmd, op_failed;
 static char op_req[240], op_resp[256];
-static double spi_busy_until;
-static int resp_ready;
+static int op_seq;
+static double esp_app_at;                /* SPI slave live from this time (after ESP_BOOT_MS) */
+static el_slave_t esl;
+static uint8_t esp_tx[EL_MAX_XFER];      /* the buffer the slave has queued for the next transaction */
 static long tx_frames, tx_refused_ms;
 static FILE *slog;
 
@@ -257,8 +264,8 @@ static void esp_finish(void)
     }
     wifi_assoc = wifi_assoc || (!op_failed && (op_cmd == 3 || op_cmd == 2 || op_cmd == 6 || op_cmd == 7));
     op_active = 0;
-    resp_ready = 1;
-    spi_busy_until = t_now + (strlen(r) + 4) * 8 / SPI_HZ;              /* response frame back over SPI */
+    el_slave_respond(&esl, (uint8_t)op_seq, op_failed ? 3 : 2, (const uint8_t *)r, strlen(r));
+    fprintf(slog, "%8.3f  ESP: response seq %d status %d \"%s\"\n", t_now, op_seq, op_failed ? 3 : 2, r);
 }
 
 static void esp_tick_1ms(void)
@@ -266,8 +273,9 @@ static void esp_tick_1ms(void)
     if (!powered) {
         if (esp_up)
             fprintf(slog, "%8.3f  ESP: supply lost (power-good off) -> reset\n", t_now);
-        esp_up = 0; wifi_assoc = 0;
-        if (op_active) { op_failed = 1; esp_finish(); }
+        esp_up = 0; wifi_assoc = 0; op_active = 0;
+        el_slave_init(&esl);                  /* RAM lost: job, response, accepted seq */
+        el_slave_build_tx(&esl, esp_tx);
         return;
     }
     if (!esp_up) {                            /* power-on reset of the ESP */
@@ -277,6 +285,7 @@ static void esp_tick_1ms(void)
 #endif
         pm_init(&pm, &cfg);
         esp_up = 1;
+        esp_app_at = t_now + ESP_BOOT_MS * 1e-3;
         fprintf(slog, "%8.3f  ESP: boot, reservoir %.2f V\n", t_now, vt);
     }
     pm_state_t before = pm_state(&pm);
@@ -285,63 +294,88 @@ static void esp_tick_1ms(void)
         cal_until = t_now + CAL_MS * 1e-3;
     if (pm_state(&pm) != before)
         fprintf(slog, "%8.3f  ESP: power state %d -> %d (res %.2f V, rail %.3f V)\n", t_now, before, pm_state(&pm), vt, vgb);
+    el_slave_set_live(&esl, pm_state(&pm) == PM_RUN, (uint8_t)pm_state(&pm), (float)vgb, (float)vt);
+    uint8_t seq, cmd;
+    char payload[EL_MAX_REQ + 1];
+    if (t_now >= esp_app_at && el_slave_take_job(&esl, &seq, &cmd, payload)) {
+        op_seq = seq; op_cmd = cmd;
+        snprintf(op_req, sizeof op_req, "%s", payload);
+        op_active = 1; op_failed = 0; plan_op(op_cmd);
+        step_wait_until = t_now + 0.2e-3;      /* parse */
+        op_deadline = t_now + 8.0;
+        fprintf(slog, "%8.3f  ESP: job seq %d cmd %d \"%s\"\n", t_now, seq, cmd, payload);
+    }
     if (!op_active)
-        return;
-    if (t_now > op_deadline) { op_failed = 1; esp_finish(); return; }
-    if (cur_step >= nsteps) { esp_finish(); return; }
+        goto out;
+    if (t_now > op_deadline) { op_failed = 1; esp_finish(); goto out; }
+    if (cur_step >= nsteps) { esp_finish(); goto out; }
     if (t_now < step_wait_until || t_now < tx_until)
-        return;
+        goto out;
     step_t *s = &steps[cur_step];
     if (s->tx_s > 0 && !(pm_state(&pm) == PM_RUN && pm_admit_tx(&pm, (float)s->tx_s, (float)(TX_A * 3.3 / ETA)))) {
         tx_refused_ms++;                      /* not allowed now: retry next ms */
-        return;
+        goto out;
     }
     tx_frames++;
     tx_until = t_now + s->tx_s;
     step_wait_until = tx_until + s->wait_s;
     cur_step++;
+out:
+    el_slave_build_tx(&esl, esp_tx);          /* re-queue between transactions with the current state */
 }
 
 /* ------------------------------------------------------------------ RP2350 firmware model (mailbox <-> SPI) */
-static int fw_req_seq = -1;
+static el_master_t elm;
+static double spi_bus_s;
+static long spi_bit_errors;
+static unsigned long long rng = 0x9E3779B97F4A7C15ull;
+static double urand(void)
+{
+    rng ^= rng << 13; rng ^= rng >> 7; rng ^= rng << 17;
+    return (rng >> 11) * (1.0 / 9007199254740992.0);
+}
+static void wire(uint8_t *b, size_t n)        /* bit errors on the line */
+{
+    if (SPI_BER <= 0)
+        return;
+    for (size_t i = 0; i < n * 8; i++)
+        if (urand() < SPI_BER) { b[i / 8] ^= (uint8_t)(0x80 >> (i % 8)); spi_bit_errors++; }
+}
 static void rp2350_tick_1ms(void)
 {
-    MB[MB_RAIL] = (uint8_t)fmin(255, vgb * 1000 / 20);
-    MB[MB_RES] = (uint8_t)fmin(255, vt * 1000 / 20);
-    static double first_seen = -1;
-    if (mb_seq_pending >= 0 && fw_req_seq < 0 && !esp_up) {   /* radio still powering up: keep BUSY, wait <= 5 s */
-        MB[MB_STATUS] = 1;
-        if (first_seen < 0)
-            first_seen = t_now;
-        if (t_now - first_seen < 5.0)
-            return;
-    }
-    if (mb_seq_pending >= 0 && fw_req_seq < 0 && t_now >= spi_busy_until) {
-        first_seen = -1;
-        fw_req_seq = mb_seq_pending; mb_seq_pending = -1;
-        MB[MB_STATUS] = 1;
-        op_cmd = MB[MB_CMD];
-        memcpy(op_req, MB + MB_REQ, sizeof op_req - 1);
-        op_req[sizeof op_req - 1] = 0;
-        double spi = (strlen(op_req) + 4) * 8 / SPI_HZ;               /* request frame over SPI */
-        if (!esp_up) {                                                  /* ESP not powered: firmware answers */
-            op_failed = 1; op_active = 0; snprintf(op_resp, sizeof op_resp, "NO RADIO POWER"); resp_ready = 1;
-        } else {
-            op_active = 1; op_failed = 0; plan_op(op_cmd);
-            step_wait_until = t_now + spi + 0.2e-3;                    /* + ESP parse */
-            op_deadline = t_now + 8.0;
+    if (!wifi_rom)
+        return;
+    uint32_t now = (uint32_t)llround(t_now * 1000);
+    int was_pending = elm.pending;
+    uint8_t ack_before = MB[MB_ACK], status_before = MB[MB_STATUS];
+    uint8_t mb_before[EL_MAX_XFER];
+    memcpy(mb_before, MB, sizeof mb_before);
+    for (int k = 0; k < 2; k++) {                  /* a poll, then at most one fetch in the same tick */
+        uint8_t mosi[EL_MAX_XFER], miso[EL_MAX_XFER];
+        size_t n = el_master_next(&elm, now, MB, mosi);
+        int esp_live = esp_up && t_now >= esp_app_at;
+        if (esp_live)
+            memcpy(miso, esp_tx, n);
+        else
+            memset(miso, 0, n);                    /* U105 off or ESP not running: nothing valid on MISO */
+        wire(mosi, n); wire(miso, n);
+        if (esp_live) {
+            el_slave_on_rx(&esl, mosi, n);
+            el_slave_build_tx(&esl, esp_tx);       /* slave driver re-queues during the >= 100 us gap */
         }
-        fprintf(slog, "%8.3f  ROM: request seq %d cmd %d \"%s\"\n", t_now, fw_req_seq, op_cmd, op_req);
+        el_master_done(&elm, now, MB, miso, n);
+        spi_bus_s += n * 8 / SPI_HZ + (k ? EL_GAP_US * 1e-6 : 0);   /* the gap only holds the bus before a fetch */
+        if (!el_master_more(&elm))
+            break;
     }
-    if (resp_ready && t_now >= spi_busy_until && fw_req_seq >= 0) {
-        size_t n = strlen(op_resp);
-        memcpy(MB + MB_RESP, op_resp, n + 1);
-        MB[MB_LENL] = n & 0xFF; MB[MB_LENH] = n >> 8;
-        MB[MB_STATUS] = op_failed ? 3 : 2;
-        MB[MB_ACK] = (uint8_t)fw_req_seq;
-        fprintf(slog, "%8.3f  ESP->ROM: seq %d status %d \"%s\"\n", t_now, fw_req_seq, MB[MB_STATUS], op_resp);
-        fw_req_seq = -1; resp_ready = 0;
-    }
+    for (int i = 0; i < MB_REQ; i++)                /* count the cartridge's own writes into the mailbox header */
+        if (MB[i] != mb_before[i] && i != MB_SEQ && i != MB_CMD)
+            cart_writes_mb++;
+    if (!was_pending && elm.pending)
+        fprintf(slog, "%8.3f  ROM: request seq %d cmd %d \"%.60s\"\n", t_now, elm.seq, MB[MB_CMD], (char *)MB + MB_REQ);
+    if (MB[MB_ACK] != ack_before || (was_pending && !elm.pending))
+        fprintf(slog, "%8.3f  ESP->ROM: seq %d status %d \"%.80s\"\n", t_now, MB[MB_ACK], MB[MB_STATUS], (char *)MB + MB_RESP);
+    (void)status_before;
 }
 
 /* ------------------------------------------------------------------ main */
@@ -358,6 +392,13 @@ int main(int argc, char **argv)
     snprintf(path, sizeof path, "%s/%s_log.txt", argv[5], argv[2]);
     slog = fopen(path, "w");
     vgb = VSRC - RSRC * GB_LOAD;               /* console on, cartridge empty: hot-plug at t = 0 */
+    wifi_rom = rom_size > 0x158 && !memcmp(rom + 0x150, "WIFICART", 8) && rom[0x147] >= 0x19 && rom[0x147] <= 0x1E &&
+               rom[0x149] == 0x04;
+    fprintf(slog, "%8.3f  cart: %s\n", t_now, wifi_rom ? "WiFi ROM (WIFICART, MBC5, 128 KB RAM): mailbox on bank 15"
+                                                      : "no WIFICART opt-in: bank 15 is plain save RAM");
+    el_slave_init(&esl);
+    el_slave_build_tx(&esl, esp_tx);
+    el_master_init(&elm, MB, 0);
 
     static struct gb_s gb;
     if (gb_init(&gb, gb_rom_read, gb_cart_ram_read, gb_cart_ram_write, gb_error, NULL) != GB_INIT_NO_ERROR) {
@@ -421,9 +462,12 @@ int main(int argc, char **argv)
     p = fopen(path, "w");
     fprintf(p, "{\"scenario\": \"%s\", \"rsrc\": %.2f, \"seconds\": %.2f, \"console_min_v\": %.4f, \"time_below_4v5_ms\": %.3f, "
                "\"radio_resets\": %d, \"reservoir_min_v_while_on\": %.3f, \"tx_frames\": %ld, \"tx_refused_ms\": %ld, "
-               "\"pm_parks\": %u, \"frames_admitted\": %u, \"frames_refused\": %u}\n",
+               "\"pm_parks\": %u, \"frames_admitted\": %u, \"frames_refused\": %u, \"wifi_rom\": %d, "
+               "\"cart_writes_mailbox\": %ld, \"spi_xfers\": %u, \"spi_bad_hdr\": %u, \"spi_bad_body\": %u, "
+               "\"spi_resent\": %u, \"spi_bit_errors\": %ld, \"spi_bus_share\": %.4f, \"esp_rx_bad\": %u}\n",
             argv[2], RSRC, t_now, gb_min, unsafe_s * 1000, resets, res_min_on, tx_frames, tx_refused_ms,
-            pm.parks, pm.frames_admitted, pm.frames_refused);
+            pm.parks, pm.frames_admitted, pm.frames_refused, wifi_rom, cart_writes_mb, elm.xfers, elm.bad_hdr,
+            elm.bad_body, elm.resent, spi_bit_errors, t_now > 0 ? spi_bus_s / t_now : 0, esl.rx_bad);
     fclose(p);
     fclose(slog);
     return 0;

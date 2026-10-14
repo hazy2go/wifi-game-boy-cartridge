@@ -790,3 +790,32 @@ Hazy: "start on step 1". ESP-IDF v5.5.1 installed at `~/esp/esp-idf-v5.5.1` (esp
 - Gate: ERC/DRC/unconnected/parity PASS, 0 new.
 - Gerbers re-exported: only `B_Silkscreen.gbo` changed. The other 12 layers and both drill files are identical apart from dates. Zip rebuilt.
 - BOM and CPL are unchanged (the logos were board-only graphics).
+
+## 2026-10-14 20:43 Steps 2 and 3: SPI link protocol defined, simulated byte for byte, RP2350 master written (Hazy: "ok" to fork and install Rust)
+**Fork:** `hazy2go/rp2350-gameboy-cartridge-firmware`, cloned to `~/projects/croco-fw2` (remote `upstream` = shilga), branch `wifi`, merged into the fork's master (PR #1 on the fork). It builds natively with Rust 1.99 + `thumbv8m.main-none-eabihf` and GBDK-2020 4.5.0 (`~/opt/gbdk`). The unchanged upstream built too, before any edits.
+
+**Findings in the upstream firmware:**
+- **MBC5 RAM banking used `ram_bank & 0x03`** (since the MBC5 commit dd52965). So banks 4-15 of a 128 KB save aliased onto 0-3, and our mailbox (bank 15) would have landed on bank 3. Fixed: the mask now comes from the header's bank count. Rumble carts (bit 3 = motor, at most 4 banks) stay correct.
+- **Correction (CLAUDE.md said "react to the SEQ write with Croco's write-sniff"):** there is no CPU-visible write sniff. Game Boy RAM writes go straight to memory through a DMA command chain (`gb_dma.rs`). The "sniff" in the code is a DMA sniffer on the ROM *read* path. So the firmware polls the SEQ byte every 1 ms and spots a request by its value changing. The ROMs already increment SEQ, and the cartridge clears A000-A00F before the game starts, so a SEQ restored from the save file cannot hide the first request.
+- Core 0 sits in the MBC loop with interrupts off after boot, so the ESP link runs as an Embassy task on core 1, next to the save task, on the shared SPI0 bus (SpinlockMutex).
+
+**Decisions (why):**
+- **Protocol v1 = state, not messages** (ARCHITECTURE.md, "SPI link protocol"). With no IRQ or handshake line, the ESP's SPI slave can only send what it queued before the master clocked. Every transaction therefore swaps 12-byte headers that carry the whole state (CRC-16/CCITT-FALSE), and a lost transaction costs nothing. Requests are repeated every 10 ms until accepted. Responses are fetched in a second transaction and acknowledged in the next poll. Every transaction is a multiple of 4 bytes, and CS stays high for at least 100 us before a fetch. Timeouts: 5 s without acceptance gives "NO RADIO POWER", 12 s without a response gives "RADIO TIMEOUT".
+- **Opt-in:** only ROMs with `WIFICART` at 0x0150 + MBC5 + 128 KB RAM get the mailbox. Without that, any 128 KB MBC5 game would have bank 15 of its save overwritten. Both test ROMs now carry the signature.
+- GPIO46 is driven high right after `embassy_rp::init`, before any SD or RTC access (no pull-up, pull-down at reset). For non-WiFi ROMs the pin is kept driven high for good: dropping the `Output` would release it.
+- Logging: defmt-serial replaced by defmt-RTT.
+
+**Code:**
+- `firmware/esp32c3/components/esp_link` (plain C): the ESP slave half (shipped) plus the reference master.
+- `sim/system/sysim.c` now runs both halves with real bytes at 8 MHz. It adds an ESP boot time of 300 ms after power-good (assumed, not measured), an optional bit-error rate, and the opt-in check.
+- croco-fw2 `src/esp_link.rs` is a line-by-line Rust port of the reference master, plus `esp_link_task` (1 ms ticker) and a volatile `Mailbox` over bank 15.
+
+**Checks:**
+- Gate S1 with layout parasitics: ALL PASS (`sim/system/out/report.txt`), with console minimums, resets and TX admission unchanged from before.
+  - New **S1.6**: BER 1e-4 on both lines, 281 bit errors, 466 bad headers, 0 bad bodies, 130 frames the ESP rejected, 30 re-sent requests; the screen is still entirely right.
+  - New **S1.7**: the ROM without `WIFICART` gets 0 SPI transactions.
+- The bad headers in the normal runs (327 fresh, 1190 weak_plus) are exactly the ESP's boot time plus the reservoir charge time before it. None happen during operation.
+- Bus share is 1.23 %, as estimated in the spec. A first version charged the 100 us gap to every poll (11 %); that was an accounting error and is fixed.
+- BTC demo (`run_demo.py`): D1-D5 PASS.
+- `el_vectors.c` transcript (18,308 transactions: ESP boot, corrupted body, corrupted request, ESP restart mid-job, RADIO TIMEOUT, NO RADIO POWER, SEQ wrap to 0, 240-byte request, 255-byte response): the Rust master reproduces every MOSI byte, all 27 mailbox checks and the same counters (5138 / 1 / 503). Mutation check: with the resend interval changed from 10 to 11 ms, the test fails at ms 15.
+- **Not checked:** anything on real hardware. That covers the ESP32-C3 SPI-slave driver latency (the 100 us gap and the 300 ms boot are assumptions), SPI mode 0 on the C3 slave, and the RP2350 transfer at 8 MHz through U105/U106.

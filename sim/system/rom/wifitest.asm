@@ -30,6 +30,7 @@ SECTION "Header", ROM0[$100]
     nop
     jp Start
     ds $150 - @, 0
+    db "WIFICART"                ; opt-in: the cartridge serves the WiFi mailbox (docs/ARCHITECTURE.md)
 
 SECTION "Main", ROM0
 Start:
