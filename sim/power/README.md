@@ -37,7 +37,7 @@ Load profiles (radio current at 3.3V), after a 300ms boot RF-calibration phase (
 | ESP32-C3 modem-sleep average 25mA | Estimate, **unverified**; to be measured. |
 | TPS2553: 85 mOhm, constant current, no reverse flow | TI datasheet. The 2 A/V fold-back (DPM) is an idealised loop; the real circuit is being chosen. |
 | TPS63802: 88% efficiency, works down to ~1.6V input | TI datasheet (efficiency is a typical figure). |
-| Reservoir 3x 470uF 6TPE470MI, 6 mOhm combined ESR | Panasonic datasheet (18 mOhm each). |
+| Reservoir 3x 330uF KEMET T520B337M006ATE040, 13.3 mOhm combined ESR (was 3x 470uF 6TPE470MI in the first rounds) | KEMET datasheet (40 mOhm each); audits also at -20 % C. |
 
 ## Results (2026-10-14)
 
