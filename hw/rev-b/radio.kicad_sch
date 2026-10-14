@@ -7275,7 +7275,7 @@
 				)
 			)
 		)
-		(property "Value" "330uF 6.3V 25mOhm 6TPE330MAP"
+		(property "Value" "330uF 6.3V 40mOhm T520B337M006ATE040"
 			(at 215.9 103.44 0)
 			(effects
 				(font
@@ -7283,7 +7283,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_Tantalum_SMD:CP_EIA-7343-20_Kemet-V"
+		(property "Footprint" "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B"
 			(at 215.9 91.44 0)
 			(effects
 				(font
@@ -7292,7 +7292,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_KEMET-T520B337M006ATE040_C696806.pdf"
 			(at 215.9 91.44 0)
 			(effects
 				(font
@@ -7310,7 +7310,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C79112"
+		(property "LCSC" "C696806"
 			(at 215.9 91.44 0)
 			(effects
 				(font
@@ -7438,7 +7438,7 @@
 				)
 			)
 		)
-		(property "Value" "330uF 6.3V 25mOhm 6TPE330MAP"
+		(property "Value" "330uF 6.3V 40mOhm T520B337M006ATE040"
 			(at 279.4 103.44 0)
 			(effects
 				(font
@@ -7446,7 +7446,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_Tantalum_SMD:CP_EIA-7343-20_Kemet-V"
+		(property "Footprint" "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B"
 			(at 279.4 91.44 0)
 			(effects
 				(font
@@ -7455,7 +7455,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_KEMET-T520B337M006ATE040_C696806.pdf"
 			(at 279.4 91.44 0)
 			(effects
 				(font
@@ -7473,7 +7473,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C79112"
+		(property "LCSC" "C696806"
 			(at 279.4 91.44 0)
 			(effects
 				(font
@@ -7601,7 +7601,7 @@
 				)
 			)
 		)
-		(property "Value" "330uF 6.3V 25mOhm 6TPE330MAP"
+		(property "Value" "330uF 6.3V 40mOhm T520B337M006ATE040"
 			(at 342.9 103.44 0)
 			(effects
 				(font
@@ -7609,7 +7609,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_Tantalum_SMD:CP_EIA-7343-20_Kemet-V"
+		(property "Footprint" "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B"
 			(at 342.9 91.44 0)
 			(effects
 				(font
@@ -7618,7 +7618,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_KEMET-T520B337M006ATE040_C696806.pdf"
 			(at 342.9 91.44 0)
 			(effects
 				(font
@@ -7636,7 +7636,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C79112"
+		(property "LCSC" "C696806"
 			(at 342.9 91.44 0)
 			(effects
 				(font

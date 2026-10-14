@@ -527,3 +527,23 @@ Checked for a smaller backup cell: JLC has no stock of the soldered rechargeable
 - **Parity PASS.** New DRC items besides the staged parts: the MSOP-10 U5 pad-to-pad clearances that already existed in Croco's baseline now carry the new net name (GND instead of +BATT), so they show as new + resolved pairs; U5.3 needs a short GND connection in layout.
 
 Firmware follow-ups logged for later: NTP time-set path ESP32-C3 -> RP2350 (RTC register write), auto-save.
+
+## 2026-10-14 09:28 Module placed; J3/R11 out; smaller reservoir caps; first auto-placement rejected
+
+### WiFi module placed (`docs/design/placement.json`, `hw/rev-b/tools/fit_part.py`, `place.py`)
+- `fit_part.py` scans positions for one footprint: courtyard inside the outline and clear of all courtyards, every pad >= 0.2 mm from other copper (copper on nets marked for rip-up ignored). The MINI-1U fits in the former coin-cell area at every rotation once the coin cell's GND stitching (6 tracks + vias) is removed.
+- Placed at (121.0, 84.0), 90 deg: SPI/ADC/IO pins face the RP2350, USB D+/D- face the hub/USB-C, the antenna end faces the board edge (u.FL cable). 19 GND tracks/vias of the old holder ripped. DRC: only silkscreen notes on U104.
+
+### J3 + R11 (debug UART header) removed
+Already decided in the netlist notes (DEBUG_UART_TX becomes the ESP chip select; the header would be a stub on CS). Now applied: DNP/off board via `croco_edits`, `Net-(J3-Pin_1)` ripped. Frees the top-edge area J3 used.
+
+### Reservoir: 6TPE330MAP (7.3 x 4.3 mm) -> KEMET T520B337M006ATE040 (B case 3.5 x 2.8 x 2.1 mm, C696806, 2070 in stock)
+- Why: the three 7.3 x 4.3 mm caps (8.9 x 4.9 mm courtyards) fit nowhere in what is left of the top side; B case is a third of the area. Polymer tantalum, 40 mOhm each (3x: 13.3 mOhm vs 8.3), 6.3 V rated; worst case VRES on USB ~5.0 V = 79 % of rating, inside KEMET's 80 % guidance for polymer parts <= 10 V. 2.1 mm max height fits the 3.3 mm top budget.
+- Sim harness: the firmware's frame-admission math now uses the **configured** reservoir C (nominal 0.99 mF) while the plant uses the **actual** part value (`fw_cres`). Before, a low-C part was silently assumed to be known to the firmware.
+- System audit A1-A7 (`out/audit_t520_nom.txt`, `out/audit_t520_cmin.txt`): **ALL PASS** at nominal and at -20 % C (0.792 mF) with 13.3 mOhm. Same console minimums as before (fresh 4.738, tired 4.553, weak 4.544 V), 0 radio resets. At -20 % C the tired-console calibration budget drops from 10 to 5 ms (same as weak): **the 5 ms @ 50 % calibration requirement now has to hold for tired consoles too.**
+- Regulator audit A8 at 0.792 mF / 13.3 mOhm (`out/audit_inreg_t520_cmin.log`): **ALL PASS**, hot-plug >= +4.8 mV, burst-after-idle >= +10.2 mV (was +16.5 with the bigger caps).
+- `update_pcb.py` swaps a footprint in place when the schematic's footprint changes.
+
+### First auto-placement: legal but rejected
+`hw/rev-b/tools/autoplace.py` (raster legality check with integral images, min wirelength, critical nets weighted) placed all 69 remaining parts with **zero copper/courtyard DRC errors**, but the result is electrically bad: the remaining free space is slivers, so the TPS63802 ended up 17 mm from its input capacitor and its inductor 15 mm away (the switching loop must be a few mm). Reverted; the board is back to "module placed, rest staged".
+Conclusion: functional blocks (buck-boost, regulator, hub, buffers) have to be placed as compact pre-arranged groups, and the slots for them have to be cleared by moving some of Croco's peripheral parts (e.g. the +5V/3V3 LDO cluster U6/D2/D3/C25/C26) and re-routing their nets. Next step: group templates + controlled clearing + Freerouting (installed: Freerouting 2.5.0 on OpenJDK 27).

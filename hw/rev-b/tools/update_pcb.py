@@ -71,8 +71,19 @@ def main(pdir, rip=()):
         c = comps[ref]
         if ref.startswith('#') or not c['footprint']:
             continue
-        if ref in on_board or c['off_board']:
+        if c['off_board']:
             continue
+        if ref in on_board:
+            old = on_board[ref]
+            if old.GetFPIDAsString() == c['footprint']:
+                continue
+            # footprint changed in the schematic: swap it in place (same position/rotation), nets re-applied below
+            pos, rot = old.GetPosition(), old.GetOrientationDegrees()
+            print(f"{ref}: footprint {old.GetFPIDAsString()} -> {c['footprint']}")
+            board.Delete(old)
+            del on_board[ref]
+        else:
+            pos, rot = None, 0
         lib, name = c['footprint'].split(':', 1)
         libpath = os.path.join(pdir, lib + '.pretty') if os.path.isdir(os.path.join(pdir, lib + '.pretty')) \
             else os.path.join(KICAD_FP, lib + '.pretty')
@@ -88,7 +99,10 @@ def main(pdir, rip=()):
             if c['fields'].get(fname):
                 fp.SetField(fname, c['fields'][fname])
         k = added
-        fp.SetPosition(pcbnew.VECTOR2I(mm(STAGE_X + (k % STAGE_W) * STAGE_PITCH), mm(STAGE_Y + (k // STAGE_W) * STAGE_PITCH)))
+        if pos is None:
+            pos = pcbnew.VECTOR2I(mm(STAGE_X + (k % STAGE_W) * STAGE_PITCH), mm(STAGE_Y + (k // STAGE_W) * STAGE_PITCH))
+        fp.SetPosition(pos)
+        fp.SetOrientationDegrees(rot)
         board.Add(fp)
         on_board[ref] = fp
         added += 1

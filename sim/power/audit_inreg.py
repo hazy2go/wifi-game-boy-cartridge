@@ -38,6 +38,8 @@ def limit(rsrc, load):
 
 
 D = I.DESIGN
+# reservoir under test (env, for part changes): T520B 3x330u -20 % = 0.792 mF, 3x 40 mOhm = 13.3 mOhm
+RES = dict(cres=float(os.environ.get('CRES', 0.99e-3)), resr=float(os.environ.get('RESR', 0.0083)))
 setpoint = 1.24 * (1 + D['R1'] / D['R2'])
 log('# A8 precision input-voltage regulator audit')
 log(f"design: R1 {D['R1']:.0f} R2 {D['R2']:.0f} Rg {D['Rg']:.0f} Rk {D['Rk']:.0f} Cc {D['Cc']*1e9:.2f}n Rc {D['Rc']:.0f} "
@@ -83,7 +85,7 @@ check(f'A8.3 min gain margin >= {GM_MIN:.0f} dB', worst_gm >= GM_MIN, f'{worst_g
 log()
 log('## A8.4 hot-plug')
 for rsrc, cap, cc in itertools.product((1.6, 2.0, 2.3, 2.5, 3.0), (47e-6, 220e-6), (0.9, 1.1)):
-    d = I.transient(m, dict(D, gb_cap=cap, Cc=D['Cc'] * cc), rsrc, t_end=0.06, tag='a8')
+    d = I.transient(m, dict(D, gb_cap=cap, Cc=D['Cc'] * cc), rsrc, t_end=0.06, tag='a8', **RES)
     t = d['t']
     vmin = d['vcc'][t > 0.2e-3].min()
     lim = limit(rsrc, 0.16)
@@ -93,7 +95,7 @@ log()
 log('## A8.5 burst after idle (wind-up)')
 for rsrc, cap, cc in itertools.product((1.6, 1.8, 2.0, 2.2, 2.4), (47e-6, 220e-6), (0.9, 1.1)):
     d = I.transient(m, dict(D, gb_cap=cap, Cc=D['Cc'] * cc), rsrc, t_end=0.5, burst_ms=100, period_ms=10000,
-                    tag='a8', rx=0.0, t_first=0.35)
+                    tag='a8', rx=0.0, t_first=0.35, **RES)
     t = d['t']
     full = d['vres'][(t > 0.3) & (t < 0.35)].min()
     vmin = d['vcc'][t > 0.349].min()

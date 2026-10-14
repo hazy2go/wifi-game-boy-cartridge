@@ -214,38 +214,41 @@
   {
    "ref": "C105",
    "symbol": "Device:C_Polarized",
-   "value": "330uF 6.3V 25mOhm 6TPE330MAP",
-   "footprint": "Capacitor_Tantalum_SMD:CP_EIA-7343-20_Kemet-V",
-   "lcsc": "C79112",
+   "value": "330uF 6.3V 40mOhm T520B337M006ATE040",
+   "footprint": "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B",
+   "lcsc": "C696806",
    "pins": {
     "1": "VRES",
     "2": "GND"
    },
-   "why": "Reservoir, Panasonic POSCAP 6TPE330MAP 1.8 mm tall, 3x = 990 uF (logbook 04:59)"
+   "why": "Reservoir, KEMET T520B polymer tantalum, B case 3.5 x 2.8 x 2.1 mm max, 3x = 990 uF, 13.3 mOhm. Replaces the 7.3 x 4.3 mm 6TPE330MAP to free ~85 mm2 (LOGBOOK 09:20); system audit A1-A7 and regulator audit A8 re-run at -20 % C (0.792 mF) with 13.3 mOhm",
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_KEMET-T520B337M006ATE040_C696806.pdf"
   },
   {
    "ref": "C106",
    "symbol": "Device:C_Polarized",
-   "value": "330uF 6.3V 25mOhm 6TPE330MAP",
-   "footprint": "Capacitor_Tantalum_SMD:CP_EIA-7343-20_Kemet-V",
-   "lcsc": "C79112",
+   "value": "330uF 6.3V 40mOhm T520B337M006ATE040",
+   "footprint": "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B",
+   "lcsc": "C696806",
    "pins": {
     "1": "VRES",
     "2": "GND"
    },
-   "why": "Reservoir, Panasonic POSCAP 6TPE330MAP 1.8 mm tall, 3x = 990 uF (logbook 04:59)"
+   "why": "Reservoir, KEMET T520B polymer tantalum, B case 3.5 x 2.8 x 2.1 mm max, 3x = 990 uF, 13.3 mOhm. Replaces the 7.3 x 4.3 mm 6TPE330MAP to free ~85 mm2 (LOGBOOK 09:20); system audit A1-A7 and regulator audit A8 re-run at -20 % C (0.792 mF) with 13.3 mOhm",
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_KEMET-T520B337M006ATE040_C696806.pdf"
   },
   {
    "ref": "C107",
    "symbol": "Device:C_Polarized",
-   "value": "330uF 6.3V 25mOhm 6TPE330MAP",
-   "footprint": "Capacitor_Tantalum_SMD:CP_EIA-7343-20_Kemet-V",
-   "lcsc": "C79112",
+   "value": "330uF 6.3V 40mOhm T520B337M006ATE040",
+   "footprint": "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B",
+   "lcsc": "C696806",
    "pins": {
     "1": "VRES",
     "2": "GND"
    },
-   "why": "Reservoir, Panasonic POSCAP 6TPE330MAP 1.8 mm tall, 3x = 990 uF (logbook 04:59)"
+   "why": "Reservoir, KEMET T520B polymer tantalum, B case 3.5 x 2.8 x 2.1 mm max, 3x = 990 uF, 13.3 mOhm. Replaces the 7.3 x 4.3 mm 6TPE330MAP to free ~85 mm2 (LOGBOOK 09:20); system audit A1-A7 and regulator audit A8 re-run at -20 % C (0.792 mF) with 13.3 mOhm",
+   "datasheet": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_KEMET-T520B337M006ATE040_C696806.pdf"
   },
   {
    "ref": "C108",
