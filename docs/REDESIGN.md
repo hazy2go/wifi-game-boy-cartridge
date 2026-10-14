@@ -1,5 +1,7 @@
 # WiFi Game Boy Cartridge: audit + redesign plan (2026-10)
 
+> Historical: the audit and the first plan. The design that was actually built on (Croco Cartridge V2 + ESP32-C3) is in `ARCHITECTURE.md`; every later decision is in `LOGBOOK.md`.
+
 Fork of Staacks/wifi-game-boy-cartridge. Goal: a rock-solid revision that can be ordered fully assembled (JLCPCB PCBA), nothing hand-soldered.
 
 Status upstream: brown-outs never fixed. Issue #2 "Power instabilities" still open (5V measured collapsing to ~3V on tired NiMH while the ESP boots). In issue #6 (Jan 2026) the author says he would design many things differently and has no plans to continue. All 23 forks are untouched.
