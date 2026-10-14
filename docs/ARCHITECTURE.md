@@ -1,6 +1,6 @@
 # Rev B architecture: Croco Cartridge V2 + WiFi
 
-Status (2026-10-14): **layout complete, all pre-order gates green, not ordered or built yet.** 6-layer 0.8 mm board, fully routed (0 open connections), KiCad ERC/DRC/parity clean against Croco's baseline, full-system simulation with a Game Boy ROM passes on the final layout. Next: JLC order files (Gerbers, BOM, CPL) and their review. See `LOGBOOK.md` for how each decision was reached.
+Status (2026-10-14): **layout complete, all pre-order gates green, not ordered or built yet.** 6-layer 0.8 mm board, fully routed (0 open connections), KiCad ERC/DRC/parity clean against Croco's baseline, full-system simulation with a Game Boy ROM passes on the final layout. JLC order files ready (`hw/rev-b/fab/ORDER.md`); not ordered until the ESP32-C3 calibration time is measured on a dev board. See `LOGBOOK.md` for how each decision was reached.
 
 ## Block diagram
 
