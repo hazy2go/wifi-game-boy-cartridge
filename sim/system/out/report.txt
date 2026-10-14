@@ -30,7 +30,7 @@ PASS  S1.4 fresh TX through power manager: 141 frames sent, 141 admitted, refuse
    | GET /hello:
    | Hello from WiFi!
    | POWER:
-   | RAIL 4.73V RES 4.71V
+   | RAIL 4.72V RES 4.69V
    | BURST 20/20 OK
    | POWER:
    | RAIL 4.73V RES 4.71V
@@ -50,16 +50,16 @@ PASS  S1.4 tired TX through power manager: 141 frames sent, 141 admitted, refuse
    | GET /hello:
    | Hello from WiFi!
    | POWER:
-   | RAIL 4.59V RES 3.50V
+   | RAIL 4.59V RES 3.49V
    | BURST 20/20 OK
    | POWER:
-   | RAIL 4.59V RES 3.47V
+   | RAIL 4.59V RES 3.45V
    | DONE
 PASS  S1.1 weak screen: all 13 lines as expected
 PASS  S1.5 weak no wrong answer: every printed result correct or explicit ERR/TIMEOUT
 PASS  S1.2 weak console rail: min 4.591 V, 0.0 ms below 4.5 V
-PASS  S1.3 weak radio resets: 0; reservoir min while on 3.24 V
-PASS  S1.4 weak TX through power manager: 141 frames sent, 141 admitted, refused-ms 527, parks 0
+PASS  S1.3 weak radio resets: 0; reservoir min while on 3.31 V
+PASS  S1.4 weak TX through power manager: 141 frames sent, 141 admitted, refused-ms 514, parks 0
 
 ## weak_plus: console source 2.5 ohm, 60 s simulated
    | WIFI CART TEST
@@ -73,12 +73,18 @@ PASS  S1.4 weak TX through power manager: 141 frames sent, 141 admitted, refused
    | RAIL 4.59V RES 3.31V
    | BURST 20/20 OK
    | POWER:
-   | RAIL 4.59V RES 3.12V
+   | RAIL 4.59V RES 3.58V
    | DONE
 INFO  S1.1 weak_plus: complete
 PASS  S1.5 weak_plus no wrong answer: every printed result correct or explicit ERR/TIMEOUT
 PASS  S1.2 weak_plus console rail: min 4.588 V, 0.0 ms below 4.5 V
 PASS  S1.3 weak_plus radio resets: 0; reservoir min while on 2.98 V
-PASS  S1.4 weak_plus TX through power manager: 141 frames sent, 141 admitted, refused-ms 32005, parks 163
+PASS  S1.4 weak_plus TX through power manager: 141 frames sent, 141 admitted, refused-ms 31711, parks 163
+
+## S1.6 SPI link with bit errors on MOSI and MISO (fresh console)
+PASS  S1.6 BER 1e-4 screen: 281 bit errors, 466 bad headers, 0 bad bodies, ESP rejected 130, 30 requests re-sent; all 13 lines as expected
+
+## S1.7 a ROM without the WIFICART opt-in gets no mailbox
+PASS  S1.7 no opt-in: wifi_rom 0, 0 SPI transactions (bank 15 stays plain save RAM)
 
 RESULT: ALL PASS

@@ -53,12 +53,80 @@ Link choice: **ESP32-C3 as an SPI slave on the existing SPI0 bus, chip select on
 
 Alternative kept in reserve: half-duplex single-wire UART on GPIO46 (PIO on the RP2350, open-drain on the ESP). Fewer parts, lower bandwidth, fiddlier.
 
+## SPI link protocol (RP2350 master, ESP32-C3 slave), version 1
+
+Defined 2026-10-14 (LOGBOOK). Reference code: `firmware/esp32c3/components/esp_link` (plain C: the ESP side ships it, `sysim.c` runs it, and the Rust master is tested against vectors it generates).
+
+**Wire:** SPI mode 0, MSB first, 8 MHz, CS = GPIO46 (active low). There is no IRQ or handshake line, so the protocol is built for that:
+- **State, not messages.** Every transaction starts with both sides exchanging a 12-byte header. The ESP's header always describes its current state, so a lost or garbled transaction costs nothing: the next poll reads the state again.
+- The ESP prepares its transmit buffer *before* the master clocks: after every transaction and on its own 1 ms tick, never during one. Its header therefore shows the state from just before the transaction, so a request sent in this transaction shows up in the next one.
+- The master keeps CS high for **at least 100 us** between ESP transactions, so the slave driver can queue the next buffer. A transaction that hits an unprepared slave fails the magic or CRC check and is simply repeated.
+- Every transaction is a multiple of 4 bytes (ESP SPI-slave DMA). Bodies are zero-padded.
+- CRC: CRC-16/CCITT-FALSE (poly 0x1021, init 0xFFFF, no reflection, check value 0x29B1 for "123456789"), stored big-endian.
+
+**Master header (MOSI):**
+| byte | meaning |
+|---|---|
+| 0 | magic 0xC5 |
+| 1 | type: 0 POLL, 1 REQUEST |
+| 2 | flags: bit0 = byte 3 is valid |
+| 3 | ack: seq of the last response the master has stored in the mailbox |
+| 4 | seq (REQUEST): the mailbox SEQ the Game Boy wrote |
+| 5 | cmd (REQUEST): mailbox CMD |
+| 6 | len (REQUEST): request body length, 0-240 (no terminator) |
+| 7-9 | 0 (reserved) |
+| 10-11 | CRC of bytes 0-9 |
+
+REQUEST body (only when len > 0): `len` payload bytes, CRC of the payload, zero pad.
+
+**ESP header (MISO):**
+| byte | meaning |
+|---|---|
+| 0 | magic 0x5C |
+| 1 | flags: bit0 RADIO_UP (power manager in RUN), bit1 BUSY (working on `seq`), bit2 RESP (response for `seq` is in the body), bit3 ACCEPTED (byte 8 is valid) |
+| 2 | power-manager state (0 OFF ... 4 PARK) |
+| 3 | seq of the request being worked on, or of the response |
+| 4 | status with RESP: 2 done, 3 error |
+| 5 | response length with RESP, 0-255 (no terminator) |
+| 6 | cart rail in 20 mV steps (0 = not measured) |
+| 7 | reservoir in 20 mV steps |
+| 8 | seq of the last request accepted |
+| 9 | protocol version (1) |
+| 10-11 | CRC of bytes 0-9 |
+
+With RESP and len > 0, the ESP's buffer carries the body right after the header: `len` bytes, CRC, zero pad.
+
+**Master, every 1 ms (and right after a fetch is due):**
+1. A new mailbox SEQ was written: the mailbox gets STATUS = 1 (busy), and that request becomes *pending*.
+2. If the pending request has not been accepted, send a REQUEST (header + body), and repeat it every 10 ms until a header shows it accepted. Otherwise send a 12-byte POLL that carries the ack.
+3. Check the received header (magic, CRC). If it is valid, copy the rail and reservoir to mailbox A006/A007.
+   - ACCEPTED with byte 8 = pending seq: the request counts as accepted.
+   - If it is accepted but the ESP shows neither BUSY nor RESP for it (the ESP restarted), clear "accepted" so the REQUEST is sent again.
+4. RESP for the pending seq: fetch it with one POLL of 12 + body bytes. Store the response at A100, a 0 terminator, the length at A004/5 and the status at A002, then write **ACK (A003) last**. That seq is now the ack sent in the next POLL.
+5. Timeouts: no valid header for 5 s while a request is pending gives STATUS 3 "NO RADIO POWER". Accepted but no response within 12 s gives STATUS 3 "RADIO TIMEOUT" (the ESP's own job deadline is 8 s).
+
+**ESP:**
+- On a valid REQUEST whose seq is not the current job: start it (this drops any older job or response) and set ACCEPTED/seq.
+- A REQUEST repeated with the current seq is ignored.
+- On a POLL whose ack equals the response seq: drop the response.
+- Garbage transactions are ignored.
+
+**Timing at 8 MHz:** a poll takes 12 us. The longest request is 12 + 244 bytes (256 us), the longest response fetch 12 + 260 bytes (272 us). Polling the bus every 1 ms costs about 1.2 % of it, so SD saves are not held up.
+
+## Which ROMs get the mailbox
+
+Only ROMs that ask for it. A ROM needs both:
+- the 8 bytes `WIFICART` at ROM address 0x0150;
+- an MBC5 header with 128 KB of RAM (0x0149 = 0x04), so that RAM bank 15 exists.
+
+Every other game keeps all 16 banks as ordinary save RAM, so bank 15 of a normal 128 KB save is never overwritten.
+
 ## Flashing the radio without soldering
 
 The ESP32-C3 has native USB (Serial/JTAG), and esptool can put it into download mode over USB with no strap pins. A CH334P USB 2.0 hub sits behind Croco's USB-C, so the RP2350 and the ESP32-C3 both enumerate when plugged in (flash either from a browser). After the first flash, the radio can also be updated over WiFi (OTA).
 
 ## Software
 
-- Fork of `shilga/rp2350-gameboy-cartridge-firmware` (Rust/Embassy, GPL-3): add the SPI master driver for the ESP link and serve the mailbox to the Game Boy. Mailbox protocol (fixed and simulated): MBC5 cart-RAM bank 15, see `sim/system/README.md`. Not written yet.
+- Fork of `shilga/rp2350-gameboy-cartridge-firmware` (Rust/Embassy, GPL-3) at `hazy2go/rp2350-gameboy-cartridge-firmware`, branch `wifi`. It has the SPI master for the ESP link (`src/esp_link.rs`) and serves the mailbox (MBC5 cart-RAM bank 15, see `sim/system/README.md`) to WIFICART ROMs. It builds and passes the host tests; not run on hardware yet.
 - New ESP32-C3 firmware: SPI slave mailbox, WiFi, power policy (`firmware/esp32c3/components/power_mgr`, written and simulated), OTA. The rest is not written yet.
 - Game Boy side: test ROMs in RGBDS (`sim/system/rom`: `wifitest.asm` gate ROM, `btcdemo.asm` WiFi scan + password + live BTC chart); later a GBDK-2020 library and demos (Wikipedia, chat, ROM download).

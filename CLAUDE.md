@@ -34,15 +34,15 @@ Simulation (all passing):
    - Antenna: an RSSI and throughput logger.
    - Results go into LOGBOOK, and A7 gets re-run with the measured number.
    - **Status 2026-10-14: written and building, not run on hardware yet.** `firmware/xiao/` (`a7_cal`, `rf_logger`, `rf_host.py`; how to run: its README). ESP-IDF v5.5.1 is installed at `~/esp/esp-idf-v5.5.1` (`. ~/esp/esp-idf-v5.5.1/export.sh`).
-2. **RP2350 cart firmware.** Fork shilga/rp2350-gameboy-cartridge-firmware (Rust/Embassy, GPL-3) to hazy2go. It is checked out locally at `~/projects/croco-fw2` but not forked yet.
+2. **RP2350 cart firmware.** Forked to `hazy2go/rp2350-gameboy-cartridge-firmware`, checked out at `~/projects/croco-fw2` (remote `upstream` = shilga), work branch `wifi` (same PR-and-merge flow as here, always with `--repo hazy2go/rp2350-gameboy-cartridge-firmware`). **Status 2026-10-14: SPI master + mailbox written, builds, host tests pass, not run on hardware.** Build: `GBDK_PATH=~/opt/gbdk/ cargo build --release`; tests: `cd tests-host && cargo test --target "$(rustc -vV | sed -n 's/host: //p')"`.
    - Add an SPI master on SPI0: GPIO0 MISO, GPIO2 SCK, GPIO3 MOSI. Chip select is **GPIO46** (it was the debug UART TX; logging moves to defmt-RTT).
    - **Drive GPIO46 high before the first SD or RTC access.** It has no pull-up, and the RP2350 resets with pull-downs.
    - The ESP's MISO goes through a 74LVC1G125 buffer gated by CS, so the shared bus is safe.
    - There is no IRQ line, so poll the ESP about every 1 ms or once per frame.
-   - Serve the mailbox: MBC5 cart-RAM **bank 15**. The protocol table is in `sim/system/README.md`. React to the write to SEQ (A001) using Croco's existing write-sniff and DMA path for save RAM.
-3. **SPI frame format between the RP2350 and the ESP: not specified yet.** Define it, write it down in `ARCHITECTURE.md`, and model it in `sysim.c` before both firmwares implement it. The simulation currently assumes 8 MHz and (len + 4)-byte frames.
+   - Serve the mailbox: MBC5 cart-RAM **bank 15**. The protocol table is in `sim/system/README.md`. There is no CPU-visible write sniff (correction, LOGBOOK): the firmware polls SEQ for a change. Only `WIFICART` ROMs get the mailbox.
+3. **SPI frame format: done (protocol v1).** Spec in `ARCHITECTURE.md`; reference C in `firmware/esp32c3/components/esp_link` (the ESP ships the slave half); `sysim.c` runs it byte for byte; `sim/system/el_vectors.c` writes the transcript the Rust master is tested against. **If you change the protocol, change the C reference, regenerate the vectors, copy them to croco-fw2 `tests-host/tests/`, and re-run S1.**
 4. **ESP32-C3 app (ESP-IDF):**
-   - SPI-slave mailbox, and commands 01 to 07 as in the mailbox table.
+   - SPI-slave mailbox: link `firmware/esp32c3/components/esp_link` unchanged (the slave half). Rebuild the TX buffer only between transactions (after each one and on the 1 ms tick). Commands 01 to 07 as in the mailbox table.
    - WiFi in STA mode only, NVS credentials, OTA.
    - Link the existing `firmware/esp32c3/components/power_mgr`: plain C, already co-simulated. **Ship that code unchanged, or re-run the `sim/power` audits after any change.**
    - Hard rules from the audits:
