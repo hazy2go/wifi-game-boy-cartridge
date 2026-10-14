@@ -872,7 +872,10 @@ uint8_t __gb_read(struct gb_s *gb, uint16_t addr)
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 			};
-			return gb->hram_io[addr - IO_ADDR] | ortab[addr - IO_ADDR];
+			/* local patch (wifi-game-boy-cartridge, 2026-10-15, found by cppcheck): ortab covers FF10-FF3F, so it
+			 * is indexed from 0xFF10; upstream indexed it from IO_ADDR (0xFF00), reading past its end for FF30-FF3F
+			 * and applying the wrong masks to every other APU register. */
+			return gb->hram_io[addr - IO_ADDR] | ortab[addr - 0xFF10];
 #endif
 		}
 

@@ -120,6 +120,14 @@ static void lcd_draw_line(struct gb_s *gb, const uint8_t px[160], const uint_fas
 
 /* ------------------------------------------------------------------ power plant */
 static double vgb, vc, vt, t_now, gb_min = 10, unsafe_s, res_min_on = 10;
+/* thermal audit: power in U102 TPS2553 and Q101 SiA975DJ. Resistive split of RSW: TPS2553 rDS(on) 0.10 ohm
+ * (SLVS841F: 100 mOhm typ), the rest PMOS pair + copper. The voltage the active limit removes goes to the part that
+ * limits: TPS2553 when its current limit binds, Q101 when the input regulator (DPM) binds. */
+#define R_TPS 0.10
+static double e_tps_ms, e_q_ms, p_tps_peak, p_q_peak, e_tps_tot, e_q_tot;
+static double ring_tps[10000], ring_q[10000];   /* per-ms energy, 10 s */
+static long ring_n;
+static double sum1_tps, sum1_q, sum10_tps, sum10_q, max1_tps, max1_q, max10_tps, max10_q;
 static int powered, resets;
 static double radio_current(void);
 static void plant_ms(void)
@@ -135,6 +143,16 @@ static void plant_ms(void)
             vt = vc + RESR * (isw - ibb - vt / 1e5);
         }
         double icap = isw - ibb - vt / 1e5;
+        {
+            double drop = fmax(0.0, vgb - vt), ptot = isw * drop, pres = isw * isw * RSW;
+            double excess = fmax(0.0, ptot - pres), p_t = isw * isw * R_TPS, p_q = pres - p_t;
+            int limited = isw > 0 && isw >= lim - 1e-9 && lim < drop / RSW;
+            if (limited) {
+                if (ILIM <= DPM_GAIN * (vgb - VDPM)) p_t += excess; else p_q += excess;
+            }
+            e_tps_ms += p_t * dt; e_q_ms += p_q * dt;
+            p_tps_peak = fmax(p_tps_peak, p_t); p_q_peak = fmax(p_q_peak, p_q);
+        }
         if (!powered && vt >= PG_ON)
             powered = 1;
         else if (powered && vt < PG_OFF) {
@@ -151,6 +169,18 @@ static void plant_ms(void)
         vc += icap / CRES * dt;
         t_now += dt;
     }
+    /* rolling 1 s / 10 s averages of the per-ms energies */
+    long i = ring_n % 10000;
+    double old_t = ring_n >= 10000 ? ring_tps[i] : 0, old_q = ring_n >= 10000 ? ring_q[i] : 0;
+    long i1 = (ring_n - 1000) % 10000;
+    double old1_t = ring_n >= 1000 ? ring_tps[(i1 + 10000) % 10000] : 0, old1_q = ring_n >= 1000 ? ring_q[(i1 + 10000) % 10000] : 0;
+    ring_tps[i] = e_tps_ms; ring_q[i] = e_q_ms; ring_n++;
+    sum10_tps += e_tps_ms - old_t; sum10_q += e_q_ms - old_q;
+    sum1_tps += e_tps_ms - old1_t; sum1_q += e_q_ms - old1_q;
+    max1_tps = fmax(max1_tps, sum1_tps); max1_q = fmax(max1_q, sum1_q);          /* J per 1 s = W */
+    max10_tps = fmax(max10_tps, sum10_tps / 10); max10_q = fmax(max10_q, sum10_q / 10);
+    e_tps_tot += e_tps_ms; e_q_tot += e_q_ms;
+    e_tps_ms = e_q_ms = 0;
 }
 
 /* ------------------------------------------------------------------ ESP32-C3 firmware model */
@@ -488,18 +518,30 @@ static void rp2350_tick_1ms(void)
 }
 
 /* ------------------------------------------------------------------ main */
+static FILE *xfopen(const char *path, const char *mode)
+{
+    FILE *f = fopen(path, mode);
+    if (!f) { perror(path); exit(1); }
+    return f;
+}
+static void *xmalloc(size_t n)
+{
+    void *p = malloc(n ? n : 1);
+    if (!p) { fprintf(stderr, "out of memory\n"); exit(1); }
+    return p;
+}
+
 int main(int argc, char **argv)
 {
     if (argc < 6) { fprintf(stderr, "usage: sysim ROM SCENARIO RSRC SECONDS OUTDIR\n"); return 1; }
-    FILE *f = fopen(argv[1], "rb");
-    if (!f) { perror(argv[1]); return 1; }
+    FILE *f = xfopen(argv[1], "rb");
     fseek(f, 0, SEEK_END); rom_size = ftell(f); fseek(f, 0, SEEK_SET);
-    rom = malloc(rom_size); fread(rom, 1, rom_size, f); fclose(f);
+    rom = xmalloc(rom_size); fread(rom, 1, rom_size, f); fclose(f);
     RSRC = atof(argv[3]);
     double seconds = atof(argv[4]);
     char path[512];
     snprintf(path, sizeof path, "%s/%s_log.txt", argv[5], argv[2]);
-    slog = fopen(path, "w");
+    slog = xfopen(path, "w");
     vgb = VSRC - RSRC * GB_LOAD;               /* console on, cartridge empty: hot-plug at t = 0 */
     int optin = 0;                             /* "WIFICART" anywhere in bank 0 (GBDK's crt0 owns 0x0150) */
     for (size_t i = 0; i + 8 <= rom_size && i + 8 <= 0x4000 && !optin; i++)
@@ -527,7 +569,7 @@ int main(int argc, char **argv)
         if (tok && tok[0] == 'P' && !hold && !gap && !waitf) { shot_at = fr; tok = strtok(NULL, " "); }
         if (fr == shot_at) {
             snprintf(path, sizeof path, "%s/%s_%02d_s%d.pgm", argv[5], argv[2], ++shots, st);
-            FILE *q = fopen(path, "wb"); fprintf(q, "P5 160 144 255\n");
+            FILE *q = xfopen(path, "wb"); fprintf(q, "P5 160 144 255\n");
             for (int y = 0; y < 144; y++) for (int x = 0; x < 160; x++) fputc(255 - fb[y][x] * 85, q);
             fclose(q);
         }
@@ -554,14 +596,14 @@ int main(int argc, char **argv)
     }
     /* screen and tile map */
     snprintf(path, sizeof path, "%s/%s_screen.pgm", argv[5], argv[2]);
-    FILE *p = fopen(path, "wb");
+    FILE *p = xfopen(path, "wb");
     fprintf(p, "P5 160 144 255\n");
     for (int y = 0; y < 144; y++)
         for (int x = 0; x < 160; x++)
             fputc(255 - fb[y][x] * 85, p);
     fclose(p);
     snprintf(path, sizeof path, "%s/%s_tilemap.txt", argv[5], argv[2]);
-    p = fopen(path, "w");
+    p = xfopen(path, "w");
     for (int row = 0; row < 18; row++) {
         for (int col = 0; col < 20; col++) {
             uint8_t t = gb.vram[0x1800 + row * 32 + col];
@@ -571,22 +613,25 @@ int main(int argc, char **argv)
     }
     fclose(p);
     snprintf(path, sizeof path, "%s/%s_tiles.bin", argv[5], argv[2]);   /* raw 20x18 tile indexes (any font) */
-    p = fopen(path, "wb");
+    p = xfopen(path, "wb");
     for (int row = 0; row < 18; row++)
         fwrite(gb.vram + 0x1800 + row * 32, 1, 20, p);
     fclose(p);
     snprintf(path, sizeof path, "%s/%s_result.json", argv[5], argv[2]);
-    p = fopen(path, "w");
+    p = xfopen(path, "w");
     fprintf(p, "{\"scenario\": \"%s\", \"rsrc\": %.2f, \"seconds\": %.2f, \"console_min_v\": %.4f, \"time_below_4v5_ms\": %.3f, "
                "\"radio_resets\": %d, \"reservoir_min_v_while_on\": %.3f, \"tx_frames\": %ld, \"tx_refused_ms\": %ld, "
                "\"pm_parks\": %u, \"frames_admitted\": %u, \"frames_refused\": %u, \"wifi_rom\": %d, "
                "\"cart_writes_mailbox\": %ld, \"spi_xfers\": %u, \"spi_bad_hdr\": %u, \"spi_bad_body\": %u, "
                "\"spi_resent\": %u, \"spi_bit_errors\": %ld, \"spi_bus_share\": %.4f, \"esp_rx_bad\": %u, "
-               "\"tx_drops\": %ld, \"tx_mgmt_unadmitted\": %ld, \"connects\": %ld}\n",
+               "\"tx_drops\": %ld, \"tx_mgmt_unadmitted\": %ld, \"connects\": %ld, "
+               "\"p_tps_peak_w\": %.3f, \"p_tps_max1s_w\": %.4f, \"p_tps_max10s_w\": %.4f, \"p_tps_avg_w\": %.4f, "
+               "\"p_q101_peak_w\": %.3f, \"p_q101_max1s_w\": %.4f, \"p_q101_max10s_w\": %.4f, \"p_q101_avg_w\": %.4f}\n",
             argv[2], RSRC, t_now, gb_min, unsafe_s * 1000, resets, res_min_on, tx_frames, tx_refused_ms,
             pm.parks, pm.frames_admitted, pm.frames_refused, wifi_rom, cart_writes_mb, elm.xfers, elm.bad_hdr,
             elm.bad_body, elm.resent, spi_bit_errors, t_now > 0 ? spi_bus_s / t_now : 0, esl.rx_bad, tx_drops, tx_mgmt,
-            assoc_count);
+            assoc_count, p_tps_peak, max1_tps, max10_tps, t_now > 0 ? e_tps_tot / t_now : 0,
+            p_q_peak, max1_q, max10_q, t_now > 0 ? e_q_tot / t_now : 0);
     fclose(p);
     fclose(slog);
     return 0;

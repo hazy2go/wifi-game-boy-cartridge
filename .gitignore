@@ -20,3 +20,6 @@ sim/system/test_gbwifi
 sim/system/sysim_adc
 sim/system/out/nooptin32k.gb
 sim/system/sysim_fastboot
+sim/system/sysim_usb
+sim/system/fuzz/fuzz_c
+sim/system/sysim_asan

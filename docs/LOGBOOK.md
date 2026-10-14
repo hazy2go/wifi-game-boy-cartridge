@@ -989,3 +989,42 @@ The gate checks are stronger as well:
   - pin_audit --all: 0 mismatches (both resistors 2/2 pins).
   - Gerbers and drill re-exported: all 15 identical to fab/ (values are not on any exported layer), so the order zip stays as it is.
   - S1: ALL PASS.
+
+## 2026-10-15 00:16 Remaining audits (Hazy: "any test or audit we forgot?" ... "do any possible now")
+**Thermal (new gate check S1.13).** The plant now books each step's switch-path power per part.
+- **Split:** the TPS2553 rDS(on) is 0.10 ohm (SLVS841F); the rest of RSW is the PMOS pair plus copper. The voltage the active limit removes goes to the TPS2553 when its 150 mA limit binds, and to Q101 when the regulator binds.
+- **Datasheet data:**
+  - TPS2553 DBV: RthJA 182.6 C/W, TJ <= 125 C, current-limit thermal shutdown 135 C.
+  - SiA975DJ (MCC/Vishay datasheet via LCSC): RthJA 65 C/W (t <= 5 s), 110 C/W steady, TJ max 150 C.
+- **Estimate method:** Tj = 60 C ambient + worst 1 s average x steady RthJA. For the hot-plug pulse there is an upper bound: the worst 1 s energy into the die alone (~0.5 mJ/K).
+- **Results:**
+  - Worst TPS2553: 0.78 W peak / 13.5 mW per 1 s (USB-like 5.25 V supply), Tj ~62 C, pulse bound 87 C.
+  - Worst Q101: 0.59 W peak / 49 mW per 1 s (weak console, regulating), Tj ~65 C.
+  - **ALL PASS on every scenario.** The heat is a non-issue, because charging the reservoir takes only tens of ms.
+
+**Sanitizers and fuzzing (S1.14).**
+- `sim/system/fuzz/fuzz_c.c` sends random, truncated and bit-flipped SPI frames to both link halves, plus random and near-valid frames to the MSS clamp, JSON-ish text to the kline parser, and random input to the connect parser, the scan formatter and the sanitizer. It runs under ASan/UBSan.
+- **3 M iterations, 0 findings.** Planted-bug check: with the clamp's length check removed, ASan reports a heap-buffer-overflow in gbw_clamp_mss at once.
+- The full system (sysim plus the shipped components plus Peanut-GB) under ASan/UBSan: fresh, weak and weak_plus, with and without bit errors, and the GBDK demo. **0 findings.**
+
+**Static analysis.**
+- **cppcheck 2.22**, warning/portability/performance: **0 findings in all firmware** (components, ESP app, both XIAO apps, GBDK library).
+  - Unchecked fopen/malloc in sysim and the fuzzer: fixed with checking wrappers.
+  - **A real bug in the third-party Peanut-GB emulator:** the APU read masks `ortab[48]` (FF10-FF3F) were indexed from 0xFF00. Reads of FF30-FF3F went past the array, and every other APU register got the wrong mask. Proven with a ROM that reads all APU registers: UBSan aborts on the unpatched emulator, and the patched one is clean. Patched locally (`ortab[addr - 0xFF10]`, with a comment). Our ROMs never read APU registers, so earlier results are unaffected. Not reported upstream (Hazy's call).
+- **cargo clippy** (cart firmware, link-tester, tests-host): only style lints in upstream Croco code (enum naming, argument counts, `x = x & m`). **None in esp_link.rs or the new crates.**
+
+**Soak (S1.15, plus one long run).** `gb/gbdk/soak` loops PING/TIME/GET/POWER.
+- 30 simulated minutes per console:
+  - fresh: 42,990 requests OK, 0 errors, 0 timeouts;
+  - tired: 42,990 / 0 / 0;
+  - weak: 27,158 / 0 / 0.
+- Over all three: about 170 SEQ wraps, 0 radio resets, 0 TX drops, console min 4.591 V. The only bad SPI headers are from the ESP boot (327 / 393), and there are 0 bad bodies.
+- The gate runs 5 minutes per console.
+
+**Heights vs the shell** (`hw/rev-b/tools/height_check.py`, all 132 top-side parts).
+- It reads every 3D model (KiCad 10 ships STEP only, so Croco's .wrl references fall back to the .step) and applies each model's scale, rotation and offset.
+- Datasheet heights where a model is missing: ESP32-C3-MINI-1U 2.55 mm, SiA975DJ 0.80 mm, TPS63802 1.0 mm, CH334P QFN 1.0 mm (assumed).
+- Tallest, apart from J1: the ESP module 2.55 mm, the W25Q128 2.16 mm (matches its datasheet), the T520B caps 2.10 mm (matches theirs).
+- **J1 USB-C** (Croco's original part and position): GCT drawing **3.31 mm +-0.15** (KiCad's model says 3.73). That is over the 3.3 mm low end of the 3.3-3.85 mm label-half clearance, at the top edge next to the rib. A stock shell needs a USB-C cut-out there anyway (plug up to 6.5 mm), and that also clears the receptacle. Recorded as a reviewed exception in the tool and noted in ORDER.md. Not covered by the models: the antenna's mated MHF III plug on the module; look at it in the shell test.
+
+**Not doable without hardware:** RF, SPI signal quality, real temperatures, ESP stack watermarks, and JLC's own DFM check (at upload, already in ORDER.md).

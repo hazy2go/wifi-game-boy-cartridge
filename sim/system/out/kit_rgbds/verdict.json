@@ -45,5 +45,13 @@
  "esp_rx_bad": 0,
  "tx_drops": 0,
  "tx_mgmt_unadmitted": 5,
- "connects": 1
+ "connects": 1,
+ "p_tps_peak_w": 0.714,
+ "p_tps_max1s_w": 0.0002,
+ "p_tps_max10s_w": 0.0002,
+ "p_tps_avg_w": 0.0002,
+ "p_q101_peak_w": 0.572,
+ "p_q101_max1s_w": 0.049,
+ "p_q101_max10s_w": 0.038,
+ "p_q101_avg_w": 0.0476
 }
