@@ -9,7 +9,7 @@ POWER:
 RAIL 4.59V RES 3.50V
 BURST 20/20 OK      
 POWER:              
-RAIL 4.59V RES 3.48V
+RAIL 4.59V RES 3.47V
 DONE                
                     
                     

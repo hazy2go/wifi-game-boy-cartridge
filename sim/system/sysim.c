@@ -35,9 +35,14 @@ static double RSRC;                      /* console source resistance: 0.7 fresh
 #define ILIM 0.150                       /* TPS2553 at RILIM 180k */
 #define VDPM 4.588                       /* TLV431B regulator set-point (A8.1) */
 #define DPM_GAIN 15.0                    /* A/V, A8 load regulation */
-#define RSW 0.30                         /* TPS2553 + SiA975DJ pair */
+#ifndef RPATH
+#define RPATH 0.0                        /* board copper J5 VCC -> reservoir (-DRPATH from hw/rev-b/tools/path_res.py) */
+#endif
+#define RSW (0.30 + RPATH)               /* TPS2553 + SiA975DJ pair + routed copper */
 #define CRES 0.99e-3                     /* 3 x T520B 330 uF (nominal) */
-#define RESR 0.0133
+#ifndef RESR
+#define RESR 0.0133                      /* 3 x T520B ESR in parallel; -DRESR adds each cap's copper to U103 VIN */
+#endif
 #define ETA 0.88
 #define RX_A 0.084                       /* ESP32-C3 RX at 3.3 V */
 #define TX_A 0.350                       /* ESP32-C3-MINI-1U TX peak (datasheet audit) */

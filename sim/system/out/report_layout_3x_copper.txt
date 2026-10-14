@@ -1,0 +1,84 @@
+layout parasitics: -DRPATH=0.111 -DRESR=0.0203
+# S1 full-system simulation: Game Boy ROM -> cartridge mailbox -> RP2350 -> SPI -> ESP32-C3 firmware -> power path
+
+## fresh: console source 0.7 ohm, 12 s simulated
+   | WIFI CART TEST
+   | PING:
+   | PONG
+   | TIME (NTP):
+   | 2026-10-14 15:00:00
+   | GET /hello:
+   | Hello from WiFi!
+   | POWER:
+   | RAIL 4.84V RES 4.82V
+   | BURST 20/20 OK
+   | POWER:
+   | RAIL 4.84V RES 4.82V
+   | DONE
+PASS  S1.1 fresh screen: all 13 lines as expected
+PASS  S1.5 fresh no wrong answer: every printed result correct or explicit ERR/TIMEOUT
+PASS  S1.2 fresh console rail: min 4.784 V, 0.0 ms below 4.5 V
+PASS  S1.3 fresh radio resets: 0; reservoir min while on 3.96 V
+PASS  S1.4 fresh TX through power manager: 141 frames sent, 141 admitted, refused-ms 0, parks 0
+
+## tired: console source 1.2 ohm, 12 s simulated
+   | WIFI CART TEST
+   | PING:
+   | PONG
+   | TIME (NTP):
+   | 2026-10-14 15:00:00
+   | GET /hello:
+   | Hello from WiFi!
+   | POWER:
+   | RAIL 4.73V RES 4.70V
+   | BURST 20/20 OK
+   | POWER:
+   | RAIL 4.73V RES 4.70V
+   | DONE
+PASS  S1.1 tired screen: all 13 lines as expected
+PASS  S1.5 tired no wrong answer: every printed result correct or explicit ERR/TIMEOUT
+PASS  S1.2 tired console rail: min 4.645 V, 0.0 ms below 4.5 V
+PASS  S1.3 tired radio resets: 0; reservoir min while on 3.96 V
+PASS  S1.4 tired TX through power manager: 141 frames sent, 141 admitted, refused-ms 0, parks 0
+
+## weak: console source 2.0 ohm, 20 s simulated
+   | WIFI CART TEST
+   | PING:
+   | PONG
+   | TIME (NTP):
+   | 2026-10-14 15:00:00
+   | GET /hello:
+   | Hello from WiFi!
+   | POWER:
+   | RAIL 4.59V RES 3.50V
+   | BURST 20/20 OK
+   | POWER:
+   | RAIL 4.59V RES 3.52V
+   | DONE
+PASS  S1.1 weak screen: all 13 lines as expected
+PASS  S1.5 weak no wrong answer: every printed result correct or explicit ERR/TIMEOUT
+PASS  S1.2 weak console rail: min 4.591 V, 0.0 ms below 4.5 V
+PASS  S1.3 weak radio resets: 0; reservoir min while on 3.24 V
+PASS  S1.4 weak TX through power manager: 141 frames sent, 141 admitted, refused-ms 530, parks 0
+
+## weak_plus: console source 2.5 ohm, 60 s simulated
+   | WIFI CART TEST
+   | PING:
+   | PONG
+   | TIME (NTP):
+   | 2026-10-14 15:00:04
+   | GET /hello:
+   | Hello from WiFi!
+   | POWER:
+   | RAIL 4.59V RES 3.36V
+   | BURST 20/20 OK
+   | POWER:
+   | RAIL 4.59V RES 3.38V
+   | DONE
+INFO  S1.1 weak_plus: complete
+PASS  S1.5 weak_plus no wrong answer: every printed result correct or explicit ERR/TIMEOUT
+PASS  S1.2 weak_plus console rail: min 4.588 V, 0.0 ms below 4.5 V
+PASS  S1.3 weak_plus radio resets: 0; reservoir min while on 2.97 V
+PASS  S1.4 weak_plus TX through power manager: 141 frames sent, 141 admitted, refused-ms 31993, parks 163
+
+RESULT: ALL PASS

@@ -1,3 +1,4 @@
+layout parasitics: -DRPATH=0.0369 -DRESR=0.0156
 # S1 full-system simulation: Game Boy ROM -> cartridge mailbox -> RP2350 -> SPI -> ESP32-C3 firmware -> power path
 
 ## fresh: console source 0.7 ohm, 12 s simulated
@@ -36,7 +37,7 @@ PASS  S1.4 fresh TX through power manager: 141 frames sent, 141 admitted, refuse
    | DONE
 PASS  S1.1 tired screen: all 13 lines as expected
 PASS  S1.5 tired no wrong answer: every printed result correct or explicit ERR/TIMEOUT
-PASS  S1.2 tired console rail: min 4.641 V, 0.0 ms below 4.5 V
+PASS  S1.2 tired console rail: min 4.642 V, 0.0 ms below 4.5 V
 PASS  S1.3 tired radio resets: 0; reservoir min while on 3.96 V
 PASS  S1.4 tired TX through power manager: 141 frames sent, 141 admitted, refused-ms 0, parks 0
 
@@ -52,13 +53,13 @@ PASS  S1.4 tired TX through power manager: 141 frames sent, 141 admitted, refuse
    | RAIL 4.59V RES 3.50V
    | BURST 20/20 OK
    | POWER:
-   | RAIL 4.59V RES 3.48V
+   | RAIL 4.59V RES 3.47V
    | DONE
 PASS  S1.1 weak screen: all 13 lines as expected
 PASS  S1.5 weak no wrong answer: every printed result correct or explicit ERR/TIMEOUT
 PASS  S1.2 weak console rail: min 4.591 V, 0.0 ms below 4.5 V
 PASS  S1.3 weak radio resets: 0; reservoir min while on 3.24 V
-PASS  S1.4 weak TX through power manager: 141 frames sent, 141 admitted, refused-ms 525, parks 0
+PASS  S1.4 weak TX through power manager: 141 frames sent, 141 admitted, refused-ms 527, parks 0
 
 ## weak_plus: console source 2.5 ohm, 60 s simulated
    | WIFI CART TEST
@@ -69,15 +70,15 @@ PASS  S1.4 weak TX through power manager: 141 frames sent, 141 admitted, refused
    | GET /hello:
    | Hello from WiFi!
    | POWER:
-   | RAIL 4.59V RES 3.50V
+   | RAIL 4.59V RES 3.31V
    | BURST 20/20 OK
    | POWER:
-   | RAIL 4.59V RES 3.36V
+   | RAIL 4.59V RES 3.12V
    | DONE
 INFO  S1.1 weak_plus: complete
 PASS  S1.5 weak_plus no wrong answer: every printed result correct or explicit ERR/TIMEOUT
 PASS  S1.2 weak_plus console rail: min 4.588 V, 0.0 ms below 4.5 V
-PASS  S1.3 weak_plus radio resets: 0; reservoir min while on 2.97 V
-PASS  S1.4 weak_plus TX through power manager: 141 frames sent, 141 admitted, refused-ms 32010, parks 163
+PASS  S1.3 weak_plus radio resets: 0; reservoir min while on 2.98 V
+PASS  S1.4 weak_plus TX through power manager: 141 frames sent, 141 admitted, refused-ms 32005, parks 163
 
 RESULT: ALL PASS

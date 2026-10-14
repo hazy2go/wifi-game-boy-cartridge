@@ -43,7 +43,10 @@ os.makedirs(OUT, exist_ok=True)
 sh(f'{sys.executable} make_font.py && rgbasm -Werror -o wifitest.o wifitest.asm && rgblink -o wifitest.gb -n wifitest.sym wifitest.o '
    '&& rgbfix -v -p 0xFF -m MBC5+RAM+BATTERY -r 0x04 -t WIFITEST wifitest.gb', os.path.join(HERE, 'rom'))
 pm = os.path.join(ROOT, 'firmware', 'esp32c3', 'components', 'power_mgr')
-sh(f'cc -O2 -std=c11 -Wall -Wextra -Werror -Wno-unused-parameter -I{pm} -o sysim sysim.c {pm}/power_mgr.c -lm', HERE)
+LAYOUT = os.environ.get('SIM_LAYOUT', '')   # e.g. '-DRPATH=0.0369 -DRESR=0.0156' (extracted copper)
+if LAYOUT:
+    log(f'layout parasitics: {LAYOUT}')
+sh(f'cc -O2 -std=c11 {LAYOUT} -Wall -Wextra -Werror -Wno-unused-parameter -I{pm} -o sysim sysim.c {pm}/power_mgr.c -lm', HERE)
 log('# S1 full-system simulation: Game Boy ROM -> cartridge mailbox -> RP2350 -> SPI -> ESP32-C3 firmware -> power path')
 for name, r, secs in SCEN:
     sh(f'./sysim rom/wifitest.gb {name} {r} {secs} out', HERE)

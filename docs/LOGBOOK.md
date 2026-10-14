@@ -664,3 +664,33 @@ Next: step 3 (silkscreen, the 6 mask bridges, footprint library links), then ste
 
 **Gate: ERC PASS, DRC PASS (0 new, 153 resolved vs Croco's baseline), unconnected 0, parity PASS.** Silkscreen: 0 silk_overlap / silk_over_copper / silk_edge_clearance (Croco's own 8 small connector labels stay below the 0.8 mm text-height rule, as in the original).
 ![top silk](img/silk_top_v1.png)
+
+## 2026-10-14 17:30 Step 4 checks + gate S1 re-run on the final layout
+
+**Static checks (all PASS):** `kicad_check.py` (ERC, DRC 0 new, unconnected 0, schematic/board parity), `netlist_check.py` (0 errors), `sim_vs_netlist.py` (every simulated regulator part is in the netlist with the same nets/values), `design_calcs.py` (all limits). USB_PWR_ST = ESP IO5 is consistent in the schematic, netlist and DESIGN_CALCS (no ESP pin map in firmware yet).
+
+**Layout parasitics extracted** (`hw/rev-b/tools/path_res.py`: resistor network of the routed copper, parallel paths included; outer 35 um, inner 17.5 um, plating 18 um, planes with a deliberately narrow 1 mm spreading width):
+
+| path | copper |
+|---|---|
+| VCC: J5 finger -> U101 (In4 plane + the new extension + via) | 2.1 mOhm |
+| VMUX: U101 -> U102 | 8.6 mOhm |
+| VLIM: U102 -> Q101 | 12.9 mOhm |
+| VRES: Q101 -> U103 VIN | 13.3 mOhm |
+| VRES: U103 VIN -> reservoir caps C105/C106/C107 | 8.9 / 5.2 / 13.7 mOhm |
+| +3V3_RF: U103 VOUT -> ESP 3V3 pin | 4.0 mOhm (1.4 mV at 350 mA TX) |
+
+Fed into the S1 power plant (`SIM_LAYOUT='-DRPATH=0.0369 -DRESR=0.0156' python3 run_system.py`: the whole J5 -> reservoir chain in series with the 0.30 ohm switch pair, each cap's copper in series with its ESR).
+
+**Gate S1 on the final layout: ALL PASS**, practically unchanged from the pre-layout run:
+
+| console | screen | console min | radio resets | reservoir min | TX waiting |
+|---|---|---|---|---|---|
+| fresh 0.7 ohm | all 13 lines | 4.784 V | 0 | 3.96 V | 0 |
+| tired 1.2 ohm | all 13 lines | 4.642 V | 0 | 3.96 V | 0 |
+| weak 2.0 ohm | all 13 lines | 4.591 V | 0 | 3.24 V | 527 ms |
+| weak+ 2.5 ohm | complete, slower | 4.588 V | 0 | 2.98 V | 32 s (163 parks) |
+
+Margin run with **3x** the extracted copper (`out/report_layout_3x_copper.txt`): ALL PASS, reservoir minimum 2.97 V on weak+.
+
+Board state: routed, cleaned, all gates green. Not done yet: fab outputs (Gerbers/drill, BOM + CPL for JLC assembly incl. part availability) and their review before any order.
