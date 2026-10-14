@@ -1,0 +1,16 @@
+{
+ "why": "Croco Cartridge V2.1's schematic has no LCSC number on these generic passives (its bom.csv leaves them blank). Picked from JLC's basic library (no feeder fee) where one exists, voltage rating >= Croco's value on the net; each verified live by tools/make_bom.py.",
+ "parts": {
+  "100nF|Capacitor_SMD:C_0603_1608Metric": {"lcsc": "C14663", "part": "CC0603KRX7R9BB104 100nF 50V X7R, basic"},
+  "4.7u|CrocoV2:C_0402_1005Metric_small_pads": {"lcsc": "C23733", "part": "CL05A475MP5NRNC 4.7uF 10V X5R, basic"},
+  "4.7u|Capacitor_SMD:C_0402_1005Metric": {"lcsc": "C23733", "part": "CL05A475MP5NRNC 4.7uF 10V X5R, basic"},
+  "100n|Capacitor_SMD:C_0402_1005Metric": {"lcsc": "C1525", "part": "CL05B104KO5NNNC 100nF 16V X7R, basic"},
+  "1uF|Capacitor_SMD:C_0603_1608Metric": {"lcsc": "C15849", "part": "CL10A105KB8NNNC 1uF 50V X5R, basic"},
+  "0R|Resistor_SMD:R_0603_1608Metric": {"lcsc": "C21189", "part": "0603WAF0000T5E 0 ohm, basic"},
+  "10k|Resistor_SMD:R_0603_1608Metric": {"lcsc": "C25804", "part": "0603WAF1002T5E 10k 1%, basic"},
+  "5k1|Resistor_SMD:R_0603_1608Metric": {"lcsc": "C23186", "part": "0603WAF5101T5E 5.1k 1% (USB-C CC), basic"},
+  "33|Resistor_SMD:R_0402_1005Metric": {"lcsc": "C25105", "part": "0402WGF330JTCE 33 ohm, basic"},
+  "1k|Resistor_SMD:R_0603_1608Metric": {"lcsc": "C21190", "part": "0603WAF1001T5E 1k 1%, basic"},
+  "27R|Resistor_SMD:R_0603_1608Metric": {"lcsc": "C25190", "part": "0603WAF270JT5E 27 ohm (RP2350 USB series), extended: no basic 27R 0603"}
+ }
+}

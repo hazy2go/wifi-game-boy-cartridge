@@ -711,3 +711,15 @@ New mailbox commands (README): 05 SCAN, 06 CONNECT ("n|password"), 07 BTC.
 What is real: the ROM; the network list is what this Mac's WiFi radio actually sees (channel, band, security, signal; macOS hides SSIDs without location permission, the ESP would show names); the BTC data is live from Binance (CoinGecko fallback); the shipped power manager admits every TX frame; layout copper in the power path. Modelled: the WPA2 join itself (the ESP model accepts any >= 8-char key and reports this Mac's address), ESP-IDF timing, RP2350 PIO timing.
 Result: **ALL PASS** (flow 1-2-3-4-5-6-5-6, chart text, console min 4.784 V, 0 radio resets, 87/87 TX frames through the power manager). S1 re-run after the sysim changes: ALL PASS.
 ![demo](img/btc_demo_screens.png)
+
+## 2026-10-14 18:20 JLC order files (not ordered; hold for the calibration measurement)
+
+`hw/rev-b/fab/` + `fab/ORDER.md` (all order settings and the pre-payment preview checklist).
+- **BOM** (`tools/make_bom.py`): from the schematic, checked live against JLC's parts library (exists, package = footprint size, value = part, stock >= 5 boards + attrition). 71 lines, 129 placed parts, DNP D4-D8/R1/R17 left out. Croco's generic passives had no LCSC numbers: JLC basic parts picked (`docs/design/croco_lcsc.json`).
+- Found and fixed: **3 Croco chips out of stock at JLC** (U1 USBLC6-2P6 listing, U2 W25Q16JV, U4 W956A8 HyperRAM) and **C27/C28 labelled 4.3 pF but linked to a 15 pF part** (RTC crystal load: 15 pF would pull the 7 pF crystal slow). Replacements in `ORDER.md`; HyperRAM IS66WVH8M8BLL checked against its datasheet ball map (identical HyperBus 24-ball layout, B1 RFU at 3.0 V, RESET# internal pull-up) and against Croco's firmware (CR0: 19 ohm drive, 5-cycle fixed latency, standard encodings; PIO clock ~22 MHz vs 100 MHz max; IDs only logged).
+- **CPL** (`tools/make_cpl.py`): rotation and offset of every part derived from the footprint JLC will place (EasyEDA data of the LCSC number, matched pad by pad; same-package proxy for 3 parts without EasyEDA data). All 129 unambiguous (next-best rotation >= 0.92 mm worse). Corrections it found: J1 USB-C 1.30 mm, U104 ESP module 0.70 mm, U103 0.075 mm, SOT/SOIC/MSOP/QFN rotations.
+- **Gerbers + drill** (kicad-cli, Protel names, no X2, soldermask subtracted from silk, Excellon mm absolute PTH/NPTH). Rendered independently (tracespace):
+![gerber render](img/gerber_render.png)
+- Gate after the part swaps: ERC/DRC/unconnected/parity PASS.
+
+**Open before paying:** the logbook's A7 requirement (partial RF calibration <= 5 ms @ 50 % TX on a real ESP32-C3) was still open; I had told Hazy a dev board was optional, which contradicted it. Corrected with Hazy: dev board measurement first, then order.

@@ -16965,7 +16965,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C15999"
+		(property "LCSC" "C2827693"
 			(at 35.56 102.87 90)
 			(effects
 				(font
@@ -18314,7 +18314,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.3.pF"
+		(property "Value" "4.3pF"
 			(at 347.853 186.309 0)
 			(effects
 				(font
@@ -18350,7 +18350,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C1644"
+		(property "LCSC" "C59526"
 			(at 346.71 189.23 0)
 			(effects
 				(font
@@ -19049,7 +19049,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "W956A8MBYA5I"
+		(property "Value" "IS66WVH8M8BLL-100B1LI"
 			(at 205.2194 240.1371 0)
 			(effects
 				(font
@@ -19067,7 +19067,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://www.winbond.com/resource-files/W958D8NBYA%20256Mb%20HyperRAM%20TFBGA24%20SDP%2085C%20datasheet_A01-002_20211020.pdf"
+		(property "Datasheet" "https://www.issi.com/WW/pdf/66-67WVH8M8ALL-BLL.pdf"
 			(at 191.77 237.49 0)
 			(effects
 				(font
@@ -19085,7 +19085,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C5375118"
+		(property "LCSC" "C1349096"
 			(at 200.66 256.54 0)
 			(effects
 				(font
@@ -19229,7 +19229,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C1644"
+		(property "LCSC" "C59526"
 			(at 346.71 198.12 0)
 			(effects
 				(font
@@ -20011,7 +20011,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "W25Q16JVSSIQ"
+		(property "Value" "W25Q128JVSIQ"
 			(at 71.8694 161.3971 0)
 			(effects
 				(font
@@ -20047,7 +20047,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C82317"
+		(property "LCSC" "C97521"
 			(at 69.85 170.18 0)
 			(effects
 				(font
