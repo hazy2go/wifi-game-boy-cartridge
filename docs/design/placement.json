@@ -1,5 +1,534 @@
 [
- {"ref": "U104", "x": 121.0, "y": 84.0, "rot": 90,
-  "why": "WiFi module in the freed coin-cell area (LOGBOOK 09:02/09:10). fit_part.py: legal at all rotations; 90 deg puts the SPI/ADC/IO pins (12-24) on the side facing the RP2350, USB D+/D- (26/27) towards the hub/USB-C at the top, and the module's antenna end towards the board edge for the u.FL cable",
-  "rip": {"nets": ["GND"], "box": [113.5, 76.5, 128.6, 91.5]}}
+ {
+  "ref": "U104",
+  "x": 121.0,
+  "y": 84.0,
+  "rot": 90,
+  "why": "WiFi module in the freed coin-cell area (LOGBOOK 09:02/09:10). fit_part.py: legal at all rotations; 90 deg puts the SPI/ADC/IO pins (12-24) on the side facing the RP2350, USB D+/D- (26/27) towards the hub/USB-C at the top, and the module's antenna end towards the board edge for the u.FL cable | (applied once 2026-10-14: ripped the coin-cell GND stitching in box [113.5, 76.5, 128.6, 91.5]; removed from the entry so re-applying placements never deletes newer copper)"
+ },
+ {
+  "ref": "U103",
+  "x": 121.0,
+  "y": 93.0,
+  "rot": 180,
+  "why": "buck-boost block (LOGBOOK 14:1x): U103 rotated 180 so VOUT faces the module's 3V3 pin (119.3, 89.9) and VIN faces the reservoir below; L101 between L1/L2 on the left, Cout C110/C111 at VOUT, Cin C109 at VIN, FB/PG resistors on the EN/FB/PG side"
+ },
+ {
+  "ref": "L101",
+  "x": 117.9,
+  "y": 93.75,
+  "rot": 90,
+  "why": "buck-boost block (LOGBOOK 14:1x): U103 rotated 180 so VOUT faces the module's 3V3 pin (119.3, 89.9) and VIN faces the reservoir below; L101 between L1/L2 on the left, Cout C110/C111 at VOUT, Cin C109 at VIN, FB/PG resistors on the EN/FB/PG side"
+ },
+ {
+  "ref": "C110",
+  "x": 117.9,
+  "y": 91.64,
+  "rot": 180,
+  "why": "buck-boost block (LOGBOOK 14:1x): U103 rotated 180 so VOUT faces the module's 3V3 pin (119.3, 89.9) and VIN faces the reservoir below; L101 between L1/L2 on the left, Cout C110/C111 at VOUT, Cin C109 at VIN, FB/PG resistors on the EN/FB/PG side"
+ },
+ {
+  "ref": "C111",
+  "x": 115.5,
+  "y": 93.75,
+  "rot": 90,
+  "why": "buck-boost block (LOGBOOK 14:1x): U103 rotated 180 so VOUT faces the module's 3V3 pin (119.3, 89.9) and VIN faces the reservoir below; L101 between L1/L2 on the left, Cout C110/C111 at VOUT, Cin C109 at VIN, FB/PG resistors on the EN/FB/PG side"
+ },
+ {
+  "ref": "C109",
+  "x": 120.55,
+  "y": 95.65,
+  "rot": 0,
+  "why": "buck-boost block (LOGBOOK 14:1x): U103 rotated 180 so VOUT faces the module's 3V3 pin (119.3, 89.9) and VIN faces the reservoir below; L101 between L1/L2 on the left, Cout C110/C111 at VOUT, Cin C109 at VIN, FB/PG resistors on the EN/FB/PG side"
+ },
+ {
+  "ref": "C112",
+  "x": 115.4,
+  "y": 91.64,
+  "rot": 0,
+  "why": "buck-boost block (LOGBOOK 14:1x): U103 rotated 180 so VOUT faces the module's 3V3 pin (119.3, 89.9) and VIN faces the reservoir below; L101 between L1/L2 on the left, Cout C110/C111 at VOUT, Cin C109 at VIN, FB/PG resistors on the EN/FB/PG side"
+ },
+ {
+  "ref": "R108",
+  "x": 123.47,
+  "y": 91.75,
+  "rot": 0,
+  "why": "buck-boost block (LOGBOOK 14:1x): U103 rotated 180 so VOUT faces the module's 3V3 pin (119.3, 89.9) and VIN faces the reservoir below; L101 between L1/L2 on the left, Cout C110/C111 at VOUT, Cin C109 at VIN, FB/PG resistors on the EN/FB/PG side"
+ },
+ {
+  "ref": "R109",
+  "x": 123.47,
+  "y": 92.8,
+  "rot": 0,
+  "why": "buck-boost block (LOGBOOK 14:1x): U103 rotated 180 so VOUT faces the module's 3V3 pin (119.3, 89.9) and VIN faces the reservoir below; L101 between L1/L2 on the left, Cout C110/C111 at VOUT, Cin C109 at VIN, FB/PG resistors on the EN/FB/PG side"
+ },
+ {
+  "ref": "R110",
+  "x": 123.47,
+  "y": 93.85,
+  "rot": 0,
+  "why": "buck-boost block (LOGBOOK 14:1x): U103 rotated 180 so VOUT faces the module's 3V3 pin (119.3, 89.9) and VIN faces the reservoir below; L101 between L1/L2 on the left, Cout C110/C111 at VOUT, Cin C109 at VIN, FB/PG resistors on the EN/FB/PG side"
+ },
+ {
+  "ref": "R111",
+  "x": 123.47,
+  "y": 94.9,
+  "rot": 0,
+  "why": "buck-boost block (LOGBOOK 14:1x): U103 rotated 180 so VOUT faces the module's 3V3 pin (119.3, 89.9) and VIN faces the reservoir below; L101 between L1/L2 on the left, Cout C110/C111 at VOUT, Cin C109 at VIN, FB/PG resistors on the EN/FB/PG side"
+ },
+ {
+  "ref": "C105",
+  "x": 116.3,
+  "y": 98.2,
+  "rot": 0,
+  "why": "reservoir (T520B) directly below the buck-boost input"
+ },
+ {
+  "ref": "C106",
+  "x": 121.3,
+  "y": 98.2,
+  "rot": 0,
+  "why": "reservoir (T520B) directly below the buck-boost input"
+ },
+ {
+  "ref": "C107",
+  "x": 116.3,
+  "y": 101.65,
+  "rot": 0,
+  "why": "reservoir (T520B) directly below the buck-boost input"
+ },
+ {
+  "ref": "Q101",
+  "x": 123.808,
+  "y": 101.651,
+  "rot": 270,
+  "why": "group reg (precision input regulator, compact: Q101 pass pair, Rg/Rk at the gate, 3-diode clamp column, TLV431 + its 0402 network); group placed by autoplace.py at (123.81, 101.65) rot 270, wirelength 10.7 mm"
+ },
+ {
+  "ref": "R128",
+  "x": 123.478,
+  "y": 104.051,
+  "rot": 0,
+  "why": "group reg (precision input regulator, compact: Q101 pass pair, Rg/Rk at the gate, 3-diode clamp column, TLV431 + its 0402 network); group placed by autoplace.py at (123.81, 101.65) rot 270, wirelength 10.7 mm"
+ },
+ {
+  "ref": "D101",
+  "x": 123.808,
+  "y": 105.551,
+  "rot": 0,
+  "why": "group reg (precision input regulator, compact: Q101 pass pair, Rg/Rk at the gate, 3-diode clamp column, TLV431 + its 0402 network); group placed by autoplace.py at (123.81, 101.65) rot 270, wirelength 10.7 mm"
+ },
+ {
+  "ref": "D102",
+  "x": 123.808,
+  "y": 107.051,
+  "rot": 0,
+  "why": "group reg (precision input regulator, compact: Q101 pass pair, Rg/Rk at the gate, 3-diode clamp column, TLV431 + its 0402 network); group placed by autoplace.py at (123.81, 101.65) rot 270, wirelength 10.7 mm"
+ },
+ {
+  "ref": "D103",
+  "x": 123.808,
+  "y": 108.551,
+  "rot": 0,
+  "why": "group reg (precision input regulator, compact: Q101 pass pair, Rg/Rk at the gate, 3-diode clamp column, TLV431 + its 0402 network); group placed by autoplace.py at (123.81, 101.65) rot 270, wirelength 10.7 mm"
+ },
+ {
+  "ref": "U109",
+  "x": 120.508,
+  "y": 101.951,
+  "rot": 270,
+  "why": "group reg (precision input regulator, compact: Q101 pass pair, Rg/Rk at the gate, 3-diode clamp column, TLV431 + its 0402 network); group placed by autoplace.py at (123.81, 101.65) rot 270, wirelength 10.7 mm"
+ },
+ {
+  "ref": "R129",
+  "x": 121.808,
+  "y": 105.051,
+  "rot": 270,
+  "why": "group reg (precision input regulator, compact: Q101 pass pair, Rg/Rk at the gate, 3-diode clamp column, TLV431 + its 0402 network); group placed by autoplace.py at (123.81, 101.65) rot 270, wirelength 10.7 mm"
+ },
+ {
+  "ref": "C123",
+  "x": 121.808,
+  "y": 107.051,
+  "rot": 270,
+  "why": "group reg (precision input regulator, compact: Q101 pass pair, Rg/Rk at the gate, 3-diode clamp column, TLV431 + its 0402 network); group placed by autoplace.py at (123.81, 101.65) rot 270, wirelength 10.7 mm"
+ },
+ {
+  "ref": "R130",
+  "x": 120.758,
+  "y": 105.051,
+  "rot": 270,
+  "why": "group reg (precision input regulator, compact: Q101 pass pair, Rg/Rk at the gate, 3-diode clamp column, TLV431 + its 0402 network); group placed by autoplace.py at (123.81, 101.65) rot 270, wirelength 10.7 mm"
+ },
+ {
+  "ref": "R126",
+  "x": 120.758,
+  "y": 107.051,
+  "rot": 270,
+  "why": "group reg (precision input regulator, compact: Q101 pass pair, Rg/Rk at the gate, 3-diode clamp column, TLV431 + its 0402 network); group placed by autoplace.py at (123.81, 101.65) rot 270, wirelength 10.7 mm"
+ },
+ {
+  "ref": "R127",
+  "x": 119.708,
+  "y": 105.051,
+  "rot": 270,
+  "why": "group reg (precision input regulator, compact: Q101 pass pair, Rg/Rk at the gate, 3-diode clamp column, TLV431 + its 0402 network); group placed by autoplace.py at (123.81, 101.65) rot 270, wirelength 10.7 mm"
+ },
+ {
+  "ref": "R132",
+  "x": 119.708,
+  "y": 107.051,
+  "rot": 270,
+  "why": "group reg (precision input regulator, compact: Q101 pass pair, Rg/Rk at the gate, 3-diode clamp column, TLV431 + its 0402 network); group placed by autoplace.py at (123.81, 101.65) rot 270, wirelength 10.7 mm"
+ },
+ {
+  "ref": "U102",
+  "x": 127.808,
+  "y": 105.751,
+  "rot": 90,
+  "why": "group lim (TPS2553 with RILIM at ILIM and its output cap at OUT); group placed by autoplace.py at (127.81, 105.75) rot 90, wirelength 43.1 mm"
+ },
+ {
+  "ref": "R103",
+  "x": 128.208,
+  "y": 102.651,
+  "rot": 180,
+  "why": "group lim (TPS2553 with RILIM at ILIM and its output cap at OUT); group placed by autoplace.py at (127.81, 105.75) rot 90, wirelength 43.1 mm"
+ },
+ {
+  "ref": "C104",
+  "x": 126.208,
+  "y": 102.651,
+  "rot": 180,
+  "why": "group lim (TPS2553 with RILIM at ILIM and its output cap at OUT); group placed by autoplace.py at (127.81, 105.75) rot 90, wirelength 43.1 mm"
+ },
+ {
+  "ref": "U101",
+  "x": 132.108,
+  "y": 105.951,
+  "rot": 90,
+  "why": "group mux (TPS2116 with its input/output caps and the PR1 divider); group placed by autoplace.py at (132.11, 105.95) rot 90, wirelength 68.2 mm"
+ },
+ {
+  "ref": "C103",
+  "x": 130.108,
+  "y": 105.951,
+  "rot": 90,
+  "why": "group mux (TPS2116 with its input/output caps and the PR1 divider); group placed by autoplace.py at (132.11, 105.95) rot 90, wirelength 68.2 mm"
+ },
+ {
+  "ref": "C102",
+  "x": 132.358,
+  "y": 103.551,
+  "rot": 180,
+  "why": "group mux (TPS2116 with its input/output caps and the PR1 divider); group placed by autoplace.py at (132.11, 105.95) rot 90, wirelength 68.2 mm"
+ },
+ {
+  "ref": "C101",
+  "x": 132.608,
+  "y": 108.351,
+  "rot": 180,
+  "why": "group mux (TPS2116 with its input/output caps and the PR1 divider); group placed by autoplace.py at (132.11, 105.95) rot 90, wirelength 68.2 mm"
+ },
+ {
+  "ref": "R101",
+  "x": 134.108,
+  "y": 105.951,
+  "rot": 90,
+  "why": "group mux (TPS2116 with its input/output caps and the PR1 divider); group placed by autoplace.py at (132.11, 105.95) rot 90, wirelength 68.2 mm"
+ },
+ {
+  "ref": "R102",
+  "x": 135.158,
+  "y": 105.951,
+  "rot": 90,
+  "why": "group mux (TPS2116 with its input/output caps and the PR1 divider); group placed by autoplace.py at (132.11, 105.95) rot 90, wirelength 68.2 mm"
+ },
+ {
+  "ref": "Q102",
+  "x": 117.208,
+  "y": 105.951,
+  "rot": 270,
+  "why": "group por (power-on hold (Q102 pulls REF low for ~45 ms after plug-in), next to the regulator REF); group placed by autoplace.py at (117.21, 105.95) rot 270, wirelength 8.6 mm"
+ },
+ {
+  "ref": "C124",
+  "x": 118.258,
+  "y": 109.051,
+  "rot": 270,
+  "why": "group por (power-on hold (Q102 pulls REF low for ~45 ms after plug-in), next to the regulator REF); group placed by autoplace.py at (117.21, 105.95) rot 270, wirelength 8.6 mm"
+ },
+ {
+  "ref": "R131",
+  "x": 117.208,
+  "y": 109.051,
+  "rot": 270,
+  "why": "group por (power-on hold (Q102 pulls REF low for ~45 ms after plug-in), next to the regulator REF); group placed by autoplace.py at (117.21, 105.95) rot 270, wirelength 8.6 mm"
+ },
+ {
+  "ref": "D104",
+  "x": 115.958,
+  "y": 109.351,
+  "rot": 270,
+  "why": "group por (power-on hold (Q102 pulls REF low for ~45 ms after plug-in), next to the regulator REF); group placed by autoplace.py at (117.21, 105.95) rot 270, wirelength 8.6 mm"
+ },
+ {
+  "ref": "U108",
+  "x": 152.808,
+  "y": 99.851,
+  "rot": 0,
+  "why": "group pg (TLV3012 power-good with its divider, reference cap and decoupling); group placed by autoplace.py at (152.81, 99.85) rot 0, wirelength 156.0 mm"
+ },
+ {
+  "ref": "C122",
+  "x": 155.878,
+  "y": 98.801,
+  "rot": 0,
+  "why": "group pg (TLV3012 power-good with its divider, reference cap and decoupling); group placed by autoplace.py at (152.81, 99.85) rot 0, wirelength 156.0 mm"
+ },
+ {
+  "ref": "C121",
+  "x": 155.878,
+  "y": 99.851,
+  "rot": 0,
+  "why": "group pg (TLV3012 power-good with its divider, reference cap and decoupling); group placed by autoplace.py at (152.81, 99.85) rot 0, wirelength 156.0 mm"
+ },
+ {
+  "ref": "R123",
+  "x": 155.878,
+  "y": 100.901,
+  "rot": 0,
+  "why": "group pg (TLV3012 power-good with its divider, reference cap and decoupling); group placed by autoplace.py at (152.81, 99.85) rot 0, wirelength 156.0 mm"
+ },
+ {
+  "ref": "R125",
+  "x": 149.738,
+  "y": 98.801,
+  "rot": 0,
+  "why": "group pg (TLV3012 power-good with its divider, reference cap and decoupling); group placed by autoplace.py at (152.81, 99.85) rot 0, wirelength 156.0 mm"
+ },
+ {
+  "ref": "R124",
+  "x": 149.738,
+  "y": 99.851,
+  "rot": 0,
+  "why": "group pg (TLV3012 power-good with its divider, reference cap and decoupling); group placed by autoplace.py at (152.81, 99.85) rot 0, wirelength 156.0 mm"
+ },
+ {
+  "ref": "D1",
+  "x": 143.8,
+  "y": 72.1,
+  "rot": 180,
+  "why": "Croco's status LED back at its original position (lifted only to clear its old tracks)"
+ },
+ {
+  "ref": "U107",
+  "x": 146.808,
+  "y": 66.551,
+  "rot": 0,
+  "why": "group hub (CH334P hub with its crystal beside XI/XO and the 3V3 decoupling in a row above, sized to the old J3 spot above Croco's LED D1 (D1 back at its original place)); group placed by autoplace.py at (146.81, 66.55) rot 0, wirelength 62.8 mm"
+ },
+ {
+  "ref": "Y101",
+  "x": 142.858,
+  "y": 66.551,
+  "rot": 90,
+  "why": "group hub (CH334P hub with its crystal beside XI/XO and the 3V3 decoupling in a row above, sized to the old J3 spot above Croco's LED D1 (D1 back at its original place)); group placed by autoplace.py at (146.81, 66.55) rot 0, wirelength 62.8 mm"
+ },
+ {
+  "ref": "C116",
+  "x": 146.308,
+  "y": 63.851,
+  "rot": 0,
+  "why": "group hub (CH334P hub with its crystal beside XI/XO and the 3V3 decoupling in a row above, sized to the old J3 spot above Croco's LED D1 (D1 back at its original place)); group placed by autoplace.py at (146.81, 66.55) rot 0, wirelength 62.8 mm"
+ },
+ {
+  "ref": "C118",
+  "x": 148.308,
+  "y": 63.851,
+  "rot": 0,
+  "why": "group hub (CH334P hub with its crystal beside XI/XO and the 3V3 decoupling in a row above, sized to the old J3 spot above Croco's LED D1 (D1 back at its original place)); group placed by autoplace.py at (146.81, 66.55) rot 0, wirelength 62.8 mm"
+ },
+ {
+  "ref": "C119",
+  "x": 141.908,
+  "y": 63.851,
+  "rot": 0,
+  "why": "group hub (CH334P hub with its crystal beside XI/XO and the 3V3 decoupling in a row above, sized to the old J3 spot above Croco's LED D1 (D1 back at its original place)); group placed by autoplace.py at (146.81, 66.55) rot 0, wirelength 62.8 mm"
+ },
+ {
+  "ref": "C120",
+  "x": 143.908,
+  "y": 63.851,
+  "rot": 0,
+  "why": "group hub (CH334P hub with its crystal beside XI/XO and the 3V3 decoupling in a row above, sized to the old J3 spot above Croco's LED D1 (D1 back at its original place)); group placed by autoplace.py at (146.81, 66.55) rot 0, wirelength 62.8 mm"
+ },
+ {
+  "ref": "U106",
+  "x": 122.608,
+  "y": 75.051,
+  "rot": 180,
+  "why": "group buf106 (SPI buffer with its decoupling at VCC (pin 8) and the 33R SCK series resistor at pin 7); group placed by autoplace.py at (122.61, 75.05) rot 180, wirelength 100.6 mm"
+ },
+ {
+  "ref": "C117",
+  "x": 118.858,
+  "y": 76.021,
+  "rot": 270,
+  "why": "group buf106 (SPI buffer with its decoupling at VCC (pin 8) and the 33R SCK series resistor at pin 7); group placed by autoplace.py at (122.61, 75.05) rot 180, wirelength 100.6 mm"
+ },
+ {
+  "ref": "R122",
+  "x": 117.808,
+  "y": 75.381,
+  "rot": 270,
+  "why": "group buf106 (SPI buffer with its decoupling at VCC (pin 8) and the 33R SCK series resistor at pin 7); group placed by autoplace.py at (122.61, 75.05) rot 180, wirelength 100.6 mm"
+ },
+ {
+  "ref": "U6",
+  "x": 156.35,
+  "y": 86.65,
+  "rot": 270,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 0.9 mm"
+ },
+ {
+  "ref": "U105",
+  "x": 118.8,
+  "y": 64.9,
+  "rot": 0,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 43.6 mm"
+ },
+ {
+  "ref": "D3",
+  "x": 162.9,
+  "y": 77.8,
+  "rot": 90,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 2.6 mm"
+ },
+ {
+  "ref": "D2",
+  "x": 157.8,
+  "y": 93.3,
+  "rot": 270,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 4.2 mm"
+ },
+ {
+  "ref": "C26",
+  "x": 152.03,
+  "y": 88.33,
+  "rot": 180,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 0.5 mm"
+ },
+ {
+  "ref": "C25",
+  "x": 152.83,
+  "y": 85.53,
+  "rot": 0,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 0.7 mm"
+ },
+ {
+  "ref": "C108",
+  "x": 156.43,
+  "y": 97.33,
+  "rot": 0,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 1.8 mm"
+ },
+ {
+  "ref": "R121",
+  "x": 128.12,
+  "y": 78.03,
+  "rot": 270,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 24.4 mm"
+ },
+ {
+  "ref": "R120",
+  "x": 140.48,
+  "y": 75.47,
+  "rot": 180,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 26.0 mm"
+ },
+ {
+  "ref": "R119",
+  "x": 128.12,
+  "y": 87.53,
+  "rot": 90,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 1.8 mm"
+ },
+ {
+  "ref": "R118",
+  "x": 128.22,
+  "y": 84.43,
+  "rot": 270,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 7.1 mm"
+ },
+ {
+  "ref": "R117",
+  "x": 128.12,
+  "y": 82.33,
+  "rot": 90,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 6.9 mm"
+ },
+ {
+  "ref": "R116",
+  "x": 117.88,
+  "y": 95.57,
+  "rot": 180,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 12.8 mm"
+ },
+ {
+  "ref": "R115",
+  "x": 130.42,
+  "y": 103.43,
+  "rot": 270,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 14.2 mm"
+ },
+ {
+  "ref": "R114",
+  "x": 119.12,
+  "y": 73.93,
+  "rot": 90,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 11.1 mm"
+ },
+ {
+  "ref": "R113",
+  "x": 124.72,
+  "y": 72.23,
+  "rot": 270,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 14.0 mm"
+ },
+ {
+  "ref": "R112",
+  "x": 115.58,
+  "y": 66.17,
+  "rot": 0,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 11.2 mm"
+ },
+ {
+  "ref": "R104",
+  "x": 133.92,
+  "y": 103.43,
+  "rot": 270,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 8.7 mm"
+ },
+ {
+  "ref": "C115",
+  "x": 133.86,
+  "y": 88.16,
+  "rot": 0,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 5.8 mm"
+ },
+ {
+  "ref": "C114",
+  "x": 133.31,
+  "y": 78.41,
+  "rot": 90,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 7.2 mm"
+ },
+ {
+  "ref": "C113",
+  "x": 134.61,
+  "y": 100.51,
+  "rot": 90,
+  "why": "autoplace.py: legal (courtyard + copper clearance), min wirelength 12.8 mm"
+ }
 ]

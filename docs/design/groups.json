@@ -1,0 +1,312 @@
+{
+ "reg": {
+  "why": "precision input regulator, compact: Q101 pass pair, Rg/Rk at the gate, 3-diode clamp column, TLV431 + its 0402 network",
+  "members": [
+   {
+    "ref": "Q101",
+    "dx": 0,
+    "dy": 0,
+    "rot": 0
+   },
+   {
+    "ref": "R128",
+    "dx": 2.4,
+    "dy": 0.33,
+    "rot": 90
+   },
+   {
+    "ref": "D101",
+    "dx": 3.9,
+    "dy": 0,
+    "rot": 90
+   },
+   {
+    "ref": "D102",
+    "dx": 5.4,
+    "dy": 0,
+    "rot": 90
+   },
+   {
+    "ref": "D103",
+    "dx": 6.9,
+    "dy": 0,
+    "rot": 90
+   },
+   {
+    "ref": "U109",
+    "dx": 0.3,
+    "dy": 3.3,
+    "rot": 0
+   },
+   {
+    "ref": "R129",
+    "dx": 3.4,
+    "dy": 2.0,
+    "rot": 0
+   },
+   {
+    "ref": "C123",
+    "dx": 5.4,
+    "dy": 2.0,
+    "rot": 0
+   },
+   {
+    "ref": "R130",
+    "dx": 3.4,
+    "dy": 3.05,
+    "rot": 0
+   },
+   {
+    "ref": "R126",
+    "dx": 5.4,
+    "dy": 3.05,
+    "rot": 0
+   },
+   {
+    "ref": "R127",
+    "dx": 3.4,
+    "dy": 4.1,
+    "rot": 0
+   },
+   {
+    "ref": "R132",
+    "dx": 5.4,
+    "dy": 4.1,
+    "rot": 0
+   }
+  ]
+ },
+ "lim": {
+  "why": "TPS2553 with RILIM at ILIM and its output cap at OUT",
+  "members": [
+   {
+    "ref": "U102",
+    "dx": 0,
+    "dy": 0,
+    "rot": 0
+   },
+   {
+    "ref": "R103",
+    "dx": 3.1,
+    "dy": 0.4,
+    "rot": 90
+   },
+   {
+    "ref": "C104",
+    "dx": 3.1,
+    "dy": -1.6,
+    "rot": 90
+   }
+  ]
+ },
+ "mux": {
+  "why": "TPS2116 with its input/output caps and the PR1 divider",
+  "members": [
+   {
+    "ref": "U101",
+    "dx": 0,
+    "dy": 0,
+    "rot": 0
+   },
+   {
+    "ref": "C103",
+    "dx": 0,
+    "dy": -2.0,
+    "rot": 0
+   },
+   {
+    "ref": "C102",
+    "dx": 2.4,
+    "dy": 0.25,
+    "rot": 90
+   },
+   {
+    "ref": "C101",
+    "dx": -2.4,
+    "dy": 0.5,
+    "rot": 90
+   },
+   {
+    "ref": "R101",
+    "dx": 0,
+    "dy": 2.0,
+    "rot": 0
+   },
+   {
+    "ref": "R102",
+    "dx": 0,
+    "dy": 3.05,
+    "rot": 0
+   }
+  ]
+ },
+ "pg": {
+  "why": "TLV3012 power-good with its divider, reference cap and decoupling",
+  "members": [
+   {
+    "ref": "U108",
+    "dx": 0,
+    "dy": 0,
+    "rot": 0
+   },
+   {
+    "ref": "C122",
+    "dx": 3.07,
+    "dy": -1.05,
+    "rot": 0
+   },
+   {
+    "ref": "C121",
+    "dx": 3.07,
+    "dy": 0,
+    "rot": 0
+   },
+   {
+    "ref": "R123",
+    "dx": 3.07,
+    "dy": 1.05,
+    "rot": 0
+   },
+   {
+    "ref": "R125",
+    "dx": -3.07,
+    "dy": -1.05,
+    "rot": 0
+   },
+   {
+    "ref": "R124",
+    "dx": -3.07,
+    "dy": 0,
+    "rot": 0
+   }
+  ]
+ },
+ "por": {
+  "why": "power-on hold (Q102 pulls REF low for ~45 ms after plug-in), next to the regulator REF",
+  "members": [
+   {
+    "ref": "Q102",
+    "dx": 0,
+    "dy": 0,
+    "rot": 0
+   },
+   {
+    "ref": "C124",
+    "dx": 3.1,
+    "dy": -1.05,
+    "rot": 0
+   },
+   {
+    "ref": "R131",
+    "dx": 3.1,
+    "dy": 0,
+    "rot": 0
+   },
+   {
+    "ref": "D104",
+    "dx": 3.4,
+    "dy": 1.25,
+    "rot": 0
+   }
+  ]
+ },
+ "hub": {
+  "why": "CH334P hub with its crystal beside XI/XO and the 3V3 decoupling in a row above, sized to the old J3 spot above Croco's LED D1 (D1 back at its original place)",
+  "members": [
+   {
+    "ref": "U107",
+    "dx": 0,
+    "dy": 0,
+    "rot": 0
+   },
+   {
+    "ref": "Y101",
+    "dx": -3.95,
+    "dy": 0,
+    "rot": 90
+   },
+   {
+    "ref": "C116",
+    "dx": -0.5,
+    "dy": -2.7,
+    "rot": 0
+   },
+   {
+    "ref": "C118",
+    "dx": 1.5,
+    "dy": -2.7,
+    "rot": 0
+   },
+   {
+    "ref": "C119",
+    "dx": -4.9,
+    "dy": -2.7,
+    "rot": 0
+   },
+   {
+    "ref": "C120",
+    "dx": -2.9,
+    "dy": -2.7,
+    "rot": 0
+   }
+  ]
+ },
+ "croco_pwr": {
+  "why": "Croco's own 5 V OR-ing diodes and 3.3 V LDO (re-placed, unchanged circuit)",
+  "members": [
+   {
+    "ref": "U6",
+    "dx": 0,
+    "dy": 0,
+    "rot": 0
+   },
+   {
+    "ref": "C25",
+    "dx": -3.6,
+    "dy": -0.95,
+    "rot": 90
+   },
+   {
+    "ref": "C26",
+    "dx": 3.6,
+    "dy": -0.95,
+    "rot": 90
+   },
+   {
+    "ref": "D2",
+    "dx": -2.3,
+    "dy": 3.0,
+    "rot": 0
+   },
+   {
+    "ref": "D3",
+    "dx": 2.3,
+    "dy": 3.0,
+    "rot": 0
+   }
+  ]
+ },
+ "buf106": {
+  "why": "SPI buffer with its decoupling at VCC (pin 8) and the 33R SCK series resistor at pin 7",
+  "members": [
+   {
+    "ref": "U106",
+    "dx": 0,
+    "dy": 0,
+    "rot": 0
+   },
+   {
+    "ref": "C117",
+    "dx": 3.75,
+    "dy": -0.97,
+    "rot": 90
+   },
+   {
+    "ref": "R122",
+    "dx": 4.8,
+    "dy": -0.33,
+    "rot": 90
+   }
+  ]
+ }
+}

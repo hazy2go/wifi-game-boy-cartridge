@@ -13,7 +13,7 @@ each placed part immediately becomes an obstacle for the next.
 
 Nothing here is trusted on its own: the result is written to docs/design/placement.json for review and
 checked by KiCad DRC (verify/kicad_check.py).
-Usage: autoplace.py PCB placement.json REF [REF ...]   (appends to / updates placement.json)
+Usage: autoplace.py PCB placement.json REF [REF ...] [--box X0 Y0 X1 Y1]   (appends to / updates placement.json)
 """
 import json, math, sys
 import numpy as np
@@ -157,9 +157,72 @@ def place_one(b, g, fp, net_points):
     return best
 
 
-def main(pcb, plan_path, refs):
+def member_ok(g, fp, rot):
+    """Legal map for one footprint at rotation rot, indexed by its courtyard top-left cell, plus geometry."""
+    fp.SetPosition(pcbnew.VECTOR2I(0, 0)); fp.SetOrientationDegrees(rot)
+    cy = fp.GetCourtyard(pcbnew.F_CrtYd)
+    r = cy.BBox() if cy.OutlineCount() else fp.GetBoundingBox(False)
+    cx0, cy0 = r.GetX() / 1e6, r.GetY() / 1e6
+    ch, cw = int(math.ceil(r.GetHeight() / 1e6 / RES)) + 1, int(math.ceil(r.GetWidth() / 1e6 / RES)) + 1
+    ok = window_free(g.crt | ~g.allowed, ch, cw)
+    pads = []
+    for p in fp.Pads():
+        if not p.IsOnLayer(pcbnew.F_Cu):
+            continue
+        pr = p.GetBoundingBox()
+        net = p.GetNetname()
+        other = np.zeros_like(g.crt)
+        for n, arr in g.cu.items():
+            if n != net or not net:
+                other |= arr
+        pf = window_free(other, int(math.ceil(pr.GetHeight() / 1e6 / RES)) + 1, int(math.ceil(pr.GetWidth() / 1e6 / RES)) + 1)
+        ok &= shift(pf, int(round((pr.GetY() / 1e6 - cy0) / RES)), int(round((pr.GetX() / 1e6 - cx0) / RES)))
+        pads.append((net, p.GetPosition().x / 1e6, p.GetPosition().y / 1e6))
+    return ok, cx0, cy0, pads
+
+
+def place_group(g, members, net_points):
+    """members: [(fp, dx, dy, rot)] relative to the group anchor. Rigid placement, 4 group rotations."""
+    best = None
+    for R in (0, 90, 180, 270):
+        c, sn = round(math.cos(math.radians(R))), round(math.sin(math.radians(R)))
+        ok_all = np.ones_like(g.crt)
+        geo = []
+        for fp, dx, dy, rot in members:
+            ox, oy = dx * c + dy * sn, -dx * sn + dy * c          # KiCad rotation (y down, CCW positive)
+            ok, cx0, cy0, pads = member_ok(g, fp, (rot + R) % 360)
+            ok_all &= shift(ok, int(round((oy + cy0) / RES)), int(round((ox + cx0) / RES)))
+            geo.append((fp, ox, oy, (rot + R) % 360, pads))
+        js, is_ = np.nonzero(ok_all)
+        if len(js) == 0:
+            continue
+        AX, AY = g.x0 + is_ * RES, g.y0 + js * RES
+        cost = np.zeros(len(js))
+        for fp, ox, oy, rr, pads in geo:
+            for net, px, py in pads:
+                pts = net_points.get(net)
+                if not net or not pts:
+                    continue
+                P = np.array(pts)
+                d = np.min(np.hypot(AX[:, None] + ox + px - P[None, :, 0], AY[:, None] + oy + py - P[None, :, 1]), axis=1)
+                cost += d * (0.2 if net in WEAK_NETS else NET_WEIGHT.get(net, 1.0))
+        k = int(np.argmin(cost))
+        if best is None or cost[k] < best[0]:
+            best = (float(cost[k]), float(AX[k]), float(AY[k]), R, geo)
+    return best
+
+
+def main(pcb, plan_path, refs, box=None, keepouts=()):
     b = pcbnew.LoadBoard(pcb)
     g = Grid(b)
+    if box:     # restrict candidate courtyards to this rectangle (x0, y0, x1, y1)
+        inside = np.zeros_like(g.allowed)
+        j0, j1, i0, i1 = g.idx(*box)
+        inside[j0:j1, i0:i1] = True
+        g.allowed &= inside
+    for k in keepouts:  # mechanical keep-outs (e.g. the Game Boy soft-button contact area)
+        j0, j1, i0, i1 = g.idx(*k)
+        g.allowed[j0:j1, i0:i1] = False
     staged = set(refs)
     on = [f for f in b.GetFootprints() if g.bb.Contains(f.GetPosition()) and f.GetReference() not in staged]
     for f in on:
@@ -175,7 +238,26 @@ def main(pcb, plan_path, refs):
     except FileNotFoundError:
         plan = []
     by_ref = {e['ref']: e for e in plan}
+    groups = json.load(open(plan_path.replace('placement.json', 'groups.json'))) if '@' in ''.join(refs) else {}
     for ref in refs:
+        if ref.startswith('@'):
+            grp = groups[ref[1:]]
+            members = [(b.FindFootprintByReference(m['ref']), m['dx'], m['dy'], m.get('rot', 0)) for m in grp['members']]
+            res = place_group(g, members, net_points)
+            if res is None:
+                print(f'{ref}: NO LEGAL POSITION')
+                continue
+            cost, ax, ay, R, geo = res
+            for fp, ox, oy, rr, pads in geo:
+                fp.SetPosition(pcbnew.VECTOR2I(mm(ax + ox), mm(ay + oy))); fp.SetOrientationDegrees(rr)
+                g.add_footprint(fp)
+                for p in fp.Pads():
+                    net_points.setdefault(p.GetNetname(), []).append((p.GetPosition().x / 1e6, p.GetPosition().y / 1e6))
+                r = fp.GetReference()
+                by_ref[r] = dict(ref=r, x=round(ax + ox, 3), y=round(ay + oy, 3), rot=rr,
+                                 why=f'group {ref[1:]} ({grp["why"]}); group placed by autoplace.py at ({ax:.2f}, {ay:.2f}) rot {R}, wirelength {cost:.1f} mm')
+            print(f'{ref}: anchor ({ax:.2f}, {ay:.2f}) rot {R}  wirelength {cost:.1f} mm')
+            continue
         fp = b.FindFootprintByReference(ref)
         if fp is None:
             sys.exit(f'{ref!r}: not on the board')
@@ -191,10 +273,15 @@ def main(pcb, plan_path, refs):
         by_ref[ref] = dict(ref=ref, x=round(x, 2), y=round(y, 2), rot=rot,
                            why=f'autoplace.py: legal (courtyard + copper clearance), min wirelength {cost:.1f} mm')
         print(f'{ref}: ({x:.2f}, {y:.2f}) rot {rot}  wirelength {cost:.1f} mm')
-    order = [e['ref'] for e in plan] + [r for r in refs if r not in {e['ref'] for e in plan}]
+    order = [e['ref'] for e in plan] + [r for r in by_ref if r not in {e['ref'] for e in plan}]
     json.dump([by_ref[r] for r in order if r in by_ref], open(plan_path, 'w'), indent=1)
     b.Save(pcb)
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3:])
+    a = sys.argv[1:]
+    box = [float(v) for v in a[a.index('--box') + 1:a.index('--box') + 5]] if '--box' in a else None
+    if box:
+        del a[a.index('--box'):a.index('--box') + 5]
+    # SW1 (Croco "GameBoy_soft_button") contact pads span 149.8-158.5 x 76.5-84.5: keep parts out of it
+    main(a[0], a[1], a[2:], box, keepouts=[(149.8, 76.5, 158.5, 84.5)])
