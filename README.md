@@ -62,6 +62,12 @@ Demo ROM in that simulation: WiFi scan (real networks seen by the host), passwor
 
 ## License
 
-- `hw/rev-b/`: CERN-OHL-P v2, inherited from Croco Cartridge (`hw/rev-b/LICENSE-CERN-OHL-P.md`).
-- `legacy/`: the original project's licenses, GPL-3 for code and PCB, CC-BY-NC-SA for the shell (see `legacy/README.md`).
-- `sim/system/third_party/Peanut-GB`: MIT.
+| What | License |
+|---|---|
+| Hardware design (`hw/rev-b/`: schematic, board, fab files) | CERN-OHL-P v2, inherited from Croco Cartridge (`hw/rev-b/LICENSE-CERN-OHL-P.md`) |
+| Everything else here: radio firmware (`firmware/`), Game Boy libraries and examples (`gb/`), simulators (`sim/`), gates (`verify/`), board tools (`hw/rev-b/tools/`), docs | **MIT** (`LICENSE`). Permissive on purpose: ROMs built with the libraries can use any license |
+| RP2350 cart firmware ([hazy2go/rp2350-gameboy-cartridge-firmware](https://github.com/hazy2go/rp2350-gameboy-cartridge-firmware)) | GPL-3, as its upstream (Croco) |
+| `sim/system/third_party/Peanut-GB` | MIT (one local fix, marked in the code) |
+| `sim/system/rom/font8x8_basic.h` (test ROM font) | Public domain (Daniel Hepper, after the IBM VGA font) |
+| Vendor SPICE models (TI, Vishay) | Not included: `sim/models/fetch_models.py` downloads them under the vendors' terms |
+| `legacy/` | The original project's licenses: GPL-3 for code and PCB, CC-BY-NC-SA for the shell (`legacy/README.md`) |
