@@ -49,6 +49,8 @@ class Raster:
                         self.items.append(('', l, g.GetEffectiveShape(l)))
                         bb = g.GetBoundingBox()
                         self.raw.append(('', l, 'box', (bb.GetX() / 1e6, bb.GetY() / 1e6, bb.GetRight() / 1e6, bb.GetBottom() / 1e6)))
+        self.holes = [(t.GetPosition().x / 1e6, t.GetPosition().y / 1e6) for t in b.GetTracks() if t.GetClass() == 'PCB_VIA']
+        self.holes += [(p.GetPosition().x / 1e6, p.GetPosition().y / 1e6) for f in b.GetFootprints() for p in f.Pads() if p.HasHole()]
         self.outline = pcbnew.SHAPE_POLY_SET(); b.GetBoardPolygonOutlines(self.outline, True)
         self.outline.Deflate(mm(0.4), pcbnew.CORNER_STRATEGY_ROUND_ALL_CORNERS, mm(0.01))
         self.outside = np.ones((self.ny, self.nx), bool)
@@ -145,6 +147,8 @@ def via_spot(R, net, x, y, layer, stub_w):
             c = pcbnew.SHAPE_CIRCLE(P, mm(VIA_D / 2))
             if not all(R.free_shape(c, l, net) for l in R.b.GetEnabledLayers().CuStack()):
                 continue
+            if any(math.hypot(vx - hx, vy - hy) < 0.55 for hx, hy in R.holes):   # hole-to-hole, any net
+                continue
             if r > 0 and not R.free_shape(pcbnew.SHAPE_SEGMENT(pcbnew.VECTOR2I(mm(x), mm(y)), P, mm(stub_w)), layer, net):
                 continue
             return vx, vy, False
@@ -152,12 +156,24 @@ def via_spot(R, net, x, y, layer, stub_w):
     return None
 
 
+def mask_holes(R, ok, r=0.55):
+    """No new via within r of an existing hole (hole-to-hole rule, any net)."""
+    k = int(math.ceil(r / RES))
+    for hx, hy in R.holes:
+        j, i = int(round((hy - R.y0) / RES)), int(round((hx - R.x0) / RES))
+        for dj in range(-k, k + 1):
+            for di in range(-k, k + 1):
+                if dj * dj + di * di <= k * k and 0 <= j + dj < R.ny and 0 <= i + di < R.nx:
+                    ok[j + dj, i + di] = False
+    return ok
+
+
 def fanout(R, net, x, y, layer, width, max_len=6.0):
     """BFS on the item's own outer layer from (x, y) to the nearest cell where a via fits on every signal
     layer. Returns [(x, y), ..., (vx, vy)] or None."""
     blk = R.blocked(net, layer, width / 2)
     vr = VIA_D / 2
-    vok = ~np.any([R.blocked(net, l, vr) for l in ALL], axis=0)
+    vok = mask_holes(R, ~np.any([R.blocked(net, l, vr) for l in ALL], axis=0))
     j0, i0 = int(round((y - R.y0) / RES)), int(round((x - R.x0) / RES))
     lim = int(max_len / RES)
     from collections import deque
@@ -279,6 +295,7 @@ def main(pcb, drc_json, only=None):
                     if dj * dj + di * di <= k * k:
                         vo &= np.roll(np.roll(via_ok, dj, 0), di, 1)
             via_ok = vo
+        via_ok = mask_holes(R, via_ok)
         path = astar(grids, cell(vias[0][0]), cell(vias[1][0]), via_ok)
         if path is None:
             print(f'FAIL {net}: no inner-layer path'); fail += 1; continue
@@ -286,6 +303,7 @@ def main(pcb, drc_json, only=None):
         def add_via(x, y):
             v = pcbnew.PCB_VIA(b); v.SetPosition(pcbnew.VECTOR2I(mm(x), mm(y))); v.SetWidth(mm(VIA_D)); v.SetDrill(mm(VIA_H))
             v.SetViaType(pcbnew.VIATYPE_THROUGH); v.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu); v.SetNet(ni); b.Add(v); new.append(v)
+            R.holes.append((x, y))
         def add_seg(p, q, layer, w=None):
             if abs(p[0] - q[0]) < 1e-6 and abs(p[1] - q[1]) < 1e-6:
                 return
