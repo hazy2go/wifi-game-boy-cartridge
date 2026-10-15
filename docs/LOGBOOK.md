@@ -1087,3 +1087,4 @@ The gate checks are stronger as well:
 ## 2026-10-16 02:00 Branch flow: `redesign` deleted (Hazy: "lets kill the redesign branch we dont use it")
 - Work now goes straight to `master` on the fork; no more PRs per chunk. The `redesign` branch (local and on the fork) was deleted after everything in it was merged (PR #36). CLAUDE.md rule updated.
 - Status lines in README, CLAUDE.md and the two firmware READMEs updated to the bench results.
+- Firmware fork too (Hazy: "lets use the main"): work goes to its `master`; the `wifi` branch had nothing unmerged. Its README now opens as this project (our render and the BTC demo screenshot in `images/`, what the fork adds, build, status, license) with the upstream Croco docs kept below under a credit heading. GitHub description and homepage now point at this project.
