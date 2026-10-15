@@ -1,7 +1,7 @@
 # XIAO ESP32C3 bench tests (hold points before ordering)
 
 Two small ESP-IDF apps for the Seeed XIAO ESP32C3. They answer hold points 1 and 2 in `hw/rev-b/fab/ORDER.md` (`a7_cal` also prints the boot time). Section 3 adds an optional link test with a Pico 2.
-Both build with ESP-IDF v5.5.1 (`~/esp/esp-idf-v5.5.1`). They have not run on hardware yet.
+Both build with ESP-IDF v5.5.1 (`~/esp/esp-idf-v5.5.1`). Both ran on a XIAO on 2026-10-16 (results in `docs/LOGBOOK.md`).
 
 ```
 . ~/esp/esp-idf-v5.5.1/export.sh

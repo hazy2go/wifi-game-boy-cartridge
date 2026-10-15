@@ -1,11 +1,11 @@
 # CLAUDE.md: handoff for agents working on this repo
 
 Read this first, then `docs/ARCHITECTURE.md` (what the board is) and the tail of `docs/LOGBOOK.md` (latest decisions).
-Status as of 2026-10-14: **hardware design finished, not ordered; software mostly not written.**
+Status as of 2026-10-16: **hardware design finished, not ordered. All firmware written and building; XIAO bench tests under way (LOGBOOK 2026-10-16).**
 
 ## Rules (from the owner, Hazy)
 - **Fork only.** `origin` = hazy2go/wifi-game-boy-cartridge. Never push, PR or open issues on `upstream` (Staacks). With `gh`, always pass `--repo hazy2go/wifi-game-boy-cartridge`, because gh defaults to the upstream on forks.
-- **Keep the fork's `master` current.** Work on `redesign`, push it, open a PR into `master` on the fork, merge it, then fast-forward local `master` and `redesign`. Do this after every chunk of work.
+- **Work on `master` directly** (Hazy, 2026-10-16: the `redesign` branch was deleted). Commit and push to the fork's `master` after every chunk of work.
 - **Log every decision, check and result in `docs/LOGBOOK.md`.** Write each entry as a dated heading with a short "why". If you got something wrong, write it as a correction; don't silently rewrite it.
 - **Don't claim anything without evidence.** Run the gate or simulation, or quote the datasheet, before you say it.
 - **Writing style.** Hazy reads replies on Discord: keep them short and plain, and avoid long dashes as punctuation.
@@ -35,7 +35,11 @@ Simulation (all passing):
    - A7: time and energy of the partial calibration, measured from the current profile, or from the timing plus the datasheet current if no current probe is available.
    - Antenna: an RSSI and throughput logger.
    - Results go into LOGBOOK, and A7 gets re-run with the measured number.
-   - **Status 2026-10-14: written and building, not run on hardware yet.** `firmware/xiao/` (`a7_cal`, `rf_logger`, `rf_host.py`; how to run: its README). ESP-IDF v5.5.1 is installed at `~/esp/esp-idf-v5.5.1` (`. ~/esp/esp-idf-v5.5.1/export.sh`).
+   - **Status 2026-10-16: run on the XIAO.** `firmware/xiao/` (`a7_cal`, `cal_current`, `rf_logger`, `rf_host.py`; how to run: its README). Results in LOGBOOK 2026-10-16:
+     - A7: partial calibration about 30 ms on power-on (not 5 ms), at about 60 mA (multimeter, no change vs. a dummy loop). Looks OK on all consoles at 30 ms; a rare 86 ms outlier does not fit a weak console at the worst corner.
+     - Antenna (XIAO's own antenna): -36 free, -53 over metal, -41 dBm in a Game Boy. Repeat with the Ebyte in the shell.
+     - Radio app on real WiFi: every command works. Boot to app_main 45 ms on the power-on path; its energy vs. S1.11 is open.
+     - **Next:** Pico 2 link test (wiring in the fork's `link-tester/README.md`); model the calibration as about 30 ms at about 64 mA with its own current parameter, set `GBW_BOOT_MS`, re-run A1-A8 and S1, decide the rule for a slow calibration. ESP-IDF v5.5.1 is installed at `~/esp/esp-idf-v5.5.1` (`. ~/esp/esp-idf-v5.5.1/export.sh`).
 2. **RP2350 cart firmware.** Forked to `hazy2go/rp2350-gameboy-cartridge-firmware`, checked out at `~/projects/croco-fw2` (remote `upstream` = shilga), work branch `wifi` (same PR-and-merge flow as here, always with `--repo hazy2go/rp2350-gameboy-cartridge-firmware`). **Status 2026-10-14: SPI master + mailbox written, builds, host tests pass, not run on hardware.** Build: `GBDK_PATH=~/opt/gbdk/ cargo build --release`; tests: `cd tests-host && cargo test --target "$(rustc -vV | sed -n 's/host: //p')"`.
    - Add an SPI master on SPI0: GPIO0 MISO, GPIO2 SCK, GPIO3 MOSI. Chip select is **GPIO46** (it was the debug UART TX; logging moves to defmt-RTT).
    - **Drive GPIO46 high before the first SD or RTC access.** It has no pull-up, and the RP2350 resets with pull-downs.
@@ -43,7 +47,7 @@ Simulation (all passing):
    - There is no IRQ line, so poll the ESP about every 1 ms or once per frame.
    - Serve the mailbox: MBC5 cart-RAM **bank 15**. The protocol table is in `sim/system/README.md`. There is no CPU-visible write sniff (correction, LOGBOOK): the firmware polls SEQ for a change. Only `WIFICART` ROMs get the mailbox.
 3. **SPI frame format: done (protocol v1).** Spec in `ARCHITECTURE.md`; reference C in `firmware/esp32c3/components/esp_link` (the ESP ships the slave half); `sysim.c` runs it byte for byte; `sim/system/el_vectors.c` writes the transcript the Rust master is tested against. **If you change the protocol, change the C reference, regenerate the vectors, copy them to croco-fw2 `tests-host/tests/`, and re-run S1.**
-4. **ESP32-C3 app (ESP-IDF):** **Status 2026-10-14: written in `firmware/esp32c3/app` (README there), builds, not on hardware.** The open items are in its README and LOGBOOK. The text and TX sizing the app shows the Game Boy are in `components/gbwifi`, which sysim also runs: **change them there, then re-run S1.**
+4. **ESP32-C3 app (ESP-IDF):** **Status 2026-10-16: written in `firmware/esp32c3/app` (README there); runs on the XIAO (XIAO profile) on real WiFi, not on a cart yet.** The open items are in its README and LOGBOOK. The text and TX sizing the app shows the Game Boy are in `components/gbwifi`, which sysim also runs: **change them there, then re-run S1.**
    - SPI-slave mailbox: link `firmware/esp32c3/components/esp_link` unchanged (the slave half). Rebuild the TX buffer only between transactions (after each one and on the 1 ms tick). Commands 01 to 07 as in the mailbox table.
    - WiFi in STA mode only, NVS credentials, OTA.
    - Link the existing `firmware/esp32c3/components/power_mgr`: plain C, already co-simulated. **Ship that code unchanged, or re-run the `sim/power` audits after any change.**

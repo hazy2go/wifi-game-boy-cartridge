@@ -1083,3 +1083,7 @@ The gate checks are stronger as well:
 
 **Boot time.** Resets from the serial port are not power-ons, so the bootloader validates the whole image: 208 ms to `cpu_start`, 221 ms to app_main. The cart skips that only on a real power-on (`BOOTLOADER_SKIP_VALIDATE_ON_POWER_ON`). A bench copy with `SKIP_VALIDATE_ALWAYS` (scratch build, not committed) takes the power-on path on every reset: **33 ms to cpu_start, 45 ms to app_main (3 of 3)**, WiFi started at 109-112 ms. The S1.11 budget is about 100 ms at 20 mA to app_main, so this fits; the ROM loader before the log clock starts is not included (a few ms). Boot current not measured separately; the cal_current meter run (boot + calibration loop) averaged about 60 mA at the 5 V pin.
 - **Correction (same session): "this fits" above is not proven.** The budget is energy, not time: 100 ms at 20 mA. 45 ms only fits if the boot current stays under about 44 mA. The meter's 60 mA average (boot plus calibration loop, including the XIAO's own USB and LDO overhead) is above that, so whether it fits is open. It goes into the model update: S1.11 with 45 ms at the measured current.
+
+## 2026-10-16 02:00 Branch flow: `redesign` deleted (Hazy: "lets kill the redesign branch we dont use it")
+- Work now goes straight to `master` on the fork; no more PRs per chunk. The `redesign` branch (local and on the fork) was deleted after everything in it was merged (PR #36). CLAUDE.md rule updated.
+- Status lines in README, CLAUDE.md and the two firmware READMEs updated to the bench results.

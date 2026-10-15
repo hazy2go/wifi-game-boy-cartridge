@@ -8,7 +8,7 @@ Fully assembled by JLCPCB, nothing to hand-solder. Designed by Hazy, co-created 
 
 | | |
 |---|---|
-| Status (2026-10-14) | Hardware design finished, all checks green, JLC order files ready. **Not ordered yet:** two tests on an ESP32-C3 dev board come first (RF calibration energy, antenna inside the shell). Software in progress. |
+| Status (2026-10-16) | Hardware design finished, all checks green, JLC order files ready, **not ordered yet**. Bench tests on a XIAO ESP32C3 dev board are under way: RF calibration (about 30 ms at about 60 mA, looks OK), antenna (strong) and the radio app on real WiFi (all commands work) are done; the Pico 2 link test and a power-model update with the measured numbers come next. See `docs/LOGBOOK.md`. |
 | Board | 6 layers, 0.8 mm, standard cartridge shell, USB-C |
 | Cartridge core | RP2350B + 8 MB HyperRAM + 16 MB flash + microSD + RTC, serving the cartridge bus over PIO (the proven Croco Cartridge design) |
 | Radio | ESP32-C3-MINI-1U on the RP2350's SPI bus, stick-on FPC antenna (MHF III plug) inside the shell. Both chips flash over the one USB-C port (built-in USB hub) |

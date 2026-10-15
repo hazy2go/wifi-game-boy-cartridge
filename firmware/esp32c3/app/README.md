@@ -1,6 +1,6 @@
 # ESP32-C3 radio app (cart, U104)
 
-ESP-IDF v5.5.1. It builds; **not run on hardware yet** (the board is not built).
+ESP-IDF v5.5.1. It builds and runs on a XIAO ESP32C3 with the XIAO profile on real WiFi (LOGBOOK 2026-10-16); **not on a cart yet** (the board is not built).
 
 ```
 . ~/esp/esp-idf-v5.5.1/export.sh
