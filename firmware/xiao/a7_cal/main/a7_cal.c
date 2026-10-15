@@ -29,6 +29,7 @@
 #include "esp_mac.h"
 #include "esp_netif.h"
 #include "esp_phy_init.h"
+#include "esp_private/periph_ctrl.h"
 #include "esp_private/phy.h"
 #include "esp_system.h"
 #include "esp_timer.h"
@@ -90,6 +91,10 @@ static void save_results(nvs_handle_t h)
 /* Same steps as esp_phy_load_cal_and_init() (esp_phy/src/phy_init.c, IDF v5.5.1), but with our mode. */
 static int run_cal(esp_phy_calibration_mode_t mode, uint32_t *us)
 {
+    /* esp_wifi_init does these two before the PHY is calibrated: power up the WiFi/BT MAC and baseband domain (without
+     * it the calibration spins forever in rom_iq_est_enable, seen on the XIAO 2026-10-16) and enable the MAC clocks */
+    esp_wifi_bt_power_domain_on();
+    wifi_module_enable();
     esp_phy_common_clock_enable();
 #if CONFIG_ESP_PHY_ENABLE_USB
     phy_bbpll_en_usb(true);

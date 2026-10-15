@@ -36,6 +36,13 @@ How it works: ESP-IDF fixes the calibration mode at compile time and calibrates 
 calls the PHY library's own calibration entry (`register_chipv7_phy`, exactly as `esp_phy_load_cal_and_init`
 does in IDF v5.5.1) with the mode it wants, stores the result in NVS and reboots.
 
+### 1b. `cal_current`: calibration current with a multimeter
+`a7_cal` measured about 30 ms per power-on calibration, so A7 hinges on the current. `cal_current` reboots in a
+loop, 20 s with a partial calibration each boot, then 20 s with a busy wait of the same length. Put a meter (DC mA)
+in series with the XIAO's 5V pin (USB unplugged, 5 V from e.g. a Pico's VBUS) and compare the two phases'
+readings. Run `a7_cal` first: it leaves the stored calibration data. Result 2026-10-16: no difference at about
+60 mA (LOGBOOK).
+
 ## 2. `rf_logger`: antenna RSSI and uplink throughput (hold point 2)
 1. `idf.py menuconfig` -> *RF logger*: enter the SSID, the password and this Mac's IP address (`ipconfig getifaddr en0`).
 2. Flash it, close the monitor, and run `python3 ../rf_host.py /dev/cu.usbmodemXXXX --out antenna.csv`.
