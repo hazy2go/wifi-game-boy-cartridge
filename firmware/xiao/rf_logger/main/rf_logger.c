@@ -65,8 +65,8 @@ static void wifi_up(void)
     strlcpy((char *)wc.sta.password, CONFIG_RFLOG_WIFI_PASSWORD, sizeof wc.sta.password);
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wc));
+    ESP_ERROR_CHECK(esp_wifi_config_11b_rate(WIFI_IF_STA, true)); /* before esp_wifi_start, or it fails (XIAO run) */
     ESP_ERROR_CHECK(esp_wifi_start());
-    ESP_ERROR_CHECK(esp_wifi_config_11b_rate(WIFI_IF_STA, true));
     ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
 }
 
