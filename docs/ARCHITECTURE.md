@@ -130,7 +130,7 @@ The ESP32-C3 has native USB (Serial/JTAG), and esptool can put it into download 
 
 ## Software
 
-- Fork of `shilga/rp2350-gameboy-cartridge-firmware` (Rust/Embassy, GPL-3) at `hazy2go/rp2350-gameboy-cartridge-firmware`, branch `wifi`. It has the SPI master for the ESP link (`src/esp_link.rs`) and serves the mailbox (MBC5 cart-RAM bank 15, see `sim/system/README.md`) to WIFICART ROMs. It builds and passes the host tests; not run on hardware yet.
+- Fork of `shilga/rp2350-gameboy-cartridge-firmware` (Rust/Embassy, GPL-3) at `hazy2go/rp2350-gameboy-cartridge-firmware`, branch `master`. It has the SPI master for the ESP link (`src/esp_link.rs`) and serves the mailbox (MBC5 cart-RAM bank 15, see `sim/system/README.md`) to WIFICART ROMs. It builds and passes the host tests; not run on hardware yet.
 - New ESP32-C3 firmware: SPI slave mailbox, WiFi, power policy (`firmware/esp32c3/components/power_mgr`, written and simulated), OTA. The rest is not written yet.
 - Game Boy side:
   - Test ROMs in RGBDS (`sim/system/rom`): `wifitest.asm` is the gate ROM; `btcdemo.asm` does a WiFi scan, a password, then the live BTC chart.
