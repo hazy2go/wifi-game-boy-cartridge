@@ -1073,3 +1073,12 @@ The gate checks are stronger as well:
 
   - Over metal costs about 17 dB here, and that position was the most variable. All three are still strong links, and the uplink was not the limit in any of them (the cart's power manager limits it far more).
   - Range was not tested (one room). **Still to do with the Ebyte TX2400-FPC3-2509** once it arrives, in the real shell.
+
+## 2026-10-16 01:50 XIAO bench: the radio app on real WiFi, and the boot time
+**Radio app, XIAO profile, console `job` commands, Hazy's router (WPA2, channel 6):**
+- First flash with erase: full RF calibration on USB in 48 ms, stored. Later starts: partial, `WiFi started in` 38 to 54 ms (that log line spans `esp_wifi_start`, so it includes the calibration).
+- `job 1` PONG; `job 5` SCAN: 8 networks, own AP at -37 dBm; `wifi <ssid> <pass>` stored and connected; joined about 1.1 s and IP about 2.1 s after reset, on every boot.
+- `job 2` TIME: `2026-10-15 16:38:57` (UTC; correct). `job 3 https://example.org/`: 255 bytes in about 2.2 s, certificate validated from the bundle. `job 3 http://example.com/hello`: `ERR HTTP 404` (correct: only the simulator mocks /hello). `job 4`: `RAIL 0.00V RES 4.60V` (the XIAO profile's fixed readings). `job 7` BTC: 3 text lines and 128 chart bytes from Binance.
+- **Cosmetic:** `wifi` while the auto-reconnect is in progress logs `E wifi: sta is connecting, cannot set config`; the credentials are stored anyway and the reconnect uses them. To tidy up later.
+
+**Boot time.** Resets from the serial port are not power-ons, so the bootloader validates the whole image: 208 ms to `cpu_start`, 221 ms to app_main. The cart skips that only on a real power-on (`BOOTLOADER_SKIP_VALIDATE_ON_POWER_ON`). A bench copy with `SKIP_VALIDATE_ALWAYS` (scratch build, not committed) takes the power-on path on every reset: **33 ms to cpu_start, 45 ms to app_main (3 of 3)**, WiFi started at 109-112 ms. The S1.11 budget is about 100 ms at 20 mA to app_main, so this fits; the ROM loader before the log clock starts is not included (a few ms). Boot current not measured separately; the cal_current meter run (boot + calibration loop) averaged about 60 mA at the 5 V pin.
