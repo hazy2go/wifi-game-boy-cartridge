@@ -1059,3 +1059,17 @@ The gate checks are stronger as well:
   - weak: 0 resets at 35 ms, **16 resets at 90 ms** (DPM 4.542 V corner).
 - **Verdict so far: A7 passes on the measured power-on calibration (about 30 ms at about 64 mA) for all consoles. The rare slow calibration (86 ms, seen once after a software reboot) does not fit a weak console at the worst corner.** To do: model the calibration current as its own parameter instead of reusing RX, set `GBW_BOOT_MS` from these numbers, re-run A1-A8 and S1, and decide the firmware rule for the slow case (start WiFi only with a full reservoir).
 - Limits of this measurement: a multimeter average, not a current profile; a short TX burst inside the calibration would be averaged away if its energy is small. A scope on a shunt would settle it.
+
+## 2026-10-16 01:45 XIAO bench: brown-outs, antenna first look
+- **cal_current meter run: 0 brown-outs.** The NVS counter (`calcur:brownout`, written only on a brown-out reset) was never created (NVS dump read back with esptool + `nvs_tool.py`). So the meter's burden voltage did not disturb the run.
+- **rf_logger crashed at start:** `esp_wifi_config_11b_rate()` was called after `esp_wifi_start()` and returns ESP_FAIL there. Moved before the start. The radio app (`radio.c`) already had the right order.
+- **Antenna, first look** (XIAO's own U.FL FPC antenna, not the cart's Ebyte IPEX3 one; Hazy's home router, 2.4 GHz, channel 6; 802.11b off, power save off, max TX 20 dBm):
+
+  | position | RSSI median (min / max) | uplink, board / received at the Mac |
+  |---|---|---|
+  | free | -36 dBm (-42 / -33) | 2614 / 2677 kbit/s |
+  | about 2 mm over metal | -53 dBm (-63 / -31) | 3422 / 3361 kbit/s |
+  | in the Game Boy's slot | -41 dBm (-47 / -34) | 3128 / 3125 kbit/s |
+
+  - Over metal costs about 17 dB here, and that position was the most variable. All three are still strong links, and the uplink was not the limit in any of them (the cart's power manager limits it far more).
+  - Range was not tested (one room). **Still to do with the Ebyte TX2400-FPC3-2509** once it arrives, in the real shell.
