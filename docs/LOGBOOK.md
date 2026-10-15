@@ -1038,3 +1038,24 @@ The gate checks are stronger as well:
 - Software only. The ESP to RP2350 SPI link, the RP2350's SD access (Croco already writes saves) and the menu's SD scan at boot are all in place.
 - Design notes (CLAUDE.md step 6): a store ROM with a catalog, command `08 DOWNLOAD`, an SPI bulk frame type (protocol v2), and hash plus header checks before the rename.
 - Open question for the power side: the SD write current on weak consoles. It is drawn from Croco's supply, outside the regulated radio path, and long writes are unlike Croco's short save bursts. Possible way round it: buffer in the free HyperRAM (the store ROM is small), then write once.
+
+## 2026-10-16 01:00 First bench run on the XIAO ESP32C3: A7 calibration time and current
+**a7_cal hung on the first run** (task watchdog, CPU spinning in ROM `rom_iq_est_enable`, found with addr2line on `esp32c3_rev3_rom.elf`). The app called `register_chipv7_phy` with the WiFi/BT MAC and baseband power domain still off; `esp_wifi_init` normally powers it first. Fixed: `esp_wifi_bt_power_domain_on()` + `wifi_module_enable()` before `esp_phy_common_clock_enable()` (as IDF's own `test_phy_rtc.c` does). Then it ran clean.
+
+**Calibration time (a7_cal, 24 samples):**
+- PARTIAL after software reboot: n=10, min 30.9, median 36.0, max **86.4 ms** (one outlier; the next highest 52.3).
+- PARTIAL after a real power-on (USB replug): n=3, 29.5 / 30.3 / 30.7 ms. This is the cart's case.
+- NONE (stored data only): n=5, 18.0 to 28.2 ms. FULL: 32.3 ms. `esp_wifi_start()` end to end: 35.7 to 55.4 ms.
+- Boot to app_main: 176 ms with a7_cal's settings (logging on, no fast-boot options); not the cart app's boot time.
+- **The audit had assumed 5 ms.** By timing alone, with the A7 model's 50 % TX current, it fails by far (61.9 mJ vs 3.58 mJ).
+
+**Calibration current (new app `firmware/xiao/cal_current`, multimeter):**
+- Back-to-back calibration in one boot is not representative: after the first call each repeat takes 0.74 ms. Only the first calibration after a boot is slow.
+- So the app reboots in a loop: 20 s of boot + PARTIAL calibration, then 20 s of boot + a busy wait of the same length (35 ms), repeating. Period 129 ms in both phases (checked on USB), so the calibration is 27 % of the time.
+- Meter (Custom M-01FB, DC mA) in series with the XIAO's 5V pin, fed from the Pico 2's VBUS, XIAO USB unplugged (the XIAO's LDO passes the current through). **Reading: about 60 mA in both phases, no visible change** (Hazy).
+- If the calibration drew the model's 217 mA (50 % of 350 mA TX + 50 % of 84 mA RX), the CAL phase would read about 0.27 x (217 - 60), i.e. about 42 mA higher. A step under about 1 mA means the calibration draws within a few mA of the booting chip, **about 60 to 65 mA**, so it is mostly digital setup, not TX.
+- Power model (`pyref.run_fw`, worst A7 corner: ilim 129 mA, DPM 4.542/4.634 V, logic 100 mA, eta 0.80, rsw 0.6 ohm, busy traffic) with the calibration modelled as constant 64 mA (0 % TX; this also sets the model's RX current to 64 mA, so it is only a first look):
+  - fresh and tired: 0 resets at 5, 35 and 90 ms;
+  - weak: 0 resets at 35 ms, **16 resets at 90 ms** (DPM 4.542 V corner).
+- **Verdict so far: A7 passes on the measured power-on calibration (about 30 ms at about 64 mA) for all consoles. The rare slow calibration (86 ms, seen once after a software reboot) does not fit a weak console at the worst corner.** To do: model the calibration current as its own parameter instead of reusing RX, set `GBW_BOOT_MS` from these numbers, re-run A1-A8 and S1, and decide the firmware rule for the slow case (start WiFi only with a full reservoir).
+- Limits of this measurement: a multimeter average, not a current profile; a short TX burst inside the calibration would be averaged away if its energy is small. A scope on a shunt would settle it.
