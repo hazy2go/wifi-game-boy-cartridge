@@ -128,5 +128,5 @@ U5     C627708    MSOP-10_3x3mm_P0.5mm                   rot    0.0 + 270 = 270.
 U6     C51118     SOT-23-5                               rot  -90.0 + 270 = 180.0  shift (+0.032,+0.000) mm  SOT-25-5_L2.9-W1.6-P0.95-LS2.8-BL: 5 pads, fit 0.195 mm, next-best rotation +2.349 mm worse
 U7     C53406     TSSOP-20_4.4x6.5mm_P0.65mm             rot  -90.0 + 270 = 180.0  shift (-0.000,-0.000) mm  TSSOP-20_L6.5-W4.4-P0.65-LS6.4-BL: 20 pads, fit 0.008 mm, next-best rotation +5.788 mm worse
 Y1     C20625731  Crystal_SMD_TXC_7M-4Pin_3.2x2.5mm      rot  180.0 +   0 = 180.0  shift (-0.000,-0.000) mm  CRYSTAL-SMD_4P-L3.2-W2.5-BL: 4 pads, fit 0.000 mm, next-best rotation +1.966 mm worse
-Y101   C668845    Crystal_SMD_3225-4Pin_3.2x2.5mm        rot   90.0 +   0 =  90.0  shift (-0.000,-0.000) mm  CRYSTAL-SMD_4P-L3.2-W2.5-BL (proxy C9002): 4 pads, fit 0.000 mm, next-best rotation +1.966 mm worse
+Y101   C20625731  Crystal_SMD_3225-4Pin_3.2x2.5mm        rot   90.0 +   0 =  90.0  shift (-0.000,-0.000) mm  CRYSTAL-SMD_4P-L3.2-W2.5-BL: 4 pads, fit 0.000 mm, next-best rotation +1.966 mm worse
 Y2     C97602     Crystal_SMD_TXC_9HT11-2Pin_2.0x1.2mm   rot  -90.0 +   0 = 270.0  shift (-0.000,-0.000) mm  OSC-SMD_L2.0-W1.2: 2 pads, fit 0.050 mm, next-best rotation +0.976 mm worse

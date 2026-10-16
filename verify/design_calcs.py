@@ -155,7 +155,7 @@ for c in (3 * 330e-6 * 0.8 + 20e-6 * 0.5, 3 * 330e-6 + 20e-6, 3 * 330e-6 * 1.2 +
 
 print('\n9. CH334P crystal load  [CH334 DS V2.91 6.1 p26: XI/XO internal ~16 pF each]')
 cl = 16 * 16 / 32 + 2.0
-print(f'  effective load = 16 pF || series 16 pF + ~2 pF stray = {cl:.1f} pF vs crystal CL 10 pF (C668845)')
+print(f'  effective load = 16 pF || series 16 pF + ~2 pF stray = {cl:.1f} pF vs crystal CL 10 pF (Y101 ABM8-272-T3 C20625731)')
 
 print('\nRESULT:', 'FAIL ' + ', '.join(FAIL) if FAIL else 'all limits PASS')
 if '--check' in sys.argv and FAIL:

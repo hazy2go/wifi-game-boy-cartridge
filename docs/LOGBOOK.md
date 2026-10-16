@@ -1173,3 +1173,16 @@ D+ over the thermal-relief gap of J1's shield tab (S1) on In1. Not a coupled 90 
   PTH/NPTH): Edge.Cuts, NPTH, B.Mask, B.Paste unchanged; zip rebuilt (16 files). Renders `docs/img/board_{top,bottom,iso}.png`
   regenerated (`kicad-cli pcb render`; the ESP32-C3-MINI-1U STEP fetched from Espressif's kicad-libraries for the render
   only, it is not in the repo).
+
+## 2026-10-16 12:35 Y101 (CH334P hub crystal) checked, and swapped too (Hazy: "yes")
+- The CH334 datasheet (WCH, from LCSC's listing of C5373042) gives **no ESR or drive-level limit** for the crystal. It
+  only says: 12 MHz, XI/XO have about 16 pF built in, no external load caps (sec 6.1). So the 10 pF load (design_calcs
+  item 9) was the only spec to meet, and the SJK part met it.
+- Swapped anyway: Y101 7U12000E10UCG (100 ohm max ESR) -> **ABM8-272-T3 C20625731**, the part Y1 now uses. Why: with
+  the oscillator gain unspecified, half the ESR is more start-up margin; and both 12 MHz crystals become one part, one
+  extended-part feeder fewer (45 -> 44). Same 10 pF load, same 3225 4-pad footprint and pinout (1/3 crystal, 2/4 GND,
+  netlist and pin audit agree), CPL fit 0.000 mm on JLC's own footprint (no proxy needed now), CPL file unchanged.
+  Tolerance +-30 ppm +-30 ppm (JLC listing) against USB's +-500 ppm. Value is now "12MHz 10pF" (the 10 ppm was the old
+  part's).
+- Gates: kicad_check 0 new (ERC 67, DRC 321, unconnected 0, parity 0), jlc_check PASS, netlist_check, design_calcs,
+  sim_vs_netlist PASS. BOM 1 FAIL (L1 stock, unchanged). No copper changed, so the Gerbers stay as exported at 12:15.

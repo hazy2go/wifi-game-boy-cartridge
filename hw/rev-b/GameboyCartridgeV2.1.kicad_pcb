@@ -13096,7 +13096,7 @@
 				)
 			)
 		)
-		(property "Value" "12MHz 10pF 10ppm"
+		(property "Value" "12MHz 10pF"
 			(at 0 2.45 90)
 			(layer "F.Fab")
 			(uuid "f93d7a60-d25b-4cc7-a1bf-7e841e169b06")
@@ -13141,7 +13141,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C668845"
+		(property "LCSC" "C20625731"
 			(at 0 0 90)
 			(layer "F.SilkS")
 			(hide yes)

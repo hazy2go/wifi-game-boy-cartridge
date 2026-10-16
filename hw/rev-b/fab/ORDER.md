@@ -62,3 +62,4 @@ The CPL already carries the corrections JLC's own footprints need (e.g. USB-C J1
 - R110 TPS63802 FB bottom 91k (2026-10-16): C4147 -> **C453777** (same value, 1 %). C4147's stock had dropped below JLC's minimum buy.
 - **New R133 4.7k C25900** GBBUS_EN (TXB0108 OE) to GND (2026-10-16): TI SCES643 sec 9 wants OE held low by a pull-down while the supplies come up.
 - **L1 (AOTA-B201610S3R3-101-T, C42411119) is short:** 4 in stock on 2026-10-16, 10 needed for 5 boards. Kept as the exact part (RP2350 core regulator inductor); check stock again before ordering.
+- Y101 CH334P hub crystal (2026-10-16): SJK 7U12000E10UCG -> **ABM8-272-T3 C20625731**, the same part as Y1 (one feeder instead of two). 10 pF load as before (CH334 has ~16 pF on XI and XO inside, no external caps); 50 ohm max ESR instead of 100.

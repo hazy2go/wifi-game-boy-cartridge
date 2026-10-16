@@ -1,76 +1,76 @@
-BOM check for 5 boards: 72 lines, 130 placed parts, 45 extended parts (feeder fee each), DNP: D4,D5,D6,D7,D8, R1, R17
+BOM check for 5 boards: 72 lines, 130 placed parts, 44 extended parts (feeder fee each), DNP: D4,D5,D6,D7,D8, R1, R17
 
-ok   C14663    base   stock  49970195 need   40  100nF              C1,C18,C20,C21,C22,C23,C24               CC0603KRX7R9BB104      
-ok   C23733    base   stock   1837398 need   15  4.7u               C2,C3                                    CL05A475MP5NRNC        
-ok   C1644     base   stock    981896 need   15  15pF               C4,C5                                    CL10C150JB8NNNC        
-ok   C23733    base   stock   1837398 need   15  4.7u               C6,C8                                    CL05A475MP5NRNC        
-ok   C1525     base   stock  22217838 need   60  100n               C7,C9,C10,C11,C12,C13,C14,C15,C16,C17,C1 CL05B104KO5NNNC        
-ok   C15849    base   stock   9710773 need   15  1uF                C25,C26                                  CL10A105KB8NNNC        
+ok   C14663    base   stock  49898892 need   40  100nF              C1,C18,C20,C21,C22,C23,C24               CC0603KRX7R9BB104      
+ok   C23733    base   stock   1837354 need   15  4.7u               C2,C3                                    CL05A475MP5NRNC        
+ok   C1644     base   stock    981696 need   15  15pF               C4,C5                                    CL10C150JB8NNNC        
+ok   C23733    base   stock   1837354 need   15  4.7u               C6,C8                                    CL05A475MP5NRNC        
+ok   C1525     base   stock  22142404 need   60  100n               C7,C9,C10,C11,C12,C13,C14,C15,C16,C17,C1 CL05B104KO5NNNC        
+ok   C15849    base   stock   9716864 need   15  1uF                C25,C26                                  CL10A105KB8NNNC        
 ok   C59526    expand stock     24714 need   15  4.3pF              C27,C28                                  0603CG4R3C500NT        
-ok   C52923    base   stock   9612013 need   35  1uF 25V X5R        C101,C102,C103,C104,C118,C119            CL05A105KA5NQNC        
-ok   C696806   expand stock      7973 need   20  330uF 6.3V 40mOhm  C105,C106,C107                           T520B337M006ATE040     
-ok   C19702    base   stock  10661840 need   20  10uF 10V X5R       C108,C109,C111                           CL10A106KP8NNNC        
-ok   C59461    base   stock   7234616 need   10  22uF 6.3V X5R      C110                                     CL10A226MQ8NRNC        
-ok   C1525     base   stock  22217838 need   40  100nF 16V X7R      C112,C113,C116,C117,C120,C122,C124       CL05B104KO5NNNC        
+ok   C52923    base   stock   9606174 need   35  1uF 25V X5R        C101,C102,C103,C104,C118,C119            CL05A105KA5NQNC        
+ok   C696806   expand stock      7913 need   20  330uF 6.3V 40mOhm  C105,C106,C107                           T520B337M006ATE040     
+ok   C19702    base   stock  10670559 need   20  10uF 10V X5R       C108,C109,C111                           CL10A106KP8NNNC        
+ok   C59461    base   stock   7232986 need   10  22uF 6.3V X5R      C110                                     CL10A226MQ8NRNC        
+ok   C1525     base   stock  22142404 need   40  100nF 16V X7R      C112,C113,C116,C117,C120,C122,C124       CL05B104KO5NNNC        
 ok   C84703    expand stock     84393 need   15  2.2nF 50V X7R      C114,C115                                CL05B222KB5NNNC        
-ok   C15195    base   stock   6311879 need   10  10nF 50V X7R       C121                                     CL05B103KB5NNNC        
+ok   C15195    base   stock   6310581 need   10  10nF 50V X7R       C121                                     CL05B103KB5NNNC        
 ok   C76971    expand stock    374577 need   10  470pF 50V C0G      C123                                     GRM1555C1H471JA01D     
 ok   C2761795  expand stock     36809 need   10  WS2812B            D1                                       WS2812B-B/T            
 ok   C669022   expand stock      8492 need   15  D_Schottky         D2,D3                                    SM5817PL-TP            
 ok   C27748    expand stock     79501 need   25  1N4148WT           D101,D102,D103,D104                      1N4148WT               
-ok   C2649911  expand stock      8525 need   10  Polyfuse           F1                                       NANOSMDC050F/13.2-2    
+ok   C2649911  expand stock      8518 need   10  Polyfuse           F1                                       NANOSMDC050F/13.2-2    
 ok   C2927037  expand stock      2336 need   10  USB_C_Receptacle_U J1                                       USB-TYPE-C-017         
 ok   C719027   expand stock      4305 need   10  Micro_SD_Card_Det2 J2                                       DM3D-SF                
 FAIL C42411119 expand stock         4 need   10  3.3u               L1                                       AOTA-B201610S3R3-101-T STOCK 4 < 10
 ok   C668312   expand stock     12140 need   10  0.47uH 5.5A 26mOhm L101                                     DFE201612E-R47M=P2     
-ok   C8548     expand stock     62555 need   10  CJ2302             Q1                                       CJ2302 S2              
+ok   C8548     expand stock     62370 need   10  CJ2302             Q1                                       CJ2302 S2              
 ok   C141597   expand stock      2692 need   10  SIA975DJ-T1-GE3    Q101                                     SIA975DJ-T1-GE3        
-ok   C8545     base   stock   2175362 need   10  2N7002             Q102                                     2N7002                 
-ok   C21189    base   stock  23977200 need   10  0R                 R2                                       0603WAF0000T5E         
-ok   C25804    base   stock  31927498 need   35  10k                R3,R6,R12,R14,R15,R16                    0603WAF1002T5E         
-ok   C23186    base   stock  23710289 need   15  5k1                R4,R5                                    0603WAF5101T5E         
-ok   C25105    base   stock   1408348 need   10  33                 R7                                       0402WGF330JTCE         
-ok   C21190    base   stock  23894370 need   15  1k                 R8,R13                                   0603WAF1001T5E         
+ok   C8545     base   stock   2171048 need   10  2N7002             Q102                                     2N7002                 
+ok   C21189    base   stock  23944992 need   10  0R                 R2                                       0603WAF0000T5E         
+ok   C25804    base   stock  31872274 need   35  10k                R3,R6,R12,R14,R15,R16                    0603WAF1002T5E         
+ok   C23186    base   stock  23708894 need   15  5k1                R4,R5                                    0603WAF5101T5E         
+ok   C25105    base   stock   1399555 need   10  33                 R7                                       0402WGF330JTCE         
+ok   C21190    base   stock  23881469 need   15  1k                 R8,R13                                   0603WAF1001T5E         
 ok   C25190    expand stock     65967 need   15  27R                R9,R10                                   0603WAF270JT5E         
 ok   C25866    expand stock     61261 need   10  1.3k 1%            R101                                     0402WGF1301TCE         
-ok   C25123    base   stock   1675194 need   10  510 1%             R102                                     0402WGF5100TCE         
+ok   C25123    base   stock   1675011 need   10  510 1%             R102                                     0402WGF5100TCE         
 ok   C25760    expand stock    171351 need   10  180k 1%            R103                                     0402WGF1803TCE         
-ok   C25741    base   stock   9613447 need   15  100k 1%            R104,R115                                0402WGF1003TCE         
-ok   C25744    base   stock  21391246 need   30  10k 1%             R108,R111,R112,R113,R114                 0402WGF1002TCE         
+ok   C25741    base   stock   9608574 need   15  100k 1%            R104,R115                                0402WGF1003TCE         
+ok   C25744    base   stock  21364193 need   30  10k 1%             R108,R111,R112,R113,R114                 0402WGF1002TCE         
 ok   C64042    expand stock    168153 need   10  511k 1%            R109                                     0402WGF5113TCE         
 ok   C453777   expand stock    119657 need   10  91k 1%             R110                                     RC-02K9102FT           
 ok   C4131     expand stock    186812 need   15  680k 1%            R116,R118                                0402WGF6803TCE         
-ok   C25764    base   stock   2120666 need   15  200k 1%            R117,R119                                0402WGF2003TCE         
-ok   C25092    base   stock   3804016 need   15  22R 1%             R120,R121                                0402WGF220JTCE         
-ok   C25105    base   stock   1408348 need   10  33R 1%             R122                                     0402WGF330JTCE         
+ok   C25764    base   stock   2120351 need   15  200k 1%            R117,R119                                0402WGF2003TCE         
+ok   C25092    base   stock   3801668 need   15  22R 1%             R120,R121                                0402WGF220JTCE         
+ok   C25105    base   stock   1399555 need   10  33R 1%             R122                                     0402WGF330JTCE         
 ok   C423245   expand stock      5339 need   10  1.3M 1%            R123                                     0402WGF1304TCE         
-ok   C26083    base   stock   2022512 need   10  1.0M 1%            R124                                     0402WGF1004TCE         
+ok   C26083    base   stock   2016852 need   10  1.0M 1%            R124                                     0402WGF1004TCE         
 ok   C43675    expand stock     12495 need   10  1.2M 1%            R125                                     0402WGF1204TCE         
 ok   C723421   expand stock      4846 need   10  27.0k 0.1%         R126                                     RT0402BRD0727KL        
-ok   C190095   expand stock    590837 need   10  10.0k 0.1%         R127                                     RT0402BRD0710KL        
+ok   C190095   expand stock    589191 need   10  10.0k 0.1%         R127                                     RT0402BRD0710KL        
 ok   C137948   expand stock    784584 need   15  680 1%             R128,R129                                RC0402FR-07680RL       
-ok   C25778    expand stock    129882 need   10  330k 1%            R130                                     0402WGF3303TCE         
-ok   C25790    expand stock    183084 need   10  470k 1%            R131                                     0402WGF4703TCE         
-ok   C11702    base   stock  14168800 need   10  1k 1%              R132                                     0402WGF1001TCE         
-ok   C25900    base   stock  15986698 need   10  4.7k               R133                                     0402WGF4701TCE         
+ok   C25778    expand stock    129902 need   10  330k 1%            R130                                     0402WGF3303TCE         
+ok   C25790    expand stock    182964 need   10  470k 1%            R131                                     0402WGF4703TCE         
+ok   C11702    base   stock  14165755 need   10  1k 1%              R132                                     0402WGF1001TCE         
+ok   C25900    base   stock  15969443 need   10  4.7k               R133                                     0402WGF4701TCE         
 ok   C2827693  expand stock     39298 need   10  USBLC6-2P6         U1                                       USBLC6-2P6             
-ok   C97521    base   stock     65987 need   10  W25Q128JVSIQ       U2                                       W25Q128JVSIQ           
+ok   C97521    base   stock     65871 need   10  W25Q128JVSIQ       U2                                       W25Q128JVSIQ           
 ok   C42415655 expand stock      4922 need   10  RP2350_80QFN       U3                                       RP2350B                
-ok   C1349096  expand stock       922 need   10  IS66WVH8M8BLL-100B U4                                       IS66WVH8M8BLL-100B1LI  
+ok   C1349096  expand stock       919 need   10  IS66WVH8M8BLL-100B U4                                       IS66WVH8M8BLL-100B1LI  
 ok   C627708   expand stock       230 need   10  MCP79510           U5                                       MCP79510T-I/MS         
-ok   C51118    expand stock     10998 need   10  AP2112K-3.3        U6                                       AP2112K-3.3TRG1        
-ok   C53406    expand stock     28959 need   10  TXB0108PW          U7                                       TXB0108PWR             
+ok   C51118    expand stock     10993 need   10  AP2112K-3.3        U6                                       AP2112K-3.3TRG1        
+ok   C53406    expand stock     28949 need   10  TXB0108PW          U7                                       TXB0108PWR             
 ok   C3235557  expand stock     70300 need   10  TPS2116DRLR        U101                                     TPS2116DRLR            
 ok   C55266    expand stock     54162 need   10  TPS2553DBVR        U102                                     TPS2553DBVR            
 ok   C2845237  expand stock     40357 need   10  TPS63802DLAR       U103                                     TPS63802DLAR           
 ok   C2911374  expand stock      1705 need   10  ESP32-C3-MINI-1U-N U104                                     ESP32-C3-MINI-1U-N4    
 ok   C23654    expand stock     52783 need   10  SN74LVC1G125DBVR   U105                                     SN74LVC1G125DBVR       
 ok   C139356   expand stock      1427 need   10  SN74LVC3G34DCTR    U106                                     SN74LVC3G34DCTR        
-ok   C5373042  expand stock     26430 need   10  CH334P             U107                                     CH334P                 
+ok   C5373042  expand stock     26415 need   10  CH334P             U107                                     CH334P                 
 ok   C20345924 expand stock      1854 need   10  TLV3012BIDBVR      U108                                     TLV3012BIDBVR          
 ok   C398375   expand stock     14849 need   10  TLV431BIDBZR       U109                                     TLV431BIDBZR           
-ok   C20625731 expand stock      6156 need   10  12MHz              Y1                                       ABM8-272-T3            
+ok   C20625731 expand stock      6124 need   10  12MHz              Y1                                       ABM8-272-T3            
 ok   C97602    expand stock     11540 need   10  32.768kHz          Y2                                       SC-20S,32.768kHz,20PPM 
-ok   C668845   expand stock      4120 need   10  12MHz 10pF 10ppm   Y101                                     7U12000E10UCG          
+ok   C20625731 expand stock      6124 need   10  12MHz 10pF         Y101                                     ABM8-272-T3            
 
 RESULT: 1 FAIL

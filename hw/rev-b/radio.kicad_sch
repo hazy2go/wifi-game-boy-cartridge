@@ -15340,7 +15340,7 @@
 				)
 			)
 		)
-		(property "Value" "12MHz 10pF 10ppm"
+		(property "Value" "12MHz 10pF"
 			(at 25.4 365.06 0)
 			(effects
 				(font
@@ -15375,7 +15375,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C668845"
+		(property "LCSC" "C20625731"
 			(at 25.4 353.06 0)
 			(effects
 				(font
