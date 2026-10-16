@@ -1,0 +1,6 @@
+(version 1)
+# JLCPCB, 6-layer: copper keeps 0.2 mm from the routed edge (board setup). The Game Boy edge connector's gold
+# fingers are the exception: they must run to the edge.
+(rule "edge connector fingers"
+  (constraint edge_clearance (min 0mm))
+  (condition "A.memberOfFootprint('J5') || B.memberOfFootprint('J5')"))

@@ -5,7 +5,7 @@
   docs/design/croco_lcsc.json (value + footprint -> part, each verified here).
 - DNP parts are left out of the BOM (and the CPL).
 - Every part is looked up live: must exist, package must match the footprint size (0402/0603/...), stock must
-  cover BOARDS x qty + 10 % attrition (min +5). Basic vs extended is reported (extended = feeder fee per part).
+  cover BOARDS x qty + 10 % attrition (min +5) and JLC's minimum buy for that part. Basic vs extended is reported (extended = feeder fee per part).
 Writes fab/<name>-BOM-JLC.csv and fab/bom_check.txt. Exit 1 on any FAIL.
 Usage: make_bom.py SCH OUTDIR [--boards 5]"""
 import csv, json, os, re, subprocess, sys, tempfile
@@ -70,6 +70,10 @@ for r in rows:
         status.append(f"VALUE {r['Value']} vs part {info['desc'][:40]}")
     if info['stock'] is not None and info['stock'] < need:
         status.append(f"STOCK {info['stock']} < {need}")
+    # JLC only sells a reel cut of at least minPurchaseNum: stock below that cannot be bought at all (2026-10-16,
+    # R110 C4147: 3762 in stock, minimum buy 6941, while 'stock >= need' still said ok)
+    elif info['stock'] is not None and (info.get('minbuy') or 0) > info['stock']:
+        status.append(f"STOCK {info['stock']} < MIN BUY {info['minbuy']}")
     if info['library'] == 'expand':
         ext.append(lc)
     line = f"{'FAIL' if status else 'ok  '} {lc:9} {str(info['library']):6} stock {str(info['stock']):>9} need {need:>4}  {r['Value'][:18]:18} {r['Ref'][:40]:40} {str(info['mpn'])[:22]:22} {'; '.join(status)}"

@@ -9590,7 +9590,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C4147"
+		(property "LCSC" "C453777"
 			(at 88.9 172.72 0)
 			(effects
 				(font
@@ -18255,6 +18255,169 @@
 					(size 1.0 1.0)
 				)
 				(hide yes)
+			)
+		)
+	)
+	(global_label "GBBUS_EN"
+		(shape passive)
+		(at 88.9 544.83 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.0 1.0)
+			)
+			(justify left)
+		)
+		(uuid "f6e9a84b-54c2-4e79-a48a-af792e621be8")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 88.9 544.83 0)
+			(effects
+				(font
+					(size 1.0 1.0)
+				)
+				(hide yes)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 88.9 552.45 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "66eb095e-9ae8-4056-a714-fba31e221e8f")
+		(property "Reference" "#PWR01081"
+			(at 88.9 557.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 88.9 555.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 88.9 552.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 88.9 552.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 88.9 552.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "13bc4a59-337a-449c-a2a4-aa110dc0d59f")
+		)
+		(instances
+			(project "GameboyCartridgeV2.1"
+				(path "/ec16e1da-c950-4911-941a-a1ab0200cc01/5f3a9c2e-7b1d-4e6a-9c0f-1a2b3c4d5e60"
+					(reference "#PWR01081")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 88.9 548.64 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d98e6e52-fa3b-48c4-bce7-2fa6899a1a41")
+		(property "Reference" "R133"
+			(at 88.9 536.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "4.7k"
+			(at 88.9 560.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 88.9 548.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 88.9 548.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 88.9 548.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C25900"
+			(at 88.9 548.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1cef5203-53b8-4856-91e7-c1b54674a7bb")
+		)
+		(pin "2"
+			(uuid "e1f132f9-686c-4dcc-a26e-4c575dff3598")
+		)
+		(instances
+			(project "GameboyCartridgeV2.1"
+				(path "/ec16e1da-c950-4911-941a-a1ab0200cc01/5f3a9c2e-7b1d-4e6a-9c0f-1a2b3c4d5e60"
+					(reference "R133")
+					(unit 1)
+				)
 			)
 		)
 	)

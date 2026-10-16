@@ -1088,3 +1088,88 @@ The gate checks are stronger as well:
 - Work now goes straight to `master` on the fork; no more PRs per chunk. The `redesign` branch (local and on the fork) was deleted after everything in it was merged (PR #36). CLAUDE.md rule updated.
 - Status lines in README, CLAUDE.md and the two firmware READMEs updated to the bench results.
 - Firmware fork too (Hazy: "lets use the main"): work goes to its `master`; the `wifi` branch had nothing unmerged. Its README now opens as this project (our render and the BTC demo screenshot in `images/`, what the fork adds, build, status, license) with the upstream Croco docs kept below under a credit heading. GitHub description and homepage now point at this project.
+
+## 2026-10-16 12:15 Board fixes from the kagiboy wallet's JLC check and datasheet review
+The wallet cart (gb-wallet `hardware/cart`, derived from this board) went through a JLC manufacturability check and an
+independent datasheet review today (its LOGBOOK, entries "JLC manufacturability check" and "Independent review against
+the datasheets, and fixes"). Most of it was inherited from Rev B, so each item was checked on this board first
+(this board still has the HyperRAM, microSD and RTC). All seven applied here. Tools copied from the wallet into
+`hw/rev-b/tools/`: `add_pour.py`, `gnd_stitch.py`, `lx_keepout.py`, `inner_link.py`; `finish_route.py` (keepout rule
+areas are now obstacles) and `update_pcb.py` (KiCad 10: a new field lands hidden on F.Fab) updated to the wallet's.
+
+**1. JLC limits.** New gate `verify/jlc_check.py` (copied from the wallet): KiCad DRC on a copy of the board with JLC's
+6-layer limits (0.09 mm trace/space, 0.15/0.25 mm via, 0.2 mm copper to edge, 0.2 mm hole to hole, 1.0 mm text).
+Our baseline gate compares against Croco's own DRC, so it could not see these. Before: FAIL.
+- The 24 GND vias along the top edge were 0.190 mm from the outline. Moved 0.06 mm inward (y 62.916 -> 62.976).
+- The board's copper-to-edge rule was 0.025 mm; the B.Cu and In1 GND planes came within 0.116 mm of the edge. Rule now
+  0.2 mm, zones refilled. New `hw/rev-b/GameboyCartridgeV2.1.kicad_dru` exempts J5 (the gold fingers must reach the edge).
+- Two of our back-silk texts were 0.8 mm (the repo URL and the Croco credit). Now 1.0 mm; the credit moved 0.5 mm right
+  to stay clear of the `JLCJLCJLCJLC` marker. The rest under 1.0 mm is Croco's (0.6 mm pin labels, J5's "1"/"32") and
+  the JLC order-number field.
+- Leftovers, all inside unchanged Croco footprints, checked geometrically (KiCad Python, copper items unioned per
+  footprint): **J5** 32 copper groups, none touching two nets (one finger per pin); **SW1** 2 groups, BUTTON (9 pieces)
+  and GND (11 pieces), nothing joins them; **J1** 0.194 mm pad to NPTH peg (GCT's land pattern). The 199 mask
+  "bridges" are J5 and SW1 (exposed contacts).
+- New here (not on the wallet): 3 dangling vias, a +3V3 one at (122.4, 64.79) and the J2 DET_A / DET_B stubs. They are
+  in the first baseline of unmodified Croco V2.1 and are not a fab problem; the gate lists them as a warning.
+- After: `jlc_check` **PASS**.
+
+**2. Radio-area ground: the same problem as the wallet.** Measured before (nearest GND via to each GND pad, straight
+line, box x 113-129 / y 70-103): no F.Cu pour, 19 GND vias in the box, U104 edge GND pads up to 12.3 mm, C110/C112
+10 mm, U103 GND pins 5.4-6.8 mm, and U104's centre pad (9 sub-pads) had no via. Fixed as on the wallet:
+- F.Cu GND pour over x 113.4-129.2 / y 72.4-104.4, lowest priority, solid pad connection (309.7 mm2 filled);
+- 9 vias 0.3/0.15, one per U104 centre sub-pad (`gnd_stitch.py --pads U104`), and 56 stitching vias 0.45/0.2 on a
+  1.5 mm grid where they clear every other-net track, pad and plane (so no plane gets a new antipad);
+- a via beside U103 pins 2, 3 and 8, C106 and U106 pin 4 (`pad_to_plane.py`). They landed exactly where the wallet's
+  did (same placement). C111 and C117 already had a via within 0.74 / 1.04 mm after the grid, so no extra one.
+- After: U103 <= 0.96 mm, the caps <= 1.44 mm, U104 edge pads <= 2.9 mm (corner pads 51/52 on the pour). GND vias on the
+  board 214 -> 285.
+- **POFV is now a must, not a nice-to-have:** vias centred inside SMD pads went from 29 to 52 (the module's centre and
+  edge GND pads, the tantalum caps, U103 pin 2, R133). `fab/ORDER.md` already orders filled and capped vias; its count
+  is updated.
+- Route audit of the new copper: two OVERLAP notes are the new 0.3 mm via traces lying over U103's existing 0.15 mm GND
+  stubs (same net, DRC clean), left as they are.
+
+**3. VREG_LX cut-out** (RP2350 datasheet 6.3.8 / Figure 27). Keepout rule area on In1-In4 (no tracks, vias or pours)
+following the VREG_LX copper grown by 0.2 mm, (147.25, 81.06)-(148.85, 86.49). It cut the same two traces as on the
+wallet: DEBUG_UART_TX (the ESP chip select, In2) and LED_DIN (In3). Both re-routed on their own layer around it
+(`inner_link.py`, then `route_clean.py`): whole nets 54.02 -> 54.61 mm and 18.48 -> 19.39 mm. Nothing crosses the keepout after.
+
+**4. Stock** (live, JLC parts API):
+- R110 91k C4147: 3762 in stock but a **minimum buy of 6941**, so it could not be ordered. Our BOM gate said "ok"
+  because it only compared stock with the 10 we need. Now **C453777** (same value, 1 %, 119657 in stock, minimum 1).
+  `make_bom.py` now also fails a part whose stock is below JLC's minimum buy (`jlc_parts.py` returns it); no other part
+  is.
+- L1 AOTA-B201610S3R3-101-T: 4 in stock, 10 needed, minimum buy 32. Kept as the exact part (Hazy's call); BOM FAIL stays
+  and is noted in `ORDER.md`.
+
+**5. TXB0108 OE pull-down.** GBBUS_EN only had U3 GPIO44 and U7 pin 10 (netlist). Added **R133 4.7k C25900** GBBUS_EN to
+GND (TI SCES643 sec 9; RP2350 erratum E9 on A2 parts). Schematic: the wallet's three items (resistor, label, GND symbol)
+on the radio sheet; board: U7 sits at the same spot as on the wallet, so the same placement, (149.8, 105.0), -90 deg,
+1.4 mm from pin 10, with a 0.6/0.3 GND via. U7's reference moved to F.Fab to make room.
+
+**6. Y1 crystal.** SJK 7U12000E10UCG (100 ohm max ESR) -> **ABM8-272-T3 C20625731**, the part in Raspberry Pi's hardware
+design guide, with the existing 1k R8 and 15 pF C4/C5. Same footprint; pin audit agrees (2/4 GND), CPL fit 0.000 mm on
+JLC's own footprint (it needed a proxy before). Not changed: Y101, the CH334P hub crystal, is the same SJK part; it was
+not part of this review and its ESR limit against the CH334 datasheet is not checked yet.
+
+**7. USB upstream pair** (USBLC6 U1 -> CH334P U107). Same as the wallet before its fix: D+ on F.Cu, In2 and In3 (3 vias,
+14.2 mm), D- on In2 (2 vias, 11.8 mm). D+ now runs on In2 only (the wallet's path, which fits here unchanged): 2 vias
+each, 12.42 / 11.84 mm, 0.58 mm apart. Over In1: all solid GND except the via antipads at the ends and about 0.6 mm of
+D+ over the thermal-relief gap of J1's shield tab (S1) on In1. Not a coupled 90 ohm pair, but short against HS edges.
+
+**Left as they are** (as on the wallet): the 4.59 V radio input threshold (the console protection), the WS2812B on
+3V3, the antenna (bought separately).
+
+**Gates after the fixes:**
+- kicad_check: ERC 67, DRC 321, 0 new, unconnected 0, parity 0. One J5 mask "bridge" (finger 30) changed fingerprint
+  because KiCad lists at most 199 per type; added to `accepted.json` with the existing J5 reason.
+- jlc_check PASS; netlist_check PASS; design_calcs all PASS; sim_vs_netlist PASS; height PASS (only J1 over, the known
+  exception).
+- Power audits: A1-A7 ALL PASS (`sim/power/.venv`), A8 ALL PASS. Nothing in the power path changed.
+- Pin audit: Y1 agrees. CPL: one line added (R133); every other line unchanged.
+- BOM: 72 lines, 130 parts, 1 FAIL (L1 stock).
+- Gerbers + drill re-exported (`--no-x2 --no-netlist --subtract-soldermask --check-zones`, Excellon mm, separate
+  PTH/NPTH): Edge.Cuts, NPTH, B.Mask, B.Paste unchanged; zip rebuilt (16 files). Renders `docs/img/board_{top,bottom,iso}.png`
+  regenerated (`kicad-cli pcb render`; the ESP32-C3-MINI-1U STEP fetched from Espressif's kicad-libraries for the render
+  only, it is not in the repo).

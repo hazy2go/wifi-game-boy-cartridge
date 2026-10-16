@@ -52,6 +52,12 @@ class Raster:
                         self.items.append(('', l, g.GetEffectiveShape(l)))
                         bb = g.GetBoundingBox()
                         self.raw.append(('', l, 'box', (bb.GetX() / 1e6, bb.GetY() / 1e6, bb.GetRight() / 1e6, bb.GetBottom() / 1e6)))
+        for z in b.Zones():       # keepout rule areas that forbid tracks block their layers
+            if z.GetIsRuleArea() and z.GetDoNotAllowTracks():
+                for l in z.GetLayerSet().CuStack():
+                    self.items.append(('', l, z.Outline()))
+                    bb = z.GetBoundingBox()
+                    self.raw.append(('', l, 'box', (bb.GetX() / 1e6, bb.GetY() / 1e6, bb.GetRight() / 1e6, bb.GetBottom() / 1e6)))
         self.holes = [(t.GetPosition().x / 1e6, t.GetPosition().y / 1e6) for t in b.GetTracks() if t.GetClass() == 'PCB_VIA']
         self.holes += [(p.GetPosition().x / 1e6, p.GetPosition().y / 1e6) for f in b.GetFootprints() for p in f.Pads() if p.HasHole()]
         self.outline = pcbnew.SHAPE_POLY_SET(); b.GetBoardPolygonOutlines(self.outline, True)

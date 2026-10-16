@@ -18,7 +18,8 @@ def lookup(lcsc):
                     return dict(lcsc=lcsc, library=c.get('componentLibraryType'), stock=c.get('stockCount'),
                                 package=c.get('componentSpecificationEn'), mpn=c.get('componentModelEn'),
                                 mfr=c.get('componentBrandEn'), desc=c.get('describe') or c.get('erpComponentName'),
-                                price=(c.get('componentPrices') or [{}])[0].get('productPrice'))
+                                price=(c.get('componentPrices') or [{}])[0].get('productPrice'),
+                                minbuy=c.get('minPurchaseNum'))
             return dict(lcsc=lcsc, library=None, stock=0, package=None, mpn=None, mfr=None, desc='NOT FOUND', price=None)
         except Exception as e:
             time.sleep(2)

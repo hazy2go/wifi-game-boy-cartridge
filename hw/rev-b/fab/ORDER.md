@@ -14,6 +14,8 @@
 | `bom_check.txt` | live JLC library check: every part exists, package matches the footprint, value matches, stock covers 5 boards |
 | `cpl_check.txt` | rotation/offset of every part derived from the footprint JLC will place (matched pad by pad) |
 
+Manufacturability gate at JLC's 6-layer limits: `python3 verify/jlc_check.py` (repo root; LOGBOOK 2026-10-16).
+
 Regenerate: `tools/make_bom.py GameboyCartridgeV2.1.kicad_sch fab`, `tools/make_cpl.py GameboyCartridgeV2.1.kicad_pcb fab/...-BOM-JLC.csv fab/...-CPL-JLC.csv`, Gerbers/drill with `kicad-cli` as in LOGBOOK.
 
 ## PCB options
@@ -24,7 +26,7 @@ Regenerate: `tools/make_bom.py GameboyCartridgeV2.1.kicad_sch fab`, `tools/make_
 | PCB qty | 5 | |
 | Thickness | **0.8 mm** | fits the cartridge slot (Croco's author recommends 0.8 mm) |
 | Impedance control / stackup | **Yes, JLC06081H-7628** | the stackup the layout was designed on: F.Cu-In1 0.2104 mm, same as Croco's 4-layer board, so its USB/HyperRAM/QSPI routing keeps its impedance (LOGBOOK) |
-| Via covering | **Epoxy filled & capped** (POFV) | 29 vias sit inside SMD pads (RP2350 exposed pad, ground pads); they must be filled or solder wicks away. Free on JLC 6-layer |
+| Via covering | **Epoxy filled & capped** (POFV) | 52 vias are centred inside SMD pads (ground pads, incl. one per sub-pad of the ESP32-C3 module's centre pad since 2026-10-16) and more touch a pad edge; they must be filled or solder wicks away. Free on JLC 6-layer |
 | Min via hole / diameter | 0.15 mm / 0.25 mm (board minimum used: 0.15 / 0.30) | |
 | Surface finish | **ENIG** | edge-connector fingers and fine-pitch parts; Croco's recommendation |
 | Gold fingers | No (ENIG covers them) | as Croco |
@@ -56,3 +58,7 @@ The CPL already carries the corrections JLC's own footprints need (e.g. USB-C J1
 - U1 USBLC6-2P6: same part, in-stock listing C2827693
 - R101/R102 PR1 divider (2026-10-14): 5.1k/2.0k -> **1.3k C25866 (extended) / 510 C25123**. Same USB threshold; it tolerates 1.78 mA of D3 leakage instead of 453 uA (the SM5817PL can leak ~0.6 mA at 75 C). One more feeder fee.
 - C27/C28 RTC crystal load caps: schematic said 4.3 pF but linked a 15 pF part; now 4.3 pF C59526 (MCP7951x datasheet eq. 5-1 with the 7 pF crystal)
+- Y1 RP2350 crystal (2026-10-16): SJK 7U12000E10UCG (100 ohm max ESR) -> **Abracon ABM8-272-T3** C20625731 (50 ohm, 10 pF), the part Raspberry Pi's hardware design guide specifies with the 1k R8 and 15 pF C4/C5 this board already has. Same 3225 4-pad footprint, pins 1/3 crystal, 2/4 GND; JLC's footprint lands at 0.000 mm.
+- R110 TPS63802 FB bottom 91k (2026-10-16): C4147 -> **C453777** (same value, 1 %). C4147's stock had dropped below JLC's minimum buy.
+- **New R133 4.7k C25900** GBBUS_EN (TXB0108 OE) to GND (2026-10-16): TI SCES643 sec 9 wants OE held low by a pull-down while the supplies come up.
+- **L1 (AOTA-B201610S3R3-101-T, C42411119) is short:** 4 in stock on 2026-10-16, 10 needed for 5 boards. Kept as the exact part (RP2350 core regulator inductor); check stock again before ordering.

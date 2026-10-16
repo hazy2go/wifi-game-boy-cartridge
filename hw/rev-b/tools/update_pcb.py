@@ -98,6 +98,9 @@ def main(pdir, rip=()):
         for fname in ('LCSC', 'Datasheet', 'Description'):     # parity compares these with the symbol
             if c['fields'].get(fname):
                 fp.SetField(fname, c['fields'][fname])
+                fld = fp.GetField(fname)    # a new field lands visible on F.SilkS: hide it like Croco's
+                fld.SetVisible(False)
+                fld.SetLayer(pcbnew.F_Fab)
         k = added
         if pos is None:
             pos = pcbnew.VECTOR2I(mm(STAGE_X + (k % STAGE_W) * STAGE_PITCH), mm(STAGE_Y + (k // STAGE_W) * STAGE_PITCH))

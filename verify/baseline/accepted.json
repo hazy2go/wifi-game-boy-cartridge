@@ -97,6 +97,10 @@
   {
    "fp": "solder_mask_bridge | Pad 7 [GB_A1] of J5 on F.Cu || Polygon of J5 on F.Mask",
    "why": "Croco's J5 edge-connector footprint: one common mask opening over all gold fingers, by design. Same item class is in the baseline; KiCad reports at most 199 per type, so which J5 fingers get listed shifts when other mask items change"
+  },
+  {
+   "fp": "solder_mask_bridge | Pad 30 [GB_RST] of J5 on F.Cu || Polygon of J5 on F.Mask",
+   "why": "Croco's J5 edge-connector footprint: one common mask opening over all gold fingers, by design. Same item class is in the baseline; KiCad reports at most 199 per type, so which J5 fingers get listed shifts when other mask items change"
   }
  ]
 }

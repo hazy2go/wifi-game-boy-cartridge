@@ -1,4 +1,4 @@
-CPL: 129 parts, missing from board: -, to review in JLC preview: -
+CPL: 130 parts, missing from board: -, to review in JLC preview: -
 
 C1     C14663     C_0603_1608Metric                      rot  -90.0 +   0 = 270.0  shift (-0.000,-0.000) mm  C0603: 2 pads, fit 0.075 mm, next-best rotation +0.969 mm worse
 C10    C1525      C_0402_1005Metric                      rot  -90.0 +   0 = 270.0  shift (-0.000,-0.000) mm  C0402: 2 pads, fit 0.060 mm, next-best rotation +0.578 mm worse
@@ -74,7 +74,7 @@ R103   C25760     R_0402_1005Metric                      rot  180.0 +   0 = 180.
 R104   C25741     R_0402_1005Metric                      rot  -90.0 +   0 = 270.0  shift (-0.000,-0.000) mm  R0402: 2 pads, fit 0.077 mm, next-best rotation +0.592 mm worse
 R108   C25744     R_0402_1005Metric                      rot  180.0 +   0 = 180.0  shift (-0.000,-0.000) mm  R0402: 2 pads, fit 0.077 mm, next-best rotation +0.592 mm worse
 R109   C64042     R_0402_1005Metric                      rot  180.0 +   0 = 180.0  shift (-0.000,-0.000) mm  R0402: 2 pads, fit 0.077 mm, next-best rotation +0.592 mm worse
-R110   C4147      R_0402_1005Metric                      rot    0.0 +   0 =   0.0  shift (-0.000,-0.000) mm  R0402: 2 pads, fit 0.077 mm, next-best rotation +0.592 mm worse
+R110   C453777    R_0402_1005Metric                      rot    0.0 +   0 =   0.0  shift (-0.000,-0.000) mm  R0402: 2 pads, fit 0.077 mm, next-best rotation +0.592 mm worse
 R111   C25744     R_0402_1005Metric                      rot  -90.0 +   0 = 270.0  shift (-0.000,-0.000) mm  R0402: 2 pads, fit 0.077 mm, next-best rotation +0.592 mm worse
 R112   C25744     R_0402_1005Metric                      rot    0.0 +   0 =   0.0  shift (-0.000,-0.000) mm  R0402: 2 pads, fit 0.077 mm, next-best rotation +0.592 mm worse
 R113   C25744     R_0402_1005Metric                      rot  -90.0 +   0 = 270.0  shift (-0.000,-0.000) mm  R0402: 2 pads, fit 0.077 mm, next-best rotation +0.592 mm worse
@@ -99,6 +99,7 @@ R13    C21190     R_0603_1608Metric                      rot    0.0 +   0 =   0.
 R130   C25778     R_0402_1005Metric                      rot  -90.0 +   0 = 270.0  shift (-0.000,-0.000) mm  R0402: 2 pads, fit 0.077 mm, next-best rotation +0.592 mm worse
 R131   C25790     R_0402_1005Metric                      rot  -90.0 +   0 = 270.0  shift (-0.000,-0.000) mm  R0402: 2 pads, fit 0.077 mm, next-best rotation +0.592 mm worse
 R132   C11702     R_0402_1005Metric                      rot  -90.0 +   0 = 270.0  shift (-0.000,-0.000) mm  R0402: 2 pads, fit 0.077 mm, next-best rotation +0.592 mm worse
+R133   C25900     R_0402_1005Metric                      rot  -90.0 +   0 = 270.0  shift (-0.000,-0.000) mm  R0402: 2 pads, fit 0.077 mm, next-best rotation +0.592 mm worse
 R14    C25804     R_0603_1608Metric                      rot    0.0 +   0 =   0.0  shift (-0.000,-0.000) mm  R0603: 2 pads, fit 0.072 mm, next-best rotation +1.046 mm worse
 R15    C25804     R_0603_1608Metric                      rot    0.0 +   0 =   0.0  shift (-0.000,-0.000) mm  R0603: 2 pads, fit 0.072 mm, next-best rotation +1.046 mm worse
 R16    C25804     R_0603_1608Metric                      rot   90.0 +   0 =  90.0  shift (-0.000,-0.000) mm  R0603: 2 pads, fit 0.072 mm, next-best rotation +1.046 mm worse
@@ -126,6 +127,6 @@ U4     C1349096   BGA25C100P5X5_800X600X120N             rot    0.0 +   0 =   0.
 U5     C627708    MSOP-10_3x3mm_P0.5mm                   rot    0.0 + 270 = 270.0  shift (-0.000,-0.000) mm  MSOP-10_L3.0-W3.0-P0.50-LS5.0-BL (proxy C37593): 10 pads, fit 0.003 mm, next-best rotation +3.302 mm worse
 U6     C51118     SOT-23-5                               rot  -90.0 + 270 = 180.0  shift (+0.032,+0.000) mm  SOT-25-5_L2.9-W1.6-P0.95-LS2.8-BL: 5 pads, fit 0.195 mm, next-best rotation +2.349 mm worse
 U7     C53406     TSSOP-20_4.4x6.5mm_P0.65mm             rot  -90.0 + 270 = 180.0  shift (-0.000,-0.000) mm  TSSOP-20_L6.5-W4.4-P0.65-LS6.4-BL: 20 pads, fit 0.008 mm, next-best rotation +5.788 mm worse
-Y1     C668845    Crystal_SMD_TXC_7M-4Pin_3.2x2.5mm      rot  180.0 +   0 = 180.0  shift (-0.000,-0.000) mm  CRYSTAL-SMD_4P-L3.2-W2.5-BL (proxy C9002): 4 pads, fit 0.000 mm, next-best rotation +1.966 mm worse
+Y1     C20625731  Crystal_SMD_TXC_7M-4Pin_3.2x2.5mm      rot  180.0 +   0 = 180.0  shift (-0.000,-0.000) mm  CRYSTAL-SMD_4P-L3.2-W2.5-BL: 4 pads, fit 0.000 mm, next-best rotation +1.966 mm worse
 Y101   C668845    Crystal_SMD_3225-4Pin_3.2x2.5mm        rot   90.0 +   0 =  90.0  shift (-0.000,-0.000) mm  CRYSTAL-SMD_4P-L3.2-W2.5-BL (proxy C9002): 4 pads, fit 0.000 mm, next-best rotation +1.966 mm worse
 Y2     C97602     Crystal_SMD_TXC_9HT11-2Pin_2.0x1.2mm   rot  -90.0 +   0 = 270.0  shift (-0.000,-0.000) mm  OSC-SMD_L2.0-W1.2: 2 pads, fit 0.050 mm, next-best rotation +0.976 mm worse
