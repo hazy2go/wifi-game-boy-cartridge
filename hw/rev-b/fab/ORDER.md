@@ -11,7 +11,7 @@
 | `GameboyCartridgeV2.1-RevB-gerbers.zip` | Gerber file (13 Gerber layers + PTH/NPTH Excellon drill, mm, absolute origin) |
 | `GameboyCartridgeV2.1-BOM-JLC.csv` | BOM (Comment, Designator, Footprint, LCSC Part #); DNP parts (D4-D8, R1, R17) are left out |
 | `GameboyCartridgeV2.1-CPL-JLC.csv` | CPL / pick and place (Designator, Mid X, Mid Y, Layer, Rotation); all parts on top |
-| `bom_check.txt` | live JLC library check: every part exists, package matches the footprint, value matches, stock covers 5 boards |
+| `bom_check.txt` | live JLC library check: every part exists, package matches the footprint, value matches, stock covers 2 assembled boards (`make_bom.py ... --boards 2`) |
 | `cpl_check.txt` | rotation/offset of every part derived from the footprint JLC will place (matched pad by pad) |
 
 Manufacturability gate at JLC's 6-layer limits: `python3 verify/jlc_check.py` (repo root; LOGBOOK 2026-10-16).
@@ -23,7 +23,7 @@ Regenerate: `tools/make_bom.py GameboyCartridgeV2.1.kicad_sch fab`, `tools/make_
 |---|---|---|
 | Layers | **6** | |
 | Dimensions | 52.95 x 61.34 mm (read from the Gerbers) | |
-| PCB qty | 5 | |
+| PCB qty | 5 | JLC's minimum; only 2 get assembled (Hazy, 2026-10-16) |
 | Thickness | **0.8 mm** | fits the cartridge slot (Croco's author recommends 0.8 mm) |
 | Impedance control / stackup | **Yes, JLC06081H-7628** | the stackup the layout was designed on: F.Cu-In1 0.2104 mm, same as Croco's 4-layer board, so its USB/HyperRAM/QSPI routing keeps its impedance (LOGBOOK) |
 | Via covering | **Epoxy filled & capped** (POFV) | 52 vias are centred inside SMD pads (ground pads, incl. one per sub-pad of the ESP32-C3 module's centre pad since 2026-10-16) and more touch a pad edge; they must be filled or solder wicks away. Free on JLC 6-layer |
@@ -38,7 +38,7 @@ Regenerate: `tools/make_bom.py GameboyCartridgeV2.1.kicad_sch fab`, `tools/make_
 |---|---|
 | PCBA type | Standard (BGA HyperRAM and 0.4 mm QFN need standard, not economic) |
 | Assembly side | Top |
-| PCBA qty | 5 (minimum 2) |
+| PCBA qty | **2** (Hazy, 2026-10-16; JLC's minimum) |
 | Tooling holes | added by JLC |
 | Confirm parts placement | **Yes**: check the photos/preview below before production |
 
@@ -61,5 +61,5 @@ The CPL already carries the corrections JLC's own footprints need (e.g. USB-C J1
 - Y1 RP2350 crystal (2026-10-16): SJK 7U12000E10UCG (100 ohm max ESR) -> **Abracon ABM8-272-T3** C20625731 (50 ohm, 10 pF), the part Raspberry Pi's hardware design guide specifies with the 1k R8 and 15 pF C4/C5 this board already has. Same 3225 4-pad footprint, pins 1/3 crystal, 2/4 GND; JLC's footprint lands at 0.000 mm.
 - R110 TPS63802 FB bottom 91k (2026-10-16): C4147 -> **C453777** (same value, 1 %). C4147's stock had dropped below JLC's minimum buy.
 - **New R133 4.7k C25900** GBBUS_EN (TXB0108 OE) to GND (2026-10-16): TI SCES643 sec 9 wants OE held low by a pull-down while the supplies come up.
-- **L1 (AOTA-B201610S3R3-101-T, C42411119) is short:** 4 in stock on 2026-10-16, 10 needed for 5 boards. Kept as the exact part (RP2350 core regulator inductor); check stock again before ordering.
+- **L1 (AOTA-B201610S3R3-101-T, C42411119) is short:** 4 in stock on 2026-10-16, and JLC's minimum buy for it is 32, so it cannot be bought there at the moment even for 2 boards (the BOM check wants 7: 2 + attrition). Kept as the exact part (RP2350 core regulator inductor); check stock again before ordering.
 - Y101 CH334P hub crystal (2026-10-16): SJK 7U12000E10UCG -> **ABM8-272-T3 C20625731**, the same part as Y1 (one feeder instead of two). 10 pF load as before (CH334 has ~16 pF on XI and XO inside, no external caps); 50 ohm max ESR instead of 100.

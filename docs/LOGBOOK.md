@@ -1186,3 +1186,9 @@ D+ over the thermal-relief gap of J1's shield tab (S1) on In1. Not a coupled 90 
   part's).
 - Gates: kicad_check 0 new (ERC 67, DRC 321, unconnected 0, parity 0), jlc_check PASS, netlist_check, design_calcs,
   sim_vs_netlist PASS. BOM 1 FAIL (L1 stock, unchanged). No copper changed, so the Gerbers stay as exported at 12:15.
+
+## 2026-10-16 12:45 Order quantity: 2 boards (Hazy: "we will order only 2")
+- `ORDER.md`: PCBA qty 2 (JLC's minimum). PCB qty stays 5, JLC's minimum for the bare boards; 3 stay unassembled.
+- BOM re-checked live for 2 boards (`make_bom.py ... --boards 2`): 72 lines, 130 parts, 44 extended. **Still 1 FAIL,
+  L1:** 4 in stock, 7 wanted (2 + attrition), and JLC's minimum buy for C42411119 is 32 (parts API), so it cannot be
+  bought there now even for 2 boards. Everything else covers 2 boards.
